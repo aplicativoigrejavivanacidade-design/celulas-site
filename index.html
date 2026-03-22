@@ -74,20 +74,49 @@
     }
 
     .brand-icon{
-  width:46px;
-  height:46px;
-  border-radius:14px;
+  width:52px;
+  height:52px;
+  border-radius:16px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-weight:900;
-  font-size:1rem;
-  letter-spacing:-0.03em;
+  gap:1px;
   color:#fff;
-  background:linear-gradient(135deg,var(--primary),var(--green));
-  box-shadow:0 14px 30px rgba(37,99,235,.35);
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04)),
+    linear-gradient(135deg, var(--primary), var(--green));
+  border:1px solid rgba(255,255,255,.18);
+  box-shadow:
+    0 14px 30px rgba(37,99,235,.28),
+    inset 0 1px 0 rgba(255,255,255,.18);
+  position:relative;
+  overflow:hidden;
 }
 
+.brand-icon::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.22), transparent 45%);
+  pointer-events:none;
+}
+
+.brand-icon .plus{
+  font-size:1.05rem;
+  font-weight:900;
+  line-height:1;
+  position:relative;
+  z-index:1;
+}
+
+.brand-icon .c{
+  font-size:1rem;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:-0.04em;
+  position:relative;
+  z-index:1;
+}
     .nav-links{
       display:flex;
       gap:24px;
@@ -739,9 +768,9 @@
   <header class="topbar">
     <div class="container nav">
       <div class="brand">
-        <div class="brand-icon">+C</div>
-        <span>+Células</span>
-      </div>
+        <div class="brand-icon">
+          <span class="plus">+</span><span class="c">C</span>
+        </div>
 
       <nav class="nav-links">
         <a href="#beneficios">Benefícios</a>
