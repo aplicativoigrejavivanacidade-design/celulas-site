@@ -3,552 +3,731 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Células+ | Gestão inteligente para células da igreja</title>
-  <meta name="description" content="Sistema para cadastro, frequência, acompanhamento e crescimento de células da igreja." />
+  <title>+Células | Plataforma inteligente para células da igreja</title>
+  <meta name="description" content="+Células é a plataforma para gestão de células, frequência, acompanhamento pastoral e crescimento organizado da igreja." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --primary: #2563eb;
-      --primary-dark: #1d4ed8;
-      --secondary: #16a34a;
-      --bg: #f8fafc;
-      --text: #0f172a;
-      --muted: #475569;
-      --card: #ffffff;
-      --border: #e2e8f0;
-      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-      --radius: 18px;
-      --max: 1180px;
+    :root{
+      --bg:#08111f;
+      --bg-soft:#0f1b31;
+      --card:#101a2f;
+      --card-2:#ffffff;
+      --text:#e5eefc;
+      --text-dark:#0f172a;
+      --muted:#9fb2d1;
+      --line:rgba(255,255,255,.09);
+      --primary:#3b82f6;
+      --primary-2:#2563eb;
+      --green:#22c55e;
+      --green-2:#16a34a;
+      --shadow:0 24px 70px rgba(0,0,0,.35);
+      --radius:24px;
+      --max:1180px;
     }
 
-    * {
-      box-sizing: border-box;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      margin: 0;
-      font-family: 'Inter', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .container {
-      width: min(100% - 32px, var(--max));
-      margin: 0 auto;
-    }
-
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(14px);
-      background: rgba(248, 250, 252, 0.88);
-      border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-    }
-
-    .nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      min-height: 74px;
-      gap: 16px;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 800;
-      font-size: 1.15rem;
-    }
-
-    .brand-badge {
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      display: grid;
-      place-items: center;
-      color: white;
-      font-weight: 800;
-      box-shadow: var(--shadow);
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 22px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .nav-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 14px 22px;
-      border-radius: 14px;
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .btn:hover {
-      transform: translateY(-1px);
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-      color: white;
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
-    }
-
-    .btn-secondary {
-      background: white;
-      color: var(--text);
-      border: 1px solid var(--border);
-    }
-
-    .btn-whatsapp {
-      background: #25d366;
-      color: white;
-      box-shadow: 0 12px 24px rgba(37, 211, 102, 0.22);
-    }
-
-    .hero {
-      padding: 72px 0 42px;
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:'Inter',sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 28%),
-        radial-gradient(circle at top right, rgba(22, 163, 74, 0.12), transparent 26%);
+        radial-gradient(circle at top left, rgba(59,130,246,.20), transparent 22%),
+        radial-gradient(circle at top right, rgba(34,197,94,.16), transparent 20%),
+        linear-gradient(180deg, #07101d 0%, #0a1426 50%, #0b1424 100%);
+      color:var(--text);
     }
 
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 34px;
-      align-items: center;
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+
+    .container{
+      width:min(100% - 32px, var(--max));
+      margin:0 auto;
     }
 
-    .eyebrow {
-      display: inline-block;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(37, 99, 235, 0.08);
-      color: var(--primary-dark);
-      font-weight: 700;
-      font-size: 0.92rem;
-      margin-bottom: 18px;
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:100;
+      backdrop-filter: blur(18px);
+      background:rgba(7,16,29,.72);
+      border-bottom:1px solid rgba(255,255,255,.06);
     }
 
-    .hero h1 {
-      font-size: clamp(2.2rem, 5vw, 4.2rem);
-      line-height: 1.04;
-      margin: 0 0 18px;
-      letter-spacing: -0.04em;
+    .nav{
+      min-height:78px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
     }
 
-    .hero p {
-      font-size: 1.1rem;
-      color: var(--muted);
-      line-height: 1.7;
-      margin: 0 0 28px;
-      max-width: 660px;
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:900;
+      font-size:1.18rem;
+      letter-spacing:-.02em;
     }
 
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 26px;
+    .brand-icon{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      font-weight:900;
+      color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--green));
+      box-shadow:0 14px 30px rgba(37,99,235,.35);
     }
 
-    .hero-points {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      color: var(--muted);
-      font-weight: 600;
-      font-size: 0.95rem;
+    .nav-links{
+      display:flex;
+      gap:24px;
+      color:var(--muted);
+      font-weight:600;
+      font-size:.97rem;
     }
 
-    .hero-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 26px;
-      padding: 22px;
-      box-shadow: var(--shadow);
+    .nav-actions{
+      display:flex;
+      gap:12px;
+      align-items:center;
     }
 
-    .phone {
-      background: #0f172a;
-      border-radius: 30px;
-      padding: 12px;
-      width: 100%;
-      max-width: 370px;
-      margin: 0 auto;
-      box-shadow: 0 28px 60px rgba(15, 23, 42, 0.22);
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:14px 22px;
+      border-radius:16px;
+      font-weight:800;
+      border:none;
+      cursor:pointer;
+      transition:.2s ease;
+      white-space:nowrap;
     }
 
-    .phone-screen {
-      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
-      border-radius: 22px;
-      overflow: hidden;
-      min-height: 620px;
-      position: relative;
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{
+      color:white;
+      background:linear-gradient(135deg,var(--primary),var(--primary-2));
+      box-shadow:0 16px 34px rgba(37,99,235,.30);
+    }
+    .btn-secondary{
+      color:white;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .btn-whatsapp{
+      color:#fff;
+      background:linear-gradient(135deg,#25d366,#16a34a);
+      box-shadow:0 16px 34px rgba(34,197,94,.28);
     }
 
-    .mock-header {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white;
-      padding: 26px 22px 90px;
+    .hero{
+      padding:72px 0 34px;
     }
 
-    .mock-title {
-      font-size: 1.5rem;
-      font-weight: 800;
-      margin: 0 0 8px;
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:36px;
+      align-items:center;
     }
 
-    .mock-sub {
-      opacity: .9;
-      font-size: 0.95rem;
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 16px;
+      border-radius:999px;
+      background:rgba(59,130,246,.12);
+      border:1px solid rgba(59,130,246,.18);
+      color:#cfe0ff;
+      font-size:.93rem;
+      font-weight:800;
+      margin-bottom:20px;
     }
 
-    .mock-panel {
-      background: white;
-      margin: -58px 16px 16px;
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
+    .hero h1{
+      margin:0 0 18px;
+      font-size:clamp(2.5rem,5vw,4.8rem);
+      line-height:1.02;
+      letter-spacing:-.055em;
+      max-width:760px;
     }
 
-    .mock-stat {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 0.95rem;
+    .gradient-text{
+      background:linear-gradient(135deg,#ffffff 15%, #b9d4ff 55%, #82ffb1 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      color:transparent;
     }
 
-    .mock-stat:last-child {
-      border-bottom: none;
+    .hero p{
+      margin:0 0 28px;
+      color:var(--muted);
+      font-size:1.08rem;
+      line-height:1.8;
+      max-width:650px;
     }
 
-    .section {
-      padding: 78px 0;
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-bottom:24px;
     }
 
-    .section-head {
-      text-align: center;
-      max-width: 760px;
-      margin: 0 auto 42px;
+    .trust{
+      display:flex;
+      flex-wrap:wrap;
+      gap:14px;
+      color:#c5d6f1;
+      font-size:.95rem;
+      font-weight:700;
     }
 
-    .section-head h2 {
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      margin: 0 0 14px;
-      letter-spacing: -0.03em;
+    .trust span{
+      padding:10px 14px;
+      border-radius:999px;
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
     }
 
-    .section-head p {
-      color: var(--muted);
-      font-size: 1.05rem;
-      line-height: 1.7;
-      margin: 0;
+    .showcase{
+      position:relative;
+      padding:16px;
+      border-radius:30px;
+      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.09);
+      box-shadow:var(--shadow);
     }
 
-    .grid-3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
+    .glow{
+      position:absolute;
+      inset:auto -30px -30px auto;
+      width:140px;
+      height:140px;
+      border-radius:999px;
+      background:radial-gradient(circle, rgba(34,197,94,.35), transparent 70%);
+      filter:blur(12px);
+      pointer-events:none;
     }
 
-    .grid-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 22px;
+    .phone{
+      width:100%;
+      max-width:390px;
+      margin:0 auto;
+      background:#0a1020;
+      border-radius:34px;
+      padding:12px;
+      box-shadow:0 30px 80px rgba(0,0,0,.45);
+      position:relative;
     }
 
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      box-shadow: var(--shadow);
+    .phone-screen{
+      min-height:680px;
+      border-radius:24px;
+      overflow:hidden;
+      background:linear-gradient(180deg, #edf4ff 0%, #ffffff 100%);
+      color:#0f172a;
+      position:relative;
     }
 
-    .icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(22, 163, 74, 0.12));
-      font-size: 1.3rem;
-      margin-bottom: 16px;
+    .mock-top{
+      padding:28px 22px 110px;
+      color:#fff;
+      background:linear-gradient(135deg, #2563eb 0%, #22c55e 100%);
     }
 
-    .card h3 {
-      margin: 0 0 10px;
-      font-size: 1.1rem;
+    .mock-small{
+      opacity:.92;
+      font-size:.92rem;
+      margin-bottom:8px;
+      font-weight:700;
     }
 
-    .card p {
-      margin: 0;
-      color: var(--muted);
-      line-height: 1.7;
+    .mock-big{
+      font-size:1.55rem;
+      font-weight:900;
+      margin:0;
+      letter-spacing:-.03em;
     }
 
-    .highlight {
-      background: linear-gradient(135deg, #0f172a, #1e293b);
-      color: white;
-      border-radius: 28px;
-      padding: 40px;
-      box-shadow: var(--shadow);
-      display: grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap: 26px;
-      align-items: center;
+    .mock-card{
+      background:#fff;
+      margin:-74px 16px 16px;
+      border:1px solid #e2e8f0;
+      border-radius:22px;
+      padding:18px;
+      box-shadow:0 18px 40px rgba(15,23,42,.10);
     }
 
-    .highlight h2 {
-      margin: 0 0 14px;
-      font-size: clamp(1.8rem, 3vw, 2.6rem);
-      letter-spacing: -0.03em;
+    .mock-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      padding:14px 0;
+      border-bottom:1px solid #e2e8f0;
+      font-size:.95rem;
     }
 
-    .highlight p {
-      margin: 0 0 18px;
-      color: rgba(255,255,255,.82);
-      line-height: 1.7;
+    .mock-row:last-child{border-bottom:none}
+
+    .pill{
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.8rem;
+      font-weight:800;
+      color:#166534;
+      background:#dcfce7;
     }
 
-    .badge-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+    .pill.red{
+      color:#991b1b;
+      background:#fee2e2;
     }
 
-    .badge {
-      border: 1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.08);
-      color: white;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: .92rem;
+    .mock-list{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
     }
 
-    .pricing {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      align-items: stretch;
+    .mock-person{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border:1px solid #e2e8f0;
+      border-radius:16px;
+      background:#f8fafc;
     }
 
-    .plan {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: var(--shadow);
-      position: relative;
+    .avatar{
+      width:40px;
+      height:40px;
+      border-radius:999px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg,#bfdbfe,#bbf7d0);
+      font-weight:800;
     }
 
-    .plan.popular {
-      border: 2px solid var(--primary);
-      transform: translateY(-6px);
+    .person-info{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
     }
 
-    .tag {
-      position: absolute;
-      top: -12px;
-      right: 20px;
-      background: var(--primary);
-      color: white;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: .8rem;
+    .person-name{
+      font-weight:800;
+      font-size:.94rem;
     }
 
-    .plan h3 {
-      margin: 0 0 8px;
-      font-size: 1.25rem;
+    .person-sub{
+      font-size:.82rem;
+      color:#64748b;
     }
 
-    .price {
-      font-size: 2.2rem;
-      font-weight: 800;
-      margin: 8px 0 14px;
+    .section{
+      padding:80px 0;
     }
 
-    .plan p {
-      color: var(--muted);
-      margin: 0 0 20px;
+    .section-head{
+      text-align:center;
+      max-width:780px;
+      margin:0 auto 46px;
     }
 
-    .plan ul {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 24px;
+    .section-head h2{
+      margin:0 0 14px;
+      font-size:clamp(1.9rem,3vw,3rem);
+      letter-spacing:-.04em;
     }
 
-    .plan li {
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      color: var(--text);
+    .section-head p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.8;
+      font-size:1.05rem;
     }
 
-    .plan li:last-child {
-      border-bottom: none;
+    .grid-3{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:22px;
     }
 
-    .lead-section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      align-items: start;
+    .grid-4{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:22px;
+    }
+
+    .card{
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:24px;
+      padding:24px;
+      box-shadow:var(--shadow);
+    }
+
+    .card.light{
+      background:#fff;
+      color:var(--text-dark);
+      border:1px solid #e2e8f0;
+      box-shadow:0 20px 45px rgba(15,23,42,.08);
+    }
+
+    .icon{
+      width:52px;
+      height:52px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      margin-bottom:16px;
+      font-size:1.25rem;
+      background:linear-gradient(135deg, rgba(59,130,246,.16), rgba(34,197,94,.16));
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .card h3{
+      margin:0 0 10px;
+      font-size:1.12rem;
+    }
+
+    .card p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.8;
+    }
+
+    .light p{color:#475569}
+
+    .band{
+      border-radius:30px;
+      padding:38px;
+      background:linear-gradient(135deg, rgba(59,130,246,.14), rgba(34,197,94,.10));
+      border:1px solid rgba(255,255,255,.08);
+      box-shadow:var(--shadow);
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      gap:26px;
+      align-items:center;
+    }
+
+    .band h2{
+      margin:0 0 14px;
+      font-size:clamp(1.9rem,3vw,2.7rem);
+      letter-spacing:-.04em;
+    }
+
+    .band p{
+      margin:0 0 18px;
+      color:#d7e5fb;
+      line-height:1.8;
+    }
+
+    .mini-stats{
+      display:grid;
+      gap:14px;
+    }
+
+    .mini-stat{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.09);
+      border-radius:18px;
+      padding:18px;
+    }
+
+    .mini-stat strong{
+      display:block;
+      font-size:1.5rem;
+      margin-bottom:6px;
+    }
+
+    .pricing{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:24px;
+    }
+
+    .plan{
+      position:relative;
+      border-radius:26px;
+      padding:28px;
+      background:#fff;
+      color:#0f172a;
+      border:1px solid #e2e8f0;
+      box-shadow:0 20px 45px rgba(15,23,42,.08);
+    }
+
+    .plan.featured{
+      border:2px solid var(--primary);
+      transform:translateY(-8px);
+      box-shadow:0 28px 60px rgba(37,99,235,.18);
+    }
+
+    .tag{
+      position:absolute;
+      top:-12px;
+      right:20px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--primary),var(--green));
+      color:#fff;
+      font-weight:800;
+      font-size:.8rem;
+    }
+
+    .plan h3{
+      margin:0 0 8px;
+      font-size:1.24rem;
+    }
+
+    .price{
+      font-size:2.25rem;
+      font-weight:900;
+      margin:8px 0 14px;
+      letter-spacing:-.04em;
+    }
+
+    .plan p{
+      color:#475569;
+      margin:0 0 18px;
+      line-height:1.7;
+    }
+
+    .plan ul{
+      list-style:none;
+      padding:0;
+      margin:0 0 22px;
+    }
+
+    .plan li{
+      padding:11px 0;
+      border-bottom:1px solid #e2e8f0;
+      color:#0f172a;
+    }
+
+    .plan li:last-child{border-bottom:none}
+
+    .testimonials{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:22px;
+    }
+
+    .quote{
+      background:#fff;
+      color:#0f172a;
+      border-radius:24px;
+      padding:24px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 20px 45px rgba(15,23,42,.08);
+    }
+
+    .quote p{
+      margin:0 0 18px;
+      line-height:1.8;
+      color:#334155;
+    }
+
+    .quote-author{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .quote-name{
+      font-weight:800;
+    }
+
+    .quote-role{
+      font-size:.9rem;
+      color:#64748b;
+    }
+
+    .lead-wrap{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:24px;
     }
 
     .contact-card,
-    .form-card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: var(--shadow);
+    .form-card{
+      background:#fff;
+      color:#0f172a;
+      border-radius:26px;
+      padding:28px;
+      border:1px solid #e2e8f0;
+      box-shadow:0 20px 45px rgba(15,23,42,.08);
     }
 
     .contact-card h3,
-    .form-card h3 {
-      margin: 0 0 12px;
-      font-size: 1.4rem;
+    .form-card h3{
+      margin:0 0 12px;
+      font-size:1.45rem;
     }
 
     .contact-card p,
-    .form-card p {
-      color: var(--muted);
-      line-height: 1.7;
-      margin: 0 0 18px;
+    .form-card p{
+      margin:0 0 18px;
+      color:#475569;
+      line-height:1.8;
     }
 
-    .contact-list {
-      display: grid;
-      gap: 14px;
-      margin-top: 20px;
+    .contact-list{
+      display:grid;
+      gap:14px;
+      margin-top:20px;
     }
 
-    .contact-item {
-      padding: 16px;
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      background: #f8fafc;
+    .contact-item{
+      padding:16px;
+      border:1px solid #e2e8f0;
+      border-radius:18px;
+      background:#f8fafc;
     }
 
-    form {
-      display: grid;
-      gap: 14px;
+    form{
+      display:grid;
+      gap:14px;
     }
 
-    input, select, textarea {
-      width: 100%;
-      padding: 15px 16px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      font: inherit;
-      background: white;
-      color: var(--text);
+    input, select, textarea{
+      width:100%;
+      padding:15px 16px;
+      border-radius:14px;
+      border:1px solid #dbe3ef;
+      background:#fff;
+      color:#0f172a;
+      font:inherit;
     }
 
-    textarea {
-      min-height: 120px;
-      resize: vertical;
+    textarea{
+      min-height:120px;
+      resize:vertical;
     }
 
-    .small {
-      font-size: .9rem;
-      color: var(--muted);
+    .small{
+      font-size:.92rem;
+      color:#64748b;
     }
 
-    .footer {
-      padding: 28px 0 50px;
-      color: var(--muted);
-      text-align: center;
+    .cta-final{
+      padding:28px;
+      border-radius:30px;
+      background:linear-gradient(135deg, #1d4ed8 0%, #22c55e 100%);
+      color:#fff;
+      display:grid;
+      grid-template-columns:1.15fr .85fr;
+      gap:22px;
+      align-items:center;
+      box-shadow:0 30px 70px rgba(0,0,0,.30);
     }
 
-    @media (max-width: 1024px) {
+    .cta-final h2{
+      margin:0 0 10px;
+      font-size:clamp(1.9rem,3vw,3rem);
+      letter-spacing:-.04em;
+    }
+
+    .cta-final p{
+      margin:0;
+      line-height:1.8;
+      color:rgba(255,255,255,.92);
+    }
+
+    .cta-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      justify-content:flex-end;
+    }
+
+    .footer{
+      padding:34px 0 54px;
+      text-align:center;
+      color:#b5c7e4;
+    }
+
+    @media (max-width: 1024px){
       .hero-grid,
-      .highlight,
-      .lead-section,
+      .band,
       .pricing,
-      .grid-4 {
-        grid-template-columns: 1fr;
+      .testimonials,
+      .lead-wrap,
+      .cta-final,
+      .grid-4{
+        grid-template-columns:1fr;
       }
 
-      .grid-3 {
-        grid-template-columns: 1fr;
+      .grid-3{
+        grid-template-columns:1fr;
       }
 
-      .plan.popular {
-        transform: none;
+      .plan.featured{
+        transform:none;
+      }
+
+      .cta-actions{
+        justify-content:flex-start;
       }
     }
 
-    @media (max-width: 760px) {
-      .nav {
-        flex-wrap: wrap;
-        padding: 12px 0;
+    @media (max-width: 760px){
+      .nav{
+        flex-wrap:wrap;
+        padding:12px 0;
       }
 
-      .nav-links {
-        display: none;
+      .nav-links{
+        display:none;
       }
 
-      .hero {
-        padding-top: 36px;
-      }
-
-      .section {
-        padding: 58px 0;
-      }
-
-      .hero-actions,
-      .nav-actions {
-        width: 100%;
+      .nav-actions,
+      .hero-actions{
+        width:100%;
       }
 
       .nav-actions .btn,
-      .hero-actions .btn {
-        width: 100%;
+      .hero-actions .btn,
+      .cta-actions .btn{
+        width:100%;
       }
 
-      .highlight,
+      .hero{
+        padding-top:40px;
+      }
+
+      .section{
+        padding:62px 0;
+      }
+
+      .band,
+      .cta-final,
       .contact-card,
       .form-card,
       .plan,
-      .card {
-        padding: 22px;
+      .quote,
+      .card{
+        padding:22px;
+      }
+
+      .phone-screen{
+        min-height:620px;
       }
     }
   </style>
@@ -557,14 +736,15 @@
   <header class="topbar">
     <div class="container nav">
       <div class="brand">
-        <div class="brand-badge">C+</div>
-        <span>Células+</span>
+        <div class="brand-icon">+</div>
+        <span>+Células</span>
       </div>
 
       <nav class="nav-links">
         <a href="#beneficios">Benefícios</a>
         <a href="#recursos">Recursos</a>
         <a href="#planos">Planos</a>
+        <a href="#depoimentos">Depoimentos</a>
         <a href="#contato">Contato</a>
       </nav>
 
@@ -578,44 +758,87 @@
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <span class="eyebrow">Gestão inteligente para células da igreja</span>
-        <h1>Cuide melhor das pessoas da sua igreja com organização e visão.</h1>
+        <div class="eyebrow">Plataforma premium para células da igreja</div>
+        <h1>
+          Sua igreja mais organizada, sua liderança mais preparada,
+          <span class="gradient-text">seu cuidado mais próximo.</span>
+        </h1>
         <p>
-          O Células+ ajuda sua liderança a cadastrar membros, registrar frequência,
-          acompanhar faltas, organizar células e identificar quem precisa de cuidado.
+          O <strong>+Células</strong> é a plataforma para cadastro de membros,
+          controle de frequência, gestão de células, acompanhamento pastoral e
+          visão estratégica de crescimento da igreja.
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#contato">🚀 Começar teste grátis</a>
-          <a class="btn btn-whatsapp" href="https://wa.me/5541999999999?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20C%C3%A9lulas%2B" target="_blank">💬 Falar no WhatsApp</a>
+          <a class="btn btn-primary" href="#contato">🚀 Quero testar grátis</a>
+          <a class="btn btn-whatsapp" href="https://wa.me/5541999999999?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20%2BC%C3%A9lulas" target="_blank">💬 Falar no WhatsApp</a>
         </div>
 
-        <div class="hero-points">
-          <span>✅ Cadastro de membros</span>
-          <span>✅ Controle de presença</span>
+        <div class="trust">
+          <span>✅ Cadastro centralizado</span>
+          <span>✅ Frequência em segundos</span>
           <span>✅ Relatórios para liderança</span>
         </div>
       </div>
 
-      <div class="hero-card">
+      <div class="showcase">
+        <div class="glow"></div>
         <div class="phone">
           <div class="phone-screen">
-            <div class="mock-header">
-              <div class="mock-title">Dashboard da Célula</div>
-              <div class="mock-sub">Visão rápida para líderes e supervisores</div>
+            <div class="mock-top">
+              <div class="mock-small">+Células</div>
+              <h3 class="mock-big">Dashboard da Igreja</h3>
             </div>
 
-            <div class="mock-panel">
-              <div class="mock-stat"><strong>Membros ativos</strong><span>48</span></div>
-              <div class="mock-stat"><strong>Presentes hoje</strong><span>36</span></div>
-              <div class="mock-stat"><strong>Visitantes</strong><span>5</span></div>
-              <div class="mock-stat"><strong>Ausentes em atenção</strong><span>7</span></div>
+            <div class="mock-card">
+              <div class="mock-row"><strong>Membros ativos</strong><span>186</span></div>
+              <div class="mock-row"><strong>Presentes esta semana</strong><span>142</span></div>
+              <div class="mock-row"><strong>Visitantes</strong><span>18</span></div>
+              <div class="mock-row"><strong>Faltas em atenção</strong><span class="pill red">12 membros</span></div>
             </div>
 
-            <div class="mock-panel">
-              <div class="mock-stat"><strong>Nova reunião</strong><span>Hoje 20:00</span></div>
-              <div class="mock-stat"><strong>Células ativas</strong><span>12</span></div>
-              <div class="mock-stat"><strong>Relatório mensal</strong><span>Disponível</span></div>
+            <div class="mock-card">
+              <div class="mock-row"><strong>Próxima reunião</strong><span>Hoje, 20:00</span></div>
+              <div class="mock-row"><strong>Células ativas</strong><span>14</span></div>
+              <div class="mock-row"><strong>Crescimento mensal</strong><span class="pill">+11%</span></div>
+            </div>
+
+            <div class="mock-card">
+              <strong style="display:block; margin-bottom:10px;">Acompanhamento rápido</strong>
+              <div class="mock-list">
+                <div class="mock-person">
+                  <div class="person-info">
+                    <div class="avatar">AM</div>
+                    <div>
+                      <div class="person-name">Ana Martins</div>
+                      <div class="person-sub">Presente 4 semanas seguidas</div>
+                    </div>
+                  </div>
+                  <span class="pill">Engajada</span>
+                </div>
+
+                <div class="mock-person">
+                  <div class="person-info">
+                    <div class="avatar">JP</div>
+                    <div>
+                      <div class="person-name">João Pedro</div>
+                      <div class="person-sub">3 faltas consecutivas</div>
+                    </div>
+                  </div>
+                  <span class="pill red">Atenção</span>
+                </div>
+
+                <div class="mock-person">
+                  <div class="person-info">
+                    <div class="avatar">CL</div>
+                    <div>
+                      <div class="person-name">Carla Lima</div>
+                      <div class="person-sub">Visitante recente</div>
+                    </div>
+                  </div>
+                  <span class="pill">Novo contato</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -626,30 +849,28 @@
   <section id="beneficios" class="section">
     <div class="container">
       <div class="section-head">
-        <h2>Por que igrejas escolhem o Células+</h2>
+        <h2>Mais do que presença: gestão, visão e cuidado</h2>
         <p>
-          Mais do que uma lista de presença, você ganha um sistema de acompanhamento
-          para fortalecer a liderança e melhorar o cuidado com as pessoas.
+          O +Células foi pensado para apoiar a rotina da igreja e dar à liderança
+          informações claras para acompanhar pessoas e fortalecer o crescimento.
         </p>
       </div>
 
       <div class="grid-3">
         <div class="card">
           <div class="icon">👥</div>
-          <h3>Organização real</h3>
-          <p>Centralize membros, células, líderes e reuniões em um só lugar, com acesso simples e rápido.</p>
+          <h3>Organização centralizada</h3>
+          <p>Cadastre membros, visitantes, líderes e células em uma plataforma única, simples e acessível.</p>
         </div>
-
         <div class="card">
           <div class="icon">📊</div>
-          <h3>Visão para liderar</h3>
-          <p>Tenha relatórios de frequência, crescimento, visitantes e ausências para apoiar decisões da liderança.</p>
+          <h3>Visão estratégica</h3>
+          <p>Acompanhe frequência, visitantes, crescimento e ausências com relatórios claros para a liderança.</p>
         </div>
-
         <div class="card">
           <div class="icon">❤️</div>
-          <h3>Cuidado mais próximo</h3>
-          <p>Identifique pessoas que estão se afastando e acompanhe com mais intencionalidade.</p>
+          <h3>Cuidado mais intencional</h3>
+          <p>Perceba rapidamente quem está se afastando e aja com mais proximidade e atenção pastoral.</p>
         </div>
       </div>
     </div>
@@ -658,33 +879,30 @@
   <section id="recursos" class="section">
     <div class="container">
       <div class="section-head">
-        <h2>Recursos que facilitam a rotina da igreja</h2>
-        <p>Desenvolvido para líderes, supervisores e administração da igreja.</p>
+        <h2>Recursos completos para a rotina da igreja</h2>
+        <p>Desenvolvido para líderes, supervisores, secretarias e administração pastoral.</p>
       </div>
 
       <div class="grid-4">
-        <div class="card">
+        <div class="card light">
           <div class="icon">📝</div>
           <h3>Cadastro de membros</h3>
-          <p>Informações organizadas, histórico e vínculo por célula.</p>
+          <p>Dados organizados, histórico, vínculo por célula e acompanhamento em um só lugar.</p>
         </div>
-
-        <div class="card">
+        <div class="card light">
           <div class="icon">✅</div>
           <h3>Controle de frequência</h3>
-          <p>Marcação rápida por reunião, com visitantes e faltas registradas.</p>
+          <p>Marcação prática de presença, ausência e visitantes por reunião.</p>
         </div>
-
-        <div class="card">
+        <div class="card light">
           <div class="icon">🏠</div>
           <h3>Gestão de células</h3>
-          <p>Organize líderes, horários, locais e estrutura de cada célula.</p>
+          <p>Controle líderes, locais, reuniões, estrutura e expansão das células.</p>
         </div>
-
-        <div class="card">
+        <div class="card light">
           <div class="icon">📈</div>
-          <h3>Relatórios</h3>
-          <p>Resumo por célula, engajamento, crescimento e acompanhamento mensal.</p>
+          <h3>Relatórios de liderança</h3>
+          <p>Tenha uma visão clara do movimento das células e da saúde de participação.</p>
         </div>
       </div>
     </div>
@@ -692,26 +910,29 @@
 
   <section class="section">
     <div class="container">
-      <div class="highlight">
+      <div class="band">
         <div>
-          <h2>Seu diferencial não é só registrar presença.</h2>
+          <h2>Uma plataforma com cara de crescimento saudável</h2>
           <p>
-            O verdadeiro valor está em ajudar a liderança a perceber quem precisa
-            de atenção, quais células estão crescendo e onde agir com mais rapidez.
+            Em vez de depender de anotações soltas, planilhas ou memória dos líderes,
+            o +Células ajuda sua igreja a trabalhar com mais ordem, clareza e continuidade.
           </p>
-          <div class="badge-list">
-            <span class="badge">Acompanhamento pastoral</span>
-            <span class="badge">Mais clareza para líderes</span>
-            <span class="badge">Crescimento organizado</span>
-          </div>
+          <a class="btn btn-primary" href="#contato">Solicitar demonstração</a>
         </div>
 
-        <div class="card" style="background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); color: white;">
-          <div class="icon" style="background: rgba(255,255,255,.12);">🔔</div>
-          <h3 style="margin-top:0;">Alertas e atenção</h3>
-          <p style="color: rgba(255,255,255,.82);">
-            Veja quem faltou, quem visitou e quem precisa de cuidado, sem depender de anotações soltas ou planilhas.
-          </p>
+        <div class="mini-stats">
+          <div class="mini-stat">
+            <strong>+ rapidez</strong>
+            <span>Marque presença em segundos durante a reunião.</span>
+          </div>
+          <div class="mini-stat">
+            <strong>+ visão</strong>
+            <span>Descubra o que está acontecendo nas células sem depender de planilhas.</span>
+          </div>
+          <div class="mini-stat">
+            <strong>+ cuidado</strong>
+            <span>Saiba quem precisa de atenção e acompanhe melhor cada pessoa.</span>
+          </div>
         </div>
       </div>
     </div>
@@ -720,15 +941,15 @@
   <section id="planos" class="section">
     <div class="container">
       <div class="section-head">
-        <h2>Planos simples para começar</h2>
-        <p>Escolha o plano ideal para a realidade da sua igreja.</p>
+        <h2>Planos para cada fase da igreja</h2>
+        <p>Comece simples e cresça com segurança conforme sua necessidade aumenta.</p>
       </div>
 
       <div class="pricing">
         <div class="plan">
           <h3>Básico</h3>
-          <div class="price">R$ 29<span style="font-size:1rem; font-weight:600;">/mês</span></div>
-          <p>Ideal para igrejas menores começarem com organização.</p>
+          <div class="price">R$ 29<span style="font-size:1rem;font-weight:700;">/mês</span></div>
+          <p>Ideal para igrejas menores que querem sair do papel e organizar a rotina.</p>
           <ul>
             <li>Até 50 membros</li>
             <li>Cadastro e frequência</li>
@@ -738,11 +959,11 @@
           <a class="btn btn-secondary" href="#contato">Começar</a>
         </div>
 
-        <div class="plan popular">
-          <span class="tag">Mais escolhido</span>
+        <div class="plan featured">
+          <div class="tag">Mais escolhido</div>
           <h3>Pro</h3>
-          <div class="price">R$ 79<span style="font-size:1rem; font-weight:600;">/mês</span></div>
-          <p>Para igrejas em crescimento que querem mais controle.</p>
+          <div class="price">R$ 79<span style="font-size:1rem;font-weight:700;">/mês</span></div>
+          <p>Para igrejas em crescimento que querem mais visão e acompanhamento da liderança.</p>
           <ul>
             <li>Até 300 membros</li>
             <li>Múltiplos líderes</li>
@@ -754,12 +975,12 @@
 
         <div class="plan">
           <h3>Premium</h3>
-          <div class="price">R$ 149<span style="font-size:1rem; font-weight:600;">/mês</span></div>
-          <p>Para igrejas e redes com maior estrutura e expansão.</p>
+          <div class="price">R$ 149<span style="font-size:1rem;font-weight:700;">/mês</span></div>
+          <p>Para igrejas maiores, redes de células e estruturas com maior demanda de gestão.</p>
           <ul>
             <li>Membros ilimitados</li>
             <li>Supervisão ampliada</li>
-            <li>Prioridade no suporte</li>
+            <li>Suporte prioritário</li>
             <li>Recursos avançados</li>
           </ul>
           <a class="btn btn-secondary" href="#contato">Falar com equipe</a>
@@ -768,37 +989,81 @@
     </div>
   </section>
 
+  <section id="depoimentos" class="section">
+    <div class="container">
+      <div class="section-head">
+        <h2>Depoimentos que reforçam confiança</h2>
+        <p>Você pode manter esses textos como exemplo até ter depoimentos reais da sua base de clientes.</p>
+      </div>
+
+      <div class="testimonials">
+        <div class="quote">
+          <p>“O +Células trouxe mais clareza para nossa liderança. Hoje conseguimos acompanhar faltas e visitantes com muito mais organização.”</p>
+          <div class="quote-author">
+            <div class="avatar">PR</div>
+            <div>
+              <div class="quote-name">Pr. Ricardo</div>
+              <div class="quote-role">Liderança pastoral</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote">
+          <p>“Antes tudo ficava espalhado em papel e planilha. Agora temos um processo simples, bonito e fácil de usar nos encontros.”</p>
+          <div class="quote-author">
+            <div class="avatar">LM</div>
+            <div>
+              <div class="quote-name">Luciana Moreira</div>
+              <div class="quote-role">Supervisora de células</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="quote">
+          <p>“Foi uma mudança muito boa para nossa igreja. A equipe ganhou visão e a administração ficou muito mais profissional.”</p>
+          <div class="quote-author">
+            <div class="avatar">AL</div>
+            <div>
+              <div class="quote-name">Alexandre Lima</div>
+              <div class="quote-role">Administrador</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section id="contato" class="section">
-    <div class="container lead-section">
+    <div class="container lead-wrap">
       <div class="contact-card">
-        <h3>Vamos apresentar o Células+ para sua igreja</h3>
+        <h3>Vamos apresentar o +Células para sua igreja</h3>
         <p>
-          Peça uma demonstração, tire dúvidas ou solicite um período de teste.
-          Você pode falar pelo WhatsApp ou preencher o formulário.
+          Fale conosco no WhatsApp ou preencha o formulário para solicitar
+          demonstração, teste grátis ou proposta para sua equipe.
         </p>
 
         <div class="contact-list">
           <div class="contact-item">
-            <strong>WhatsApp</strong><br>
+            <strong>WhatsApp direto</strong><br>
             <span class="small">Troque o número abaixo pelo seu número real.</span><br><br>
-            <a class="btn btn-whatsapp" href="https://wa.me/55+41-98792-5616?text=Ol%C3%A1%2C%20quero%20uma%20demonstra%C3%A7%C3%A3o%20do%20C%C3%A9lulas%2B" target="_blank">💬 Chamar no WhatsApp</a>
+            <a class="btn btn-whatsapp" href="https://wa.me/5541999999999?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20%2BC%C3%A9lulas" target="_blank">💬 Falar agora</a>
           </div>
 
           <div class="contact-item">
-            <strong>Demonstração</strong><br>
-            <span class="small">Apresente o sistema para líderes, supervisores e administração.</span>
+            <strong>Demonstração guiada</strong><br>
+            <span class="small">Apresente a plataforma para pastores, líderes, supervisores e administração.</span>
           </div>
 
           <div class="contact-item">
             <strong>Teste grátis</strong><br>
-            <span class="small">Comece com uma avaliação prática antes de decidir.</span>
+            <span class="small">Avalie a plataforma com sua realidade antes de decidir.</span>
           </div>
         </div>
       </div>
 
       <div class="form-card">
         <h3>Solicitar contato</h3>
-        <p>Esse formulário pode ser conectado depois a e-mail, planilha ou automação.</p>
+        <p>Ao enviar, o formulário abrirá o WhatsApp com os dados preenchidos.</p>
 
         <form onsubmit="enviarFormulario(event)">
           <input type="text" id="nome" placeholder="Seu nome" required>
@@ -807,13 +1072,13 @@
           <input type="email" id="email" placeholder="E-mail" required>
 
           <select id="interesse" required>
-            <option value="">Selecione seu interesse</option>
+            <option value="">Selecione o interesse</option>
             <option>Demonstração</option>
             <option>Teste grátis</option>
             <option>Quero contratar</option>
           </select>
 
-          <textarea id="mensagem" placeholder="Conte um pouco sobre sua necessidade"></textarea>
+          <textarea id="mensagem" placeholder="Conte um pouco sobre sua igreja ou necessidade"></textarea>
 
           <button class="btn btn-primary" type="submit">Enviar solicitação</button>
           <div class="small" id="statusForm"></div>
@@ -822,9 +1087,27 @@
     </div>
   </section>
 
+  <section class="section" style="padding-top:0;">
+    <div class="container">
+      <div class="cta-final">
+        <div>
+          <h2>Chegou a hora de profissionalizar a gestão das células</h2>
+          <p>
+            Dê à sua igreja uma plataforma moderna, clara e preparada para apoiar
+            líderes, acompanhar pessoas e sustentar crescimento com mais ordem.
+          </p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-secondary" href="#planos">Ver planos</a>
+          <a class="btn btn-whatsapp" href="https://wa.me/55+41-98792-5616?text=Ol%C3%A1%2C%20quero%20uma%20demonstra%C3%A7%C3%A3o%20do%20%2BC%C3%A9lulas" target="_blank">Agendar demonstração</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <footer class="footer">
     <div class="container">
-      © 2026 Células+ • Gestão inteligente para células da igreja
+      © 2026 +Células • Plataforma inteligente para células da igreja
     </div>
   </footer>
 
@@ -839,8 +1122,10 @@
       const interesse = document.getElementById('interesse').value;
       const mensagem = document.getElementById('mensagem').value;
 
+      const numero = "55+41-98792-5616";
+
       const texto =
-        "Olá! Quero informações sobre o Células+.%0A%0A" +
+        "Olá! Quero informações sobre o +Células.%0A%0A" +
         "*Nome:* " + encodeURIComponent(nome) + "%0A" +
         "*Igreja:* " + encodeURIComponent(igreja) + "%0A" +
         "*WhatsApp:* " + encodeURIComponent(telefone) + "%0A" +
@@ -848,17 +1133,9 @@
         "*Interesse:* " + encodeURIComponent(interesse) + "%0A" +
         "*Mensagem:* " + encodeURIComponent(mensagem);
 
-      const numero = "55+41-98792-5616";
-      const url = "https://wa.me/" + numero + "?text=" + texto;
-
       document.getElementById('statusForm').innerText = "Abrindo WhatsApp...";
-      window.open(url, "_blank");
+      window.open("https://wa.me/" + numero + "?text=" + texto, "_blank");
     }
   </script>
-</body>
-</html>
-  <p>© 2026 Células+ | Todos os direitos reservados</p>
-</footer>
-
 </body>
 </html>
