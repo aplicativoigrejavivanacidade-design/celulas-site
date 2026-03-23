@@ -74,49 +74,50 @@
     }
 
     .brand-icon{
-  width:52px;
-  height:52px;
-  border-radius:16px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:1px;
-  color:#fff;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04)),
-    linear-gradient(135deg, var(--primary), var(--green));
-  border:1px solid rgba(255,255,255,.18);
-  box-shadow:
-    0 14px 30px rgba(37,99,235,.28),
-    inset 0 1px 0 rgba(255,255,255,.18);
-  position:relative;
-  overflow:hidden;
-}
+      width:52px;
+      height:52px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:1px;
+      color:#fff;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.16), rgba(255,255,255,.04)),
+        linear-gradient(135deg, var(--primary), var(--green));
+      border:1px solid rgba(255,255,255,.18);
+      box-shadow:
+        0 14px 30px rgba(37,99,235,.28),
+        inset 0 1px 0 rgba(255,255,255,.18);
+      position:relative;
+      overflow:hidden;
+    }
 
-.brand-icon::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg, rgba(255,255,255,.22), transparent 45%);
-  pointer-events:none;
-}
+    .brand-icon::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(135deg, rgba(255,255,255,.22), transparent 45%);
+      pointer-events:none;
+    }
 
-.brand-icon .plus{
-  font-size:1.05rem;
-  font-weight:900;
-  line-height:1;
-  position:relative;
-  z-index:1;
-}
+    .brand-icon .plus{
+      font-size:1.05rem;
+      font-weight:900;
+      line-height:1;
+      position:relative;
+      z-index:1;
+    }
 
-.brand-icon .c{
-  font-size:1rem;
-  font-weight:900;
-  line-height:1;
-  letter-spacing:-0.04em;
-  position:relative;
-  z-index:1;
-}
+    .brand-icon .c{
+      font-size:1rem;
+      font-weight:900;
+      line-height:1;
+      letter-spacing:-0.04em;
+      position:relative;
+      z-index:1;
+    }
+
     .nav-links{
       display:flex;
       gap:24px;
@@ -771,6 +772,8 @@
         <div class="brand-icon">
           <span class="plus">+</span><span class="c">C</span>
         </div>
+        <span>+Células</span>
+      </div>
 
       <nav class="nav-links">
         <a href="#beneficios">Benefícios</a>
@@ -782,7 +785,7 @@
 
       <div class="nav-actions">
         <a class="btn btn-secondary" href="#planos">Ver planos</a>
-        <a class="btn btn-primary" href="#contato">Teste grátis</a>
+        <a class="btn btn-primary" href="https://celulas-backend.onrender.com/login.html" target="_blank">Teste grátis</a>
       </div>
     </div>
   </header>
@@ -802,7 +805,7 @@
         </p>
 
         <div class="hero-actions">
-          <a class="btn btn-primary" href="https://celulas-backend.onrender.com/login.html">Teste grátis</a>
+          <a class="btn btn-primary" href="https://celulas-backend.onrender.com/login.html" target="_blank">Teste grátis</a>
           <a class="btn btn-whatsapp" href="https://wa.me/5541987925616?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20%2BC%C3%A9lulas" target="_blank">💬 Falar no WhatsApp</a>
         </div>
 
@@ -881,7 +884,7 @@
   <section id="beneficios" class="section">
     <div class="container">
       <div class="section-head">
-        <h2>Mais do que presença: Gestão, Visão e Cuidado alinhado com o Prósito de Deus</h2>
+        <h2>Mais do que presença: Gestão, Visão e Cuidado alinhado com o Propósito de Deus</h2>
         <p>
           O +Células foi pensado para apoiar a rotina da Igreja e dar à liderança
           informações claras para acompanhar pessoas e fortalecer o crescimento do Reino de Deus.
@@ -901,7 +904,7 @@
         </div>
         <div class="card">
           <div class="icon">❤️</div>
-          <h3>Cuidado intencional e focado no cresimento Espiritual</h3>
+          <h3>Cuidado intencional e focado no crescimento espiritual</h3>
           <p>Perceba rapidamente quem está se afastando e aja com mais proximidade e atenção pastoral.</p>
         </div>
       </div>
@@ -1002,7 +1005,7 @@
             <li>Relatórios completos</li>
             <li>Acompanhamento avançado</li>
           </ul>
-          <a class="btn btn-primary" href="#contato">Testar grátis</a>
+          <a class="btn btn-primary" href="https://celulas-backend.onrender.com/login.html" target="_blank">Testar grátis</a>
         </div>
 
         <div class="plan">
@@ -1098,10 +1101,10 @@
         <p>Ao enviar, o formulário abrirá o WhatsApp com os dados preenchidos.</p>
 
         <form onsubmit="enviarFormulario(event)">
-          <input type="text" id="Nome" placeholder="Seu nome" required>
-          <input type="text" id="Igreja" placeholder="Nome da Igreja" required>
-          <input type="tel" id="Telefone" placeholder="WhatsApp" required>
-          <input type="email" id="Email" placeholder="e-mail" required>
+          <input type="text" id="nome" placeholder="Seu nome" required>
+          <input type="text" id="igreja" placeholder="Nome da Igreja" required>
+          <input type="tel" id="telefone" placeholder="WhatsApp" required>
+          <input type="email" id="email" placeholder="e-mail" required>
 
           <select id="interesse" required>
             <option value="">Selecione o interesse</option>
