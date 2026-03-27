@@ -121,7 +121,7 @@
 
     .topo{
       display:grid;
-      grid-template-columns: 1.3fr 1fr;
+      grid-template-columns: 1.2fr 1fr;
       gap:20px;
       margin-bottom:20px;
       align-items:start;
@@ -159,7 +159,6 @@
       border:1px solid var(--line);
       font-size:15px;
       font-family:inherit;
-      background:#fff;
     }
 
     input:focus, select:focus{
@@ -178,18 +177,11 @@
     .btn-success{ background:var(--green); color:white; }
     .btn-primary{ background:var(--blue); color:white; }
     .btn-secondary{ background:var(--amber); color:white; }
-    .btn-danger{ background:var(--red); color:white; }
 
     .acoes-topo{
       display:flex;
       gap:10px;
       margin-top:14px;
-      flex-wrap:wrap;
-    }
-
-    .acoes-topo button{
-      flex:1;
-      min-width:180px;
     }
 
     .resumo{
@@ -290,19 +282,6 @@
       border:2px dashed var(--line);
     }
 
-    .historico-item{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding:12px 0;
-      border-bottom:1px solid #edf2f7;
-    }
-
-    .historico-item:last-child{
-      border-bottom:none;
-    }
-
     @media (max-width: 1100px) {
       .topo{
         grid-template-columns:1fr;
@@ -367,7 +346,7 @@
     <main class="content">
       <div class="header">
         <h1>Controle de presença</h1>
-        <p>Selecione a célula, o membro e lance ou altere a presença por data</p>
+        <p>Selecione o membro e lance ou altere a presença por data</p>
         <p id="usuarioLogado" class="usuario-logado"></p>
       </div>
 
@@ -379,13 +358,6 @@
             <div>
               <label for="dataReuniao">Data da reunião</label>
               <input type="date" id="dataReuniao" />
-            </div>
-
-            <div>
-              <label for="celulaSelecionada">Célula</label>
-              <select id="celulaSelecionada">
-                <option value="">Selecione a célula</option>
-              </select>
             </div>
 
             <div>
@@ -404,7 +376,7 @@
               </select>
             </div>
 
-            <div style="grid-column: 1 / -1;">
+            <div>
               <label for="statusSalvo">Situação atual</label>
               <input type="text" id="statusSalvo" value="PENDENTE" readonly />
             </div>
@@ -413,8 +385,6 @@
           <div class="acoes-topo">
             <button class="btn-success" id="btnSalvar" type="button">Salvar presença</button>
             <button class="btn-primary" id="btnAtualizar" type="button">Alterar presença salva</button>
-            <button class="btn-secondary" id="btnPresenteTodos" type="button">Marcar todos presentes</button>
-            <button class="btn-danger" id="btnAusenteTodos" type="button">Marcar todos ausentes</button>
             <button class="btn-secondary" id="btnLimpar" type="button">Limpar seleção</button>
           </div>
 
@@ -433,11 +403,6 @@
       </div>
 
       <div class="lista" id="listaMembros"></div>
-
-      <div class="card">
-        <h2>Histórico da data selecionada</h2>
-        <div id="historicoPresencas"></div>
-      </div>
     </main>
   </div>
 
@@ -454,16 +419,13 @@
       const nomeUsuario = localStorage.getItem('nomeUsuario') || 'Administrador';
       const nivelUsuario = localStorage.getItem('nivelUsuario') || 'lider';
 
-      let todosMembros = [];
-      let membrosFiltrados = [];
+      let membros = [];
       let presencas = {};
 
       const campoUsuario = document.getElementById('usuarioLogado');
       const campoLista = document.getElementById('listaMembros');
-      const campoHistorico = document.getElementById('historicoPresencas');
       const campoMensagem = document.getElementById('mensagem');
       const campoData = document.getElementById('dataReuniao');
-      const campoCelula = document.getElementById('celulaSelecionada');
       const campoMembro = document.getElementById('membroSelecionado');
       const campoStatus = document.getElementById('statusSelecionado');
       const campoStatusSalvo = document.getElementById('statusSalvo');
@@ -526,24 +488,18 @@
       }
 
       function limparSelecao(limparMensagem = false) {
-        campoCelula.value = '';
-        membrosFiltrados = [];
-        preencherSelectMembros();
         campoMembro.value = '';
         campoStatus.value = '';
         campoStatusSalvo.value = 'PENDENTE';
-        renderizarMembros();
-        renderizarHistorico();
         if (limparMensagem) {
           campoMensagem.textContent = '';
         }
       }
 
       function atualizarResumo() {
-        const base = campoCelula.value ? membrosFiltrados : [];
-        const total = base.length;
-        const presentes = base.filter((membro) => presencas[membro.id] === 'presente').length;
-        const ausentes = base.filter((membro) => presencas[membro.id] === 'ausente').length;
+        const total = membros.length;
+        const presentes = Object.values(presencas).filter((status) => status === 'presente').length;
+        const ausentes = Object.values(presencas).filter((status) => status === 'ausente').length;
         const pendentes = total - presentes - ausentes;
 
         document.getElementById('totalMembros').textContent = `${total} membro(s)`;
@@ -552,36 +508,10 @@
         document.getElementById('totalPendentes').textContent = `${pendentes} pendente(s)`;
       }
 
-      function preencherSelectCelulas() {
-        const celulas = [...new Set(
-          todosMembros
-            .map((membro) => (membro.celula || '').trim().toUpperCase())
-            .filter(Boolean)
-        )].sort();
-
-        campoCelula.innerHTML = '<option value="">Selecione a célula</option>' + celulas.map((celula) => {
-          return `<option value="${celula}">${celula}</option>`;
-        }).join('');
-      }
-
       function preencherSelectMembros() {
-        campoMembro.innerHTML = '<option value="">Selecione um membro</option>' + membrosFiltrados.map((membro) => {
+        campoMembro.innerHTML = '<option value="">Selecione um membro</option>' + membros.map((membro) => {
           return `<option value="${membro.id}">${membro.nome || ''}</option>`;
         }).join('');
-      }
-
-      function aplicarFiltroCelula() {
-        const celula = campoCelula.value;
-        membrosFiltrados = celula
-          ? todosMembros.filter((membro) => String(membro.celula || '').trim().toUpperCase() === celula)
-          : [];
-
-        preencherSelectMembros();
-        campoMembro.value = '';
-        campoStatus.value = '';
-        campoStatusSalvo.value = 'PENDENTE';
-        renderizarMembros();
-        renderizarHistorico();
       }
 
       function atualizarSituacaoAtual() {
@@ -596,19 +526,13 @@
       }
 
       function renderizarMembros() {
-        if (!campoCelula.value) {
-          campoLista.innerHTML = '<div class="vazio">Selecione uma célula para carregar os membros vinculados a ela.</div>';
+        if (!Array.isArray(membros) || membros.length === 0) {
+          campoLista.innerHTML = '<div class="vazio">Nenhum membro cadastrado. Cadastre membros primeiro.</div>';
           atualizarResumo();
           return;
         }
 
-        if (!Array.isArray(membrosFiltrados) || membrosFiltrados.length === 0) {
-          campoLista.innerHTML = '<div class="vazio">Nenhum membro encontrado para a célula selecionada.</div>';
-          atualizarResumo();
-          return;
-        }
-
-        campoLista.innerHTML = membrosFiltrados.map((membro) => {
+        campoLista.innerHTML = membros.map((membro) => {
           const status = presencas[membro.id] || '';
 
           return `
@@ -631,39 +555,6 @@
         atualizarResumo();
       }
 
-
-      function renderizarHistorico() {
-        if (!campoData.value) {
-          campoHistorico.innerHTML = '<div class="vazio">Selecione uma data para visualizar o histórico.</div>';
-          return;
-        }
-
-        if (!campoCelula.value) {
-          campoHistorico.innerHTML = '<div class="vazio">Selecione uma célula para visualizar o histórico da data.</div>';
-          return;
-        }
-
-        if (!Array.isArray(membrosFiltrados) || membrosFiltrados.length === 0) {
-          campoHistorico.innerHTML = '<div class="vazio">Nenhum membro encontrado para a célula selecionada.</div>';
-          return;
-        }
-
-        const itens = membrosFiltrados.map((membro) => {
-          const status = presencas[membro.id] || '';
-          return `
-            <div class="historico-item">
-              <div>
-                <strong>${membro.nome || ''}</strong><br>
-                <span style="color:#6b7280;font-size:14px;">${membro.celula || '-'}</span>
-              </div>
-              <span class="${classeStatus(status)}">${textoStatus(status)}</span>
-            </div>
-          `;
-        }).join('');
-
-        campoHistorico.innerHTML = itens || '<div class="vazio">Nenhum registro salvo para esta data.</div>';
-      }
-
       async function carregarPresencasDaData() {
         const data = campoData.value;
         if (!data) return;
@@ -681,7 +572,6 @@
           }
 
           renderizarMembros();
-          renderizarHistorico();
           atualizarSituacaoAtual();
           campoMensagem.textContent = '';
         } catch (erro) {
@@ -695,19 +585,17 @@
         try {
           campoLista.innerHTML = '<div class="vazio">Carregando membros...</div>';
           const resposta = await fetch(apiMembros, { cache: 'no-store' });
-          todosMembros = await resposta.json();
+          membros = await resposta.json();
 
-          if (!Array.isArray(todosMembros) || todosMembros.length === 0) {
-            todosMembros = [];
-            preencherSelectCelulas();
+          if (!Array.isArray(membros) || membros.length === 0) {
+            membros = [];
+            preencherSelectMembros();
             renderizarMembros();
-            renderizarHistorico();
             return;
           }
 
-          preencherSelectCelulas();
+          preencherSelectMembros();
           await carregarPresencasDaData();
-          renderizarMembros();
         } catch (erro) {
           console.error(erro);
           campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
@@ -716,18 +604,11 @@
 
       async function salvarOuAtualizarPresenca(tipo) {
         const data = campoData.value;
-        const celula = campoCelula.value;
         const membroId = campoMembro.value;
         const status = campoStatus.value;
 
         if (!data) {
           campoMensagem.textContent = 'Selecione a data da reunião.';
-          campoMensagem.style.color = '#dc2626';
-          return;
-        }
-
-        if (!celula) {
-          campoMensagem.textContent = 'Selecione a célula.';
           campoMensagem.style.color = '#dc2626';
           return;
         }
@@ -791,80 +672,17 @@
         }
       }
 
-      async function marcarTodos(status) {
-        const data = campoData.value;
-        const celula = campoCelula.value;
-
-        if (!data) {
-          campoMensagem.textContent = 'Selecione a data da reunião.';
-          campoMensagem.style.color = '#dc2626';
-          return;
-        }
-
-        if (!celula) {
-          campoMensagem.textContent = 'Selecione a célula primeiro.';
-          campoMensagem.style.color = '#dc2626';
-          return;
-        }
-
-        if (!Array.isArray(membrosFiltrados) || membrosFiltrados.length === 0) {
-          campoMensagem.textContent = 'Não há membros nesta célula.';
-          campoMensagem.style.color = '#dc2626';
-          return;
-        }
-
-        membrosFiltrados.forEach((membro) => {
-          presencas[membro.id] = status;
-        });
-
-        try {
-          const registros = Object.entries(presencas).map(([id, valor]) => ({
-            membroId: Number(id),
-            status: valor
-          }));
-
-          const resposta = await fetch(apiPresencas, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data, registros })
-          });
-
-          if (resposta.ok) {
-            campoMensagem.textContent = status === 'presente'
-              ? 'Todos os membros da célula foram marcados como presentes.'
-              : 'Todos os membros da célula foram marcados como ausentes.';
-            campoMensagem.style.color = '#16a34a';
-            await carregarPresencasDaData();
-            atualizarSituacaoAtual();
-          } else {
-            campoMensagem.textContent = 'Erro ao salvar presença em lote.';
-            campoMensagem.style.color = '#dc2626';
-          }
-        } catch (erro) {
-          console.error(erro);
-          campoMensagem.textContent = 'Erro ao conectar com o servidor.';
-          campoMensagem.style.color = '#dc2626';
-        }
-      }
-
       campoLista.addEventListener('click', (event) => {
         const botao = event.target.closest('[data-editar]');
         if (!botao) return;
 
         const membroId = botao.getAttribute('data-editar');
-        const membro = membrosFiltrados.find((item) => String(item.id) === String(membroId));
-        if (!membro) return;
-
-        campoCelula.value = String(membro.celula || '').trim().toUpperCase();
-        aplicarFiltroCelula();
         campoMembro.value = membroId;
         const statusAtual = presencas[membroId] || '';
         campoStatus.value = statusAtual || '';
         atualizarSituacaoAtual();
         window.scrollTo({ top: 0, behavior: 'smooth' });
       });
-
-      campoCelula.addEventListener('change', aplicarFiltroCelula);
 
       campoMembro.addEventListener('change', () => {
         const membroId = campoMembro.value;
@@ -876,8 +694,6 @@
       campoData.addEventListener('change', carregarPresencasDaData);
       document.getElementById('btnSalvar').addEventListener('click', () => salvarOuAtualizarPresenca('salvar'));
       document.getElementById('btnAtualizar').addEventListener('click', () => salvarOuAtualizarPresenca('atualizar'));
-      document.getElementById('btnPresenteTodos').addEventListener('click', () => marcarTodos('presente'));
-      document.getElementById('btnAusenteTodos').addEventListener('click', () => marcarTodos('ausente'));
       document.getElementById('btnLimpar').addEventListener('click', () => limparSelecao(true));
       document.getElementById('btnSair').addEventListener('click', sair);
 

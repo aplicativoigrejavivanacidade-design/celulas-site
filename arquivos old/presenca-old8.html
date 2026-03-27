@@ -290,19 +290,6 @@
       border:2px dashed var(--line);
     }
 
-    .historico-item{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding:12px 0;
-      border-bottom:1px solid #edf2f7;
-    }
-
-    .historico-item:last-child{
-      border-bottom:none;
-    }
-
     @media (max-width: 1100px) {
       .topo{
         grid-template-columns:1fr;
@@ -433,11 +420,11 @@
       </div>
 
       <div class="lista" id="listaMembros"></div>
+<div class="card">
+<h2>Histórico da data selecionada</h2>
+<div id="historico"></div>
+</div>
 
-      <div class="card">
-        <h2>Histórico da data selecionada</h2>
-        <div id="historicoPresencas"></div>
-      </div>
     </main>
   </div>
 
@@ -460,7 +447,6 @@
 
       const campoUsuario = document.getElementById('usuarioLogado');
       const campoLista = document.getElementById('listaMembros');
-      const campoHistorico = document.getElementById('historicoPresencas');
       const campoMensagem = document.getElementById('mensagem');
       const campoData = document.getElementById('dataReuniao');
       const campoCelula = document.getElementById('celulaSelecionada');
@@ -532,8 +518,7 @@
         campoMembro.value = '';
         campoStatus.value = '';
         campoStatusSalvo.value = 'PENDENTE';
-        renderizarMembros();
-        renderizarHistorico();
+        renderizarMembros(); renderHistorico();
         if (limparMensagem) {
           campoMensagem.textContent = '';
         }
@@ -580,8 +565,7 @@
         campoMembro.value = '';
         campoStatus.value = '';
         campoStatusSalvo.value = 'PENDENTE';
-        renderizarMembros();
-        renderizarHistorico();
+        renderizarMembros(); renderHistorico();
       }
 
       function atualizarSituacaoAtual() {
@@ -631,45 +615,32 @@
         atualizarResumo();
       }
 
-
-      function renderizarHistorico() {
-        if (!campoData.value) {
-          campoHistorico.innerHTML = '<div class="vazio">Selecione uma data para visualizar o histórico.</div>';
-          return;
-        }
-
-        if (!campoCelula.value) {
-          campoHistorico.innerHTML = '<div class="vazio">Selecione uma célula para visualizar o histórico da data.</div>';
-          return;
-        }
-
-        if (!Array.isArray(membrosFiltrados) || membrosFiltrados.length === 0) {
-          campoHistorico.innerHTML = '<div class="vazio">Nenhum membro encontrado para a célula selecionada.</div>';
-          return;
-        }
-
-        const itens = membrosFiltrados.map((membro) => {
-          const status = presencas[membro.id] || '';
-          return `
-            <div class="historico-item">
-              <div>
-                <strong>${membro.nome || ''}</strong><br>
-                <span style="color:#6b7280;font-size:14px;">${membro.celula || '-'}</span>
-              </div>
-              <span class="${classeStatus(status)}">${textoStatus(status)}</span>
-            </div>
-          `;
-        }).join('');
-
-        campoHistorico.innerHTML = itens || '<div class="vazio">Nenhum registro salvo para esta data.</div>';
-      }
-
       async function carregarPresencasDaData() {
         const data = campoData.value;
         if (!data) return;
 
         try {
-          const resposta = await fetch(`${apiPresencas}/${data}`, { cache: 'no-store' });
+          const resposta = await fetch(`${apiPresencas}/${data}`, { cache: 'no-store' 
+function renderHistorico(){
+  const div = document.getElementById('historico');
+  if(!div) return;
+
+  if(!presencas || Object.keys(presencas).length===0){
+    div.innerHTML = '<div class="vazio">Nenhum registro salvo para esta data.</div>';
+    return;
+  }
+
+  const lista = Object.entries(presencas).map(([id,status])=>{
+    const m = todosMembros.find(x=>String(x.id)===String(id));
+    return `<div style="padding:10px;border-bottom:1px solid #eee;">
+      <strong>${m?m.nome:'Membro'}</strong> - ${status.toUpperCase()}
+    </div>`;
+  }).join('');
+
+  div.innerHTML = lista;
+}
+
+});
           const registros = await resposta.json();
 
           presencas = {};
@@ -680,8 +651,7 @@
             });
           }
 
-          renderizarMembros();
-          renderizarHistorico();
+          renderizarMembros(); renderHistorico();
           atualizarSituacaoAtual();
           campoMensagem.textContent = '';
         } catch (erro) {
@@ -700,14 +670,13 @@
           if (!Array.isArray(todosMembros) || todosMembros.length === 0) {
             todosMembros = [];
             preencherSelectCelulas();
-            renderizarMembros();
-            renderizarHistorico();
+            renderizarMembros(); renderHistorico();
             return;
           }
 
           preencherSelectCelulas();
           await carregarPresencasDaData();
-          renderizarMembros();
+          renderizarMembros(); renderHistorico();
         } catch (erro) {
           console.error(erro);
           campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';

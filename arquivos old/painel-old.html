@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>+Células | Relatórios</title>
+  <title>+Células | Painel</title>
   <style>
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #f5f7fb;
+      background: #f4f7fb;
       color: #1f2937;
     }
 
@@ -70,66 +70,106 @@
       padding: 30px;
     }
 
-    .header {
+    .hero {
       background: white;
       border-radius: 22px;
       padding: 24px;
-      margin-bottom: 24px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      margin-bottom: 24px;
     }
 
-    .header h1 {
+    .hero h1 {
       margin: 0 0 8px;
       font-size: 30px;
     }
 
-    .header p {
+    .hero p {
       margin: 0;
       color: #4b5563;
     }
 
-    .card {
-      background: white;
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
-      margin-bottom: 18px;
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
     }
 
-    .card h2 {
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #4b5563;
+    }
+
+    .numero {
+      font-size: 34px;
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .secao {
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+
+    .secao h2 {
       margin-top: 0;
+      margin-bottom: 18px;
+      font-size: 24px;
+    }
+
+    .lista {
+      display: grid;
+      gap: 12px;
     }
 
     .item {
       border: 1px solid #e5e7eb;
       border-radius: 14px;
-      padding: 14px;
-      margin-bottom: 12px;
+      padding: 14px 16px;
       background: #fafafa;
     }
 
+    .item strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
     .vazio {
-      text-align: center;
       color: #6b7280;
-      padding: 24px;
+      padding: 16px;
       border: 2px dashed #d1d5db;
       border-radius: 14px;
+      text-align: center;
       background: #fcfcfc;
     }
 
     @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
       .sidebar {
         position: relative;
         width: 100%;
         bottom: auto;
       }
 
-      .layout {
-        flex-direction: column;
-      }
-
       .content {
         margin-left: 0;
+      }
+
+      .resumo {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -198,25 +238,47 @@
         <a href="relatorios.html" id="menuRelatorios">Relatórios</a>
         <a href="usuarios.html" id="menuUsuarios">Usuários</a>
 <script>
-  verificarPermissao('usuarios');
+  verificarPermissao('painel');
 </script>
+      </nav>
 <div style="margin-top: 20px;">
   <button onclick="sair()" style="width:100%;padding:12px;border:none;border-radius:12px;background:#dc2626;color:white;font-weight:bold;cursor:pointer;">
     Sair
   </button>
 </div>
-      </nav>
     </aside>
 
     <main class="content">
-      <div class="header">
-        <h1>Relatórios</h1>
-        <p>Resumo de frequência por membro</p>
+      <div class="hero">
+        <h1>Painel principal</h1>
+        <p>Visão geral do sistema +Células</p>
       </div>
 
-      <div class="card">
-        <h2>Resumo de frequência por membro</h2>
-        <div id="relatorioFrequencia"></div>
+      <div class="resumo">
+        <div class="card">
+          <h3>Total de membros</h3>
+          <div class="numero" id="totalMembros">0</div>
+        </div>
+
+        <div class="card">
+          <h3>Presentes hoje</h3>
+          <div class="numero" id="presentesHoje">0</div>
+        </div>
+
+        <div class="card">
+          <h3>Ausentes hoje</h3>
+          <div class="numero" id="ausentesHoje">0</div>
+        </div>
+
+        <div class="card">
+          <h3>Registros de presença</h3>
+          <div class="numero" id="totalPresencas">0</div>
+        </div>
+      </div>
+
+      <div class="secao">
+        <h2>Últimos membros cadastrados</h2>
+        <div class="lista" id="ultimosMembros"></div>
       </div>
     </main>
   </div>
@@ -225,7 +287,15 @@
     const apiMembros = 'https://celulas-backend.onrender.com/membros';
     const apiPresencas = 'https://celulas-backend.onrender.com/presencas';
 
-    async function carregarRelatorio() {
+    function dataHoje() {
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = String(hoje.getMonth() + 1).padStart(2, '0');
+      const dia = String(hoje.getDate()).padStart(2, '0');
+      return `${ano}-${mes}-${dia}`;
+    }
+
+    async function carregarPainel() {
       const [resMembros, resPresencas] = await Promise.all([
         fetch(apiMembros),
         fetch(apiPresencas)
@@ -234,33 +304,36 @@
       const membros = await resMembros.json();
       const presencas = await resPresencas.json();
 
-      const container = document.getElementById('relatorioFrequencia');
+      document.getElementById('totalMembros').textContent = membros.length;
+      document.getElementById('totalPresencas').textContent = presencas.length;
 
-      if (membros.length === 0) {
-        container.innerHTML = '<div class="vazio">Nenhum membro cadastrado.</div>';
+      const hoje = dataHoje();
+      const presencasHoje = presencas.filter(item => item.data === hoje);
+      const presentesHoje = presencasHoje.filter(item => item.status === 'presente').length;
+      const ausentesHoje = presencasHoje.filter(item => item.status === 'ausente').length;
+
+      document.getElementById('presentesHoje').textContent = presentesHoje;
+      document.getElementById('ausentesHoje').textContent = ausentesHoje;
+
+      const ultimos = [...membros].slice(-5).reverse();
+      const lista = document.getElementById('ultimosMembros');
+
+      if (ultimos.length === 0) {
+        lista.innerHTML = '<div class="vazio">Nenhum membro cadastrado ainda.</div>';
         return;
       }
 
-      const html = membros.map(membro => {
-        const registros = presencas.filter(p => p.membroId === membro.id);
-        const presentes = registros.filter(p => p.status === 'presente').length;
-        const ausentes = registros.filter(p => p.status === 'ausente').length;
-        const total = registros.length;
-
-        return `
-          <div class="item">
-            <strong>${membro.nome}</strong><br>
-            Total de registros: ${total}<br>
-            Presentes: ${presentes}<br>
-            Ausentes: ${ausentes}
-          </div>
-        `;
-      }).join('');
-
-      container.innerHTML = html;
+      lista.innerHTML = ultimos.map(membro => `
+        <div class="item">
+          <strong>${membro.nome}</strong>
+          <span>Telefone: ${membro.telefone || '-'}</span><br>
+          <span>Célula: ${membro.celula || '-'}</span><br>
+          <span>Status: ${membro.status || '-'}</span>
+        </div>
+      `).join('');
     }
 
-    carregarRelatorio();
+    carregarPainel();
   </script>
 </body>
 <script>

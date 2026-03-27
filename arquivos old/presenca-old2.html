@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>+Células | Presença</title>
+
+<style>
+*{box-sizing:border-box;}
+
+body{
+margin:0;
+font-family:Arial;
+background:#eef2f7;
+}
+
+.layout{display:flex;min-height:100vh;}
+
+.sidebar{
+width:250px;
+background:linear-gradient(180deg,#1d4ed8,#16a34a);
+color:white;
+padding:24px;
+position:fixed;
+height:100%;
+}
+
+.menu a{
+display:block;
+color:white;
+padding:12px;
+margin-bottom:6px;
+text-decoration:none;
+border-radius:10px;
+font-weight:bold;
+}
+
+.menu a:hover,.menu a.ativo{
+background:rgba(255,255,255,0.2);
+}
+
+.content{
+margin-left:250px;
+padding:30px;
+width:calc(100% - 250px);
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+margin-bottom:20px;
+}
+
+.lista .item{
+background:white;
+padding:12px;
+margin-bottom:10px;
+border-radius:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+button{
+padding:8px 12px;
+border:none;
+border-radius:8px;
+font-weight:bold;
+cursor:pointer;
+}
+
+.presente{background:#16a34a;color:white;}
+.ausente{background:#dc2626;color:white;}
+
+</style>
+</head>
+
+<body>
+
+<div class="layout">
+
+<div class="sidebar">
+<h2>+Células</h2>
+<div class="menu">
+<a href="painel.html">Painel</a>
+<a href="cadastro.html">Membros</a>
+<a href="presenca.html" class="ativo">Presença</a>
+<a href="usuarios.html">Usuários</a>
+</div>
+
+<button onclick="sair()" style="margin-top:20px;width:100%;background:#dc2626;color:white;">Sair</button>
+</div>
+
+<div class="content">
+
+<div class="card">
+<h2>Controle de presença</h2>
+<input type="date" id="data">
+<button onclick="salvar()">Salvar presença</button>
+</div>
+
+<div class="lista" id="lista"></div>
+
+</div>
+</div>
+
+<script>
+const API_MEMBROS="https://celulas-backend.onrender.com/membros";
+const API_PRESENCA="https://celulas-backend.onrender.com/presencas";
+
+let membros=[];
+let presenca={};
+
+function sair(){
+localStorage.clear();
+window.location.href="login.html";
+}
+
+async function carregar(){
+const res=await fetch(API_MEMBROS);
+membros=await res.json();
+
+const lista=document.getElementById("lista");
+
+lista.innerHTML=membros.map(m=>`
+<div class="item">
+<span>${m.nome}</span>
+<div>
+<button class="presente" onclick="marcar(${m.id},'presente')">Presente</button>
+<button class="ausente" onclick="marcar(${m.id},'ausente')">Ausente</button>
+</div>
+</div>
+`).join("");
+}
+
+function marcar(id,status){
+presenca[id]=status;
+}
+
+async function salvar(){
+const data=document.getElementById("data").value;
+
+await fetch(API_PRESENCA,{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+data,
+registros:Object.entries(presenca).map(([id,status])=>({
+membroId:Number(id),
+status
+}))
+})
+});
+
+alert("Salvo!");
+}
+
+carregar();
+</script>
+
+</body>
+</html>

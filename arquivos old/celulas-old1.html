@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>+Células | Células</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    :root{
+      --bg:#eef2f7;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#dbe3ee;
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --green:#16a34a;
+      --amber:#f59e0b;
+      --red:#dc2626;
+      --shadow:0 10px 25px rgba(0,0,0,0.05);
+      --radius:16px;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .layout { display: flex; min-height: 100vh; }
+
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, var(--blue-dark), var(--green));
+      color: white;
+      padding: 24px 18px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+    }
+
+    .logo { font-size: 30px; font-weight: bold; margin: 0; }
+    .logo-sub { margin: 6px 0 28px; font-size: 13px; opacity: 0.9; }
+
+    .menu a {
+      display: block;
+      color: white;
+      padding: 12px;
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .menu a:hover, .menu a.ativo { background: rgba(255,255,255,0.16); }
+
+    .btn-sair {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: var(--red);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 30px;
+      width: calc(100% - 250px);
+    }
+
+    .header {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .header .usuario-logado {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 16px;
+      font-size: 22px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    input[type="text"], textarea {
+      text-transform: uppercase;
+    }
+
+    .acoes-form {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .acoes-form button {
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .btn-salvar { background: var(--blue); color: white; }
+    .btn-limpar { background: var(--amber); color: white; }
+    .btn-geo { background: var(--green); color: white; }
+
+    .contador {
+      background: #e8f0ff;
+      color: var(--blue-dark);
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: bold;
+      white-space: nowrap;
+    }
+
+    .topo-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .lista-membro {
+      border: 1px solid var(--line);
+      padding: 12px;
+      margin-bottom: 10px;
+      border-radius: 12px;
+      background: #fafbfd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lista-membro h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .lista-membro p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 13px;
+    }
+
+    .check-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .check-wrap input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--blue);
+      flex: 0 0 auto;
+    }
+
+    .campo-ajuda {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .vazio {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      background: #fcfdff;
+    }
+
+    .celula-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: #fafbfd;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .celula-item:hover,
+    .celula-item.ativa {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+      background: #f8fbff;
+    }
+
+    .celula-item h3 {
+      margin: 0 0 6px;
+      font-size: 17px;
+    }
+
+    .celula-item p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 13px;
+    }
+
+    .membros-vinculados {
+      margin-top: 20px;
+    }
+
+    .membros-vinculados h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+
+    #msg {
+      margin-top: 14px;
+      font-weight: bold;
+      min-height: 20px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 1100px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .layout { flex-direction: column; }
+      .sidebar { position: relative; width: 100%; height: auto; }
+      .content { margin-left: 0; width: 100%; padding: 20px; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .lista-membro { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="logo">+Células</h2>
+      <div class="logo-sub">Gestão de células</div>
+
+      <div class="menu">
+        <a href="painel.html">Painel</a>
+        <a href="cadastro.html">Membros</a>
+        <a href="presenca.html">Presença</a>
+        <a href="celulas.html" class="ativo">Células</a>
+        <a href="relatorios.html">Relatórios</a>
+        <a href="usuarios.html">Usuários</a>
+      </div>
+
+      <button class="btn-sair" id="btnSair" type="button">Sair</button>
+    </aside>
+
+    <main class="content">
+      <div class="header">
+        <h1>Cadastro de células</h1>
+        <p>Cadastre a célula, visualize células já existentes e confira os membros vinculados</p>
+        <p class="usuario-logado" id="usuarioLogado"></p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Nova célula</h2>
+
+          <label for="nomeCelula">Nome da célula</label>
+          <input id="nomeCelula" type="text" placeholder="Nome da célula">
+
+          <div class="grid-2">
+            <div>
+              <label for="diaSemana">Dia da semana da reunião</label>
+              <select id="diaSemana">
+                <option value="">Selecione</option>
+                <option value="SEGUNDA-FEIRA">SEGUNDA-FEIRA</option>
+                <option value="TERCA-FEIRA">TERÇA-FEIRA</option>
+                <option value="QUARTA-FEIRA">QUARTA-FEIRA</option>
+                <option value="QUINTA-FEIRA">QUINTA-FEIRA</option>
+                <option value="SEXTA-FEIRA">SEXTA-FEIRA</option>
+                <option value="SABADO">SÁBADO</option>
+                <option value="DOMINGO">DOMINGO</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="horaReuniao">Hora da reunião</label>
+              <input id="horaReuniao" type="time">
+            </div>
+          </div>
+
+          <label for="anfitriao">Anfitrião</label>
+          <select id="anfitriao">
+            <option value="">Carregando membros...</option>
+          </select>
+
+          <label for="cep">CEP</label>
+          <input id="cep" type="text" placeholder="00000-000">
+
+          <label for="rua">Rua</label>
+          <input id="rua" type="text" placeholder="Rua">
+
+          <div class="grid-2">
+            <div>
+              <label for="numero">Número</label>
+              <input id="numero" type="text" placeholder="Número">
+            </div>
+            <div>
+              <label for="complemento">Complemento</label>
+              <input id="complemento" type="text" placeholder="Complemento">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="bairro">Bairro</label>
+              <input id="bairro" type="text" placeholder="Bairro">
+            </div>
+            <div>
+              <label for="cidade">Cidade</label>
+              <input id="cidade" type="text" placeholder="Cidade">
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="estado">Estado</label>
+              <input id="estado" type="text" placeholder="UF">
+            </div>
+            <div>
+              <label for="geolocalizacao">Geolocalização</label>
+              <input id="geolocalizacao" type="text" placeholder="-23.000000, -51.000000" readonly>
+            </div>
+          </div>
+
+          <div class="acoes-form">
+            <button class="btn-geo" id="btnGeo" type="button">Capturar geolocalização</button>
+            <button class="btn-salvar" id="btnSalvar" type="button">Salvar célula</button>
+            <button class="btn-limpar" id="btnLimpar" type="button">Limpar</button>
+          </div>
+
+          <div class="campo-ajuda">
+            Nesta etapa a tela já mostra as células cadastradas com base no campo célula dos membros. No próximo passo eu ligo o cadastro definitivo da célula ao backend próprio.
+          </div>
+
+          <p id="msg"></p>
+        </div>
+
+        <div class="card">
+          <div class="topo-card">
+            <h2 style="margin:0;">Membros sem célula</h2>
+            <span class="contador" id="contadorSemCelula">0 membro(s)</span>
+          </div>
+          <div id="listaSemCelula"></div>
+
+          <div class="membros-vinculados">
+            <div class="topo-card">
+              <h2 style="margin:0;">Células já cadastradas</h2>
+              <span class="contador" id="contadorCelulas">0 célula(s)</span>
+            </div>
+            <div id="listaCelulas"></div>
+
+            <div class="topo-card" style="margin-top:18px;">
+              <h3 style="margin:0;">Membros vinculados à célula selecionada</h3>
+              <span class="contador" id="contadorVinculados">0 membro(s)</span>
+            </div>
+            <div id="listaVinculados"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const API_MEMBROS = "https://celulas-backend.onrender.com/membros";
+
+      if (localStorage.getItem("logado") !== "sim") {
+        window.location.href = "login.html";
+        return;
+      }
+
+      const nomeUsuario = localStorage.getItem("nomeUsuario") || "Administrador";
+      const nivelUsuario = localStorage.getItem("nivelUsuario") || "lider";
+      document.getElementById("usuarioLogado").textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
+
+      const campoNomeCelula = document.getElementById("nomeCelula");
+      const campoDiaSemana = document.getElementById("diaSemana");
+      const campoHoraReuniao = document.getElementById("horaReuniao");
+      const campoAnfitriao = document.getElementById("anfitriao");
+      const campoCep = document.getElementById("cep");
+      const campoRua = document.getElementById("rua");
+      const campoNumero = document.getElementById("numero");
+      const campoComplemento = document.getElementById("complemento");
+      const campoBairro = document.getElementById("bairro");
+      const campoCidade = document.getElementById("cidade");
+      const campoEstado = document.getElementById("estado");
+      const campoGeolocalizacao = document.getElementById("geolocalizacao");
+      const campoLista = document.getElementById("listaSemCelula");
+      const campoMsg = document.getElementById("msg");
+      const contador = document.getElementById("contadorSemCelula");
+      const campoListaCelulas = document.getElementById("listaCelulas");
+      const contadorCelulas = document.getElementById("contadorCelulas");
+      const campoListaVinculados = document.getElementById("listaVinculados");
+      const contadorVinculados = document.getElementById("contadorVinculados");
+
+      let membros = [];
+      let celulaSelecionada = "";
+
+      function sair() {
+        localStorage.removeItem("logado");
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("nomeUsuario");
+        localStorage.removeItem("nivelUsuario");
+        window.location.href = "login.html";
+      }
+
+      function formatarCep(valor) {
+        const numeros = valor.replace(/\D/g, "").slice(0, 8);
+        if (numeros.length > 5) return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
+        return numeros;
+      }
+
+      function membrosSemCelula() {
+        return membros.filter((m) => !String(m.celula || "").trim());
+      }
+
+      function celulasCadastradas() {
+        return [...new Set(
+          membros
+            .map((m) => String(m.celula || "").trim().toUpperCase())
+            .filter(Boolean)
+        )].sort();
+      }
+
+      function membrosDaCelula(nomeCelula) {
+        return membros.filter((m) => String(m.celula || "").trim().toUpperCase() === nomeCelula);
+      }
+
+      function renderizarListaSemCelula() {
+        const lista = membrosSemCelula();
+        contador.textContent = `${lista.length} membro(s)`;
+
+        if (lista.length === 0) {
+          campoLista.innerHTML = '<div class="vazio">Todos os membros já estão vinculados a uma célula.</div>';
+          return;
+        }
+
+        campoLista.innerHTML = lista.map((membro) => `
+          <label class="lista-membro">
+            <div class="check-wrap">
+              <input type="checkbox" class="membro-checkbox" value="${membro.id}">
+              <div>
+                <h3>${membro.nome || ""}</h3>
+                <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+                <p><strong>Status:</strong> ${(membro.status || "-").toUpperCase()}</p>
+              </div>
+            </div>
+          </label>
+        `).join("");
+      }
+
+      function preencherAnfitriao() {
+        if (!Array.isArray(membros) || membros.length === 0) {
+          campoAnfitriao.innerHTML = '<option value="">Nenhum membro encontrado</option>';
+          return;
+        }
+
+        campoAnfitriao.innerHTML =
+          '<option value="">Selecione o anfitrião</option>' +
+          membros.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
+      }
+
+      function renderizarVinculados(nomeCelula) {
+        if (!nomeCelula) {
+          contadorVinculados.textContent = "0 membro(s)";
+          campoListaVinculados.innerHTML = '<div class="vazio">Selecione uma célula para ver os membros vinculados.</div>';
+          return;
+        }
+
+        const lista = membrosDaCelula(nomeCelula);
+        contadorVinculados.textContent = `${lista.length} membro(s)`;
+
+        if (lista.length === 0) {
+          campoListaVinculados.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
+          return;
+        }
+
+        campoListaVinculados.innerHTML = lista.map((membro) => `
+          <div class="lista-membro">
+            <div>
+              <h3>${membro.nome || ""}</h3>
+              <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+              <p><strong>Status:</strong> ${(membro.status || "-").toUpperCase()}</p>
+            </div>
+          </div>
+        `).join("");
+      }
+
+      function renderizarCelulas() {
+        const lista = celulasCadastradas();
+        contadorCelulas.textContent = `${lista.length} célula(s)`;
+
+        if (lista.length === 0) {
+          campoListaCelulas.innerHTML = '<div class="vazio">Nenhuma célula cadastrada ainda.</div>';
+          renderizarVinculados("");
+          return;
+        }
+
+        if (!celulaSelecionada) {
+          celulaSelecionada = lista[0];
+        }
+
+        campoListaCelulas.innerHTML = lista.map((nome) => `
+          <div class="celula-item ${celulaSelecionada === nome ? "ativa" : ""}" data-celula="${nome}">
+            <h3>${nome}</h3>
+            <p>${membrosDaCelula(nome).length} membro(s) vinculado(s)</p>
+          </div>
+        `).join("");
+
+        renderizarVinculados(celulaSelecionada);
+      }
+
+      async function carregarMembros() {
+        try {
+          campoLista.innerHTML = '<div class="vazio">Carregando membros...</div>';
+          campoListaCelulas.innerHTML = '<div class="vazio">Carregando células...</div>';
+          campoListaVinculados.innerHTML = '<div class="vazio">Carregando dados...</div>';
+
+          const resposta = await fetch(API_MEMBROS, { cache: "no-store" });
+          if (!resposta.ok) throw new Error("Erro ao carregar membros");
+
+          membros = await resposta.json();
+          preencherAnfitriao();
+          renderizarListaSemCelula();
+          renderizarCelulas();
+        } catch (erro) {
+          console.error(erro);
+          contador.textContent = "0 membro(s)";
+          contadorCelulas.textContent = "0 célula(s)";
+          contadorVinculados.textContent = "0 membro(s)";
+          campoAnfitriao.innerHTML = '<option value="">Erro ao carregar membros</option>';
+          campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
+          campoListaCelulas.innerHTML = '<div class="vazio">Erro ao carregar células.</div>';
+          campoListaVinculados.innerHTML = '<div class="vazio">Erro ao carregar membros vinculados.</div>';
+        }
+      }
+
+      function limparFormulario() {
+        campoNomeCelula.value = "";
+        campoDiaSemana.value = "";
+        campoHoraReuniao.value = "";
+        campoAnfitriao.value = "";
+        campoCep.value = "";
+        campoRua.value = "";
+        campoNumero.value = "";
+        campoComplemento.value = "";
+        campoBairro.value = "";
+        campoCidade.value = "";
+        campoEstado.value = "";
+        campoGeolocalizacao.value = "";
+        document.querySelectorAll(".membro-checkbox").forEach((item) => item.checked = false);
+        campoMsg.textContent = "";
+      }
+
+      function obterMembrosSelecionados() {
+        return Array.from(document.querySelectorAll(".membro-checkbox:checked")).map((item) => Number(item.value));
+      }
+
+      function salvarCelula() {
+        const dados = {
+          nomeCelula: campoNomeCelula.value.trim().toUpperCase(),
+          diaSemana: campoDiaSemana.value,
+          horaReuniao: campoHoraReuniao.value,
+          anfitriao: campoAnfitriao.value,
+          cep: campoCep.value.trim(),
+          rua: campoRua.value.trim().toUpperCase(),
+          numero: campoNumero.value.trim().toUpperCase(),
+          complemento: campoComplemento.value.trim().toUpperCase(),
+          bairro: campoBairro.value.trim().toUpperCase(),
+          cidade: campoCidade.value.trim().toUpperCase(),
+          estado: campoEstado.value.trim().toUpperCase(),
+          geolocalizacao: campoGeolocalizacao.value.trim(),
+          membrosSelecionados: obterMembrosSelecionados()
+        };
+
+        if (!dados.nomeCelula) {
+          campoMsg.textContent = "INFORME O NOME DA CÉLULA.";
+          campoMsg.style.color = "#dc2626";
+          return;
+        }
+
+        if (!dados.diaSemana) {
+          campoMsg.textContent = "SELECIONE O DIA DA REUNIÃO.";
+          campoMsg.style.color = "#dc2626";
+          return;
+        }
+
+        if (!dados.horaReuniao) {
+          campoMsg.textContent = "INFORME A HORA DA REUNIÃO.";
+          campoMsg.style.color = "#dc2626";
+          return;
+        }
+
+        if (!dados.anfitriao) {
+          campoMsg.textContent = "SELECIONE O ANFITRIÃO.";
+          campoMsg.style.color = "#dc2626";
+          return;
+        }
+
+        campoMsg.textContent = "LISTA DE CÉLULAS E MEMBROS VINCULADOS JÁ ESTÁ ATIVA. NO PRÓXIMO PASSO EU VOU LIGAR O SALVAMENTO DEFINITIVO AO BACKEND.";
+        campoMsg.style.color = "#16a34a";
+        console.log("DADOS DA CÉLULA PRONTOS:", dados);
+      }
+
+      function capturarGeolocalizacao() {
+        if (!navigator.geolocation) {
+          campoMsg.textContent = "GEOLOCALIZAÇÃO NÃO SUPORTADA NESTE NAVEGADOR.";
+          campoMsg.style.color = "#dc2626";
+          return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+          (posicao) => {
+            const latitude = posicao.coords.latitude.toFixed(6);
+            const longitude = posicao.coords.longitude.toFixed(6);
+            campoGeolocalizacao.value = `${latitude}, ${longitude}`;
+            campoMsg.textContent = "GEOLOCALIZAÇÃO CAPTURADA COM SUCESSO.";
+            campoMsg.style.color = "#16a34a";
+          },
+          () => {
+            campoMsg.textContent = "NÃO FOI POSSÍVEL CAPTURAR A GEOLOCALIZAÇÃO.";
+            campoMsg.style.color = "#dc2626";
+          }
+        );
+      }
+
+      campoCep.addEventListener("input", function () {
+        campoCep.value = formatarCep(campoCep.value);
+      });
+
+      campoCep.addEventListener("blur", async function () {
+        const cep = campoCep.value.replace(/\D/g, "");
+        if (cep.length !== 8) return;
+
+        try {
+          const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+          const dados = await resposta.json();
+
+          if (dados.erro) {
+            campoMsg.textContent = "CEP NÃO ENCONTRADO.";
+            campoMsg.style.color = "#dc2626";
+            return;
+          }
+
+          campoRua.value = (dados.logradouro || "").toUpperCase();
+          campoBairro.value = (dados.bairro || "").toUpperCase();
+          campoCidade.value = (dados.localidade || "").toUpperCase();
+          campoEstado.value = (dados.uf || "").toUpperCase();
+        } catch (erro) {
+          campoMsg.textContent = "ERRO AO BUSCAR CEP.";
+          campoMsg.style.color = "#dc2626";
+        }
+      });
+
+      document.querySelectorAll('input[type="text"], textarea').forEach((campo) => {
+        campo.addEventListener("input", () => {
+          if (campo.id !== "cep") campo.value = campo.value.toUpperCase();
+        });
+      });
+
+      campoListaCelulas.addEventListener("click", function(event) {
+        const item = event.target.closest("[data-celula]");
+        if (!item) return;
+        celulaSelecionada = item.getAttribute("data-celula");
+        renderizarCelulas();
+      });
+
+      document.getElementById("btnGeo").addEventListener("click", capturarGeolocalizacao);
+      document.getElementById("btnSalvar").addEventListener("click", salvarCelula);
+      document.getElementById("btnLimpar").addEventListener("click", limparFormulario);
+      document.getElementById("btnSair").addEventListener("click", sair);
+
+      carregarMembros();
+    });
+  </script>
+</body>
+</html>

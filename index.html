@@ -4,26 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>+Células | Plataforma inteligente para células da Igreja</title>
-  <meta name="description" content="+Células é a plataforma para Gestão de Células, frequência, acompanhamento pastoral e crescimento organizado da Igreja." />
+  <meta name="description" content="+Células é a plataforma para gestão de células, frequência, acompanhamento pastoral e crescimento organizado da Igreja." />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --bg:#08111f;
       --bg-soft:#0f1b31;
       --card:#101a2f;
-      --card-2:#ffffff;
       --text:#e5eefc;
       --text-dark:#0f172a;
       --muted:#9fb2d1;
-      --line:rgba(255,255,255,.09);
       --primary:#3b82f6;
       --primary-2:#2563eb;
       --green:#22c55e;
-      --green-2:#16a34a;
       --shadow:0 24px 70px rgba(0,0,0,.35);
-      --radius:24px;
       --max:1180px;
     }
 
@@ -101,22 +98,16 @@
       pointer-events:none;
     }
 
-    .brand-icon .plus{
-      font-size:1.05rem;
-      font-weight:900;
-      line-height:1;
+    .brand-icon .plus,
+    .brand-icon .c{
       position:relative;
       z-index:1;
+      font-weight:900;
+      line-height:1;
     }
 
-    .brand-icon .c{
-      font-size:1rem;
-      font-weight:900;
-      line-height:1;
-      letter-spacing:-0.04em;
-      position:relative;
-      z-index:1;
-    }
+    .brand-icon .plus{font-size:1.05rem;}
+    .brand-icon .c{font-size:1rem; letter-spacing:-0.04em;}
 
     .nav-links{
       display:flex;
@@ -130,6 +121,7 @@
       display:flex;
       gap:12px;
       align-items:center;
+      flex-wrap:wrap;
     }
 
     .btn{
@@ -785,6 +777,7 @@
 
       <div class="nav-actions">
         <a class="btn btn-secondary" href="#planos">Ver planos</a>
+        <a class="btn btn-secondary" href="https://celulas-backend.onrender.com/login.html" target="_blank">Acessar sistema</a>
         <a class="btn btn-primary" href="https://celulas-backend.onrender.com/login.html" target="_blank">Teste grátis</a>
       </div>
     </div>
@@ -806,6 +799,7 @@
 
         <div class="hero-actions">
           <a class="btn btn-primary" href="https://celulas-backend.onrender.com/login.html" target="_blank">Teste grátis</a>
+          <a class="btn btn-secondary" href="https://celulas-backend.onrender.com/login.html" target="_blank">Acessar sistema</a>
           <a class="btn btn-whatsapp" href="https://wa.me/5541987925616?text=Ol%C3%A1%2C%20quero%20conhecer%20o%20%2BC%C3%A9lulas" target="_blank">💬 Falar no WhatsApp</a>
         </div>
 
@@ -931,7 +925,7 @@
         </div>
         <div class="card light">
           <div class="icon">🏠</div>
-          <h3>Gestão de Células</h3>
+          <h3>Gestão de células</h3>
           <p>Controle líderes, locais, reuniões, estrutura e expansão das células.</p>
         </div>
         <div class="card light">
@@ -1027,7 +1021,7 @@
   <section id="depoimentos" class="section">
     <div class="container">
       <div class="section-head">
-        <h2>Depoimentos que reforçam confiança e geram credibilidade ao +Células</h2>
+        <h2>Depoimentos que reforçam confiança e credibilidade ao +Células</h2>
         <p>Veja o que nossos clientes pensam sobre o +Células.</p>
       </div>
 
@@ -1126,7 +1120,7 @@
     <div class="container">
       <div class="cta-final">
         <div>
-          <h2>Chegou a hora de profissionalizar a Gestão das Células da sua Igreja</h2>
+          <h2>Chegou a hora de profissionalizar a gestão das células da sua Igreja</h2>
           <p>
             Dê à sua Igreja uma plataforma moderna, clara e preparada para apoiar
             líderes, acompanhar pessoas e sustentar crescimento com mais ordem.

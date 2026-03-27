@@ -178,18 +178,11 @@
     .btn-success{ background:var(--green); color:white; }
     .btn-primary{ background:var(--blue); color:white; }
     .btn-secondary{ background:var(--amber); color:white; }
-    .btn-danger{ background:var(--red); color:white; }
 
     .acoes-topo{
       display:flex;
       gap:10px;
       margin-top:14px;
-      flex-wrap:wrap;
-    }
-
-    .acoes-topo button{
-      flex:1;
-      min-width:180px;
     }
 
     .resumo{
@@ -288,19 +281,6 @@
       color:var(--muted);
       box-shadow:0 8px 24px rgba(0,0,0,0.05);
       border:2px dashed var(--line);
-    }
-
-    .historico-item{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding:12px 0;
-      border-bottom:1px solid #edf2f7;
-    }
-
-    .historico-item:last-child{
-      border-bottom:none;
     }
 
     @media (max-width: 1100px) {
@@ -413,8 +393,6 @@
           <div class="acoes-topo">
             <button class="btn-success" id="btnSalvar" type="button">Salvar presença</button>
             <button class="btn-primary" id="btnAtualizar" type="button">Alterar presença salva</button>
-            <button class="btn-secondary" id="btnPresenteTodos" type="button">Marcar todos presentes</button>
-            <button class="btn-danger" id="btnAusenteTodos" type="button">Marcar todos ausentes</button>
             <button class="btn-secondary" id="btnLimpar" type="button">Limpar seleção</button>
           </div>
 
@@ -433,11 +411,6 @@
       </div>
 
       <div class="lista" id="listaMembros"></div>
-
-      <div class="card">
-        <h2>Histórico da data selecionada</h2>
-        <div id="historicoPresencas"></div>
-      </div>
     </main>
   </div>
 
@@ -460,7 +433,6 @@
 
       const campoUsuario = document.getElementById('usuarioLogado');
       const campoLista = document.getElementById('listaMembros');
-      const campoHistorico = document.getElementById('historicoPresencas');
       const campoMensagem = document.getElementById('mensagem');
       const campoData = document.getElementById('dataReuniao');
       const campoCelula = document.getElementById('celulaSelecionada');
@@ -533,7 +505,6 @@
         campoStatus.value = '';
         campoStatusSalvo.value = 'PENDENTE';
         renderizarMembros();
-        renderizarHistorico();
         if (limparMensagem) {
           campoMensagem.textContent = '';
         }
@@ -581,7 +552,6 @@
         campoStatus.value = '';
         campoStatusSalvo.value = 'PENDENTE';
         renderizarMembros();
-        renderizarHistorico();
       }
 
       function atualizarSituacaoAtual() {
@@ -631,39 +601,6 @@
         atualizarResumo();
       }
 
-
-      function renderizarHistorico() {
-        if (!campoData.value) {
-          campoHistorico.innerHTML = '<div class="vazio">Selecione uma data para visualizar o histórico.</div>';
-          return;
-        }
-
-        if (!campoCelula.value) {
-          campoHistorico.innerHTML = '<div class="vazio">Selecione uma célula para visualizar o histórico da data.</div>';
-          return;
-        }
-
-        if (!Array.isArray(membrosFiltrados) || membrosFiltrados.length === 0) {
-          campoHistorico.innerHTML = '<div class="vazio">Nenhum membro encontrado para a célula selecionada.</div>';
-          return;
-        }
-
-        const itens = membrosFiltrados.map((membro) => {
-          const status = presencas[membro.id] || '';
-          return `
-            <div class="historico-item">
-              <div>
-                <strong>${membro.nome || ''}</strong><br>
-                <span style="color:#6b7280;font-size:14px;">${membro.celula || '-'}</span>
-              </div>
-              <span class="${classeStatus(status)}">${textoStatus(status)}</span>
-            </div>
-          `;
-        }).join('');
-
-        campoHistorico.innerHTML = itens || '<div class="vazio">Nenhum registro salvo para esta data.</div>';
-      }
-
       async function carregarPresencasDaData() {
         const data = campoData.value;
         if (!data) return;
@@ -681,7 +618,6 @@
           }
 
           renderizarMembros();
-          renderizarHistorico();
           atualizarSituacaoAtual();
           campoMensagem.textContent = '';
         } catch (erro) {
@@ -701,7 +637,6 @@
             todosMembros = [];
             preencherSelectCelulas();
             renderizarMembros();
-            renderizarHistorico();
             return;
           }
 
@@ -791,62 +726,6 @@
         }
       }
 
-      async function marcarTodos(status) {
-        const data = campoData.value;
-        const celula = campoCelula.value;
-
-        if (!data) {
-          campoMensagem.textContent = 'Selecione a data da reunião.';
-          campoMensagem.style.color = '#dc2626';
-          return;
-        }
-
-        if (!celula) {
-          campoMensagem.textContent = 'Selecione a célula primeiro.';
-          campoMensagem.style.color = '#dc2626';
-          return;
-        }
-
-        if (!Array.isArray(membrosFiltrados) || membrosFiltrados.length === 0) {
-          campoMensagem.textContent = 'Não há membros nesta célula.';
-          campoMensagem.style.color = '#dc2626';
-          return;
-        }
-
-        membrosFiltrados.forEach((membro) => {
-          presencas[membro.id] = status;
-        });
-
-        try {
-          const registros = Object.entries(presencas).map(([id, valor]) => ({
-            membroId: Number(id),
-            status: valor
-          }));
-
-          const resposta = await fetch(apiPresencas, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data, registros })
-          });
-
-          if (resposta.ok) {
-            campoMensagem.textContent = status === 'presente'
-              ? 'Todos os membros da célula foram marcados como presentes.'
-              : 'Todos os membros da célula foram marcados como ausentes.';
-            campoMensagem.style.color = '#16a34a';
-            await carregarPresencasDaData();
-            atualizarSituacaoAtual();
-          } else {
-            campoMensagem.textContent = 'Erro ao salvar presença em lote.';
-            campoMensagem.style.color = '#dc2626';
-          }
-        } catch (erro) {
-          console.error(erro);
-          campoMensagem.textContent = 'Erro ao conectar com o servidor.';
-          campoMensagem.style.color = '#dc2626';
-        }
-      }
-
       campoLista.addEventListener('click', (event) => {
         const botao = event.target.closest('[data-editar]');
         if (!botao) return;
@@ -876,8 +755,6 @@
       campoData.addEventListener('change', carregarPresencasDaData);
       document.getElementById('btnSalvar').addEventListener('click', () => salvarOuAtualizarPresenca('salvar'));
       document.getElementById('btnAtualizar').addEventListener('click', () => salvarOuAtualizarPresenca('atualizar'));
-      document.getElementById('btnPresenteTodos').addEventListener('click', () => marcarTodos('presente'));
-      document.getElementById('btnAusenteTodos').addEventListener('click', () => marcarTodos('ausente'));
       document.getElementById('btnLimpar').addEventListener('click', () => limparSelecao(true));
       document.getElementById('btnSair').addEventListener('click', sair);
 

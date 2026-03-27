@@ -7,26 +7,11 @@
   <style>
     * { box-sizing: border-box; }
 
-    :root{
-      --bg:#eef2f7;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#dbe3ee;
-      --blue:#2563eb;
-      --blue-dark:#1d4ed8;
-      --green:#16a34a;
-      --amber:#f59e0b;
-      --red:#dc2626;
-      --shadow:0 10px 25px rgba(0,0,0,0.05);
-      --radius:16px;
-    }
-
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
+      background: #f5f7fb;
+      color: #1f2937;
     }
 
     .layout {
@@ -36,7 +21,7 @@
 
     .sidebar {
       width: 250px;
-      background: linear-gradient(180deg, var(--blue-dark), var(--green));
+      background: linear-gradient(180deg, #1d4ed8, #16a34a);
       color: white;
       padding: 24px 18px;
       position: fixed;
@@ -46,13 +31,13 @@
     }
 
     .logo {
-      font-size: 30px;
+      font-size: 28px;
       font-weight: bold;
       margin-bottom: 8px;
     }
 
     .logo-sub {
-      font-size: 13px;
+      font-size: 14px;
       opacity: 0.9;
       margin-bottom: 28px;
     }
@@ -85,11 +70,11 @@
     }
 
     .header {
-      background: var(--card);
+      background: white;
       border-radius: 22px;
       padding: 24px;
       margin-bottom: 24px;
-      box-shadow: var(--shadow);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     }
 
     .header h1 {
@@ -99,32 +84,20 @@
 
     .header p {
       margin: 0;
-      color: var(--muted);
-    }
-
-    .usuario-logado {
-      margin-top: 10px !important;
-      font-size: 14px;
+      color: #4b5563;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: 400px 1fr;
+      grid-template-columns: 380px 1fr;
       gap: 20px;
-      align-items: start;
     }
 
     .card {
-      background: var(--card);
+      background: white;
       border-radius: 18px;
-      padding: 22px;
-      box-shadow: var(--shadow);
-    }
-
-    .card h2 {
-      margin-top: 0;
-      margin-bottom: 16px;
-      font-size: 22px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
     }
 
     label {
@@ -135,24 +108,17 @@
       font-size: 14px;
     }
 
-    input, select {
+    input, select, button {
       width: 100%;
       padding: 12px 14px;
       border-radius: 12px;
-      border: 1px solid var(--line);
+      border: 1px solid #d1d5db;
       font-size: 15px;
       font-family: inherit;
-      background: #fff;
     }
 
-    input[type="text"] {
-      text-transform: uppercase;
-    }
-
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    input[type="password"] {
+      text-transform: none;
     }
 
     button {
@@ -161,24 +127,20 @@
       cursor: pointer;
       font-weight: bold;
       transition: 0.2s;
-      border-radius: 12px;
-      font-size: 14px;
-      padding: 12px 14px;
-      font-family: inherit;
     }
 
     .btn-primary {
-      background: var(--blue);
+      background: #2563eb;
       color: white;
     }
 
     .btn-secondary {
-      background: var(--amber);
+      background: #f59e0b;
       color: white;
     }
 
     .btn-danger {
-      background: var(--red);
+      background: #dc2626;
       color: white;
       width: auto;
       padding: 10px 14px;
@@ -186,7 +148,7 @@
     }
 
     .btn-edit {
-      background: var(--blue);
+      background: #2563eb;
       color: white;
       width: auto;
       padding: 10px 14px;
@@ -206,25 +168,6 @@
       margin-top: 14px;
       font-size: 14px;
       min-height: 20px;
-      font-weight: bold;
-    }
-
-    .lista-topo {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .contador {
-      background: #e8f0ff;
-      color: var(--blue-dark);
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: bold;
-      white-space: nowrap;
     }
 
     .usuario {
@@ -270,24 +213,11 @@
 
     .vazio {
       text-align: center;
-      color: var(--muted);
+      color: #6b7280;
       padding: 30px 10px;
-      border: 2px dashed var(--line);
+      border: 2px dashed #d1d5db;
       border-radius: 16px;
       background: #fcfcfc;
-    }
-
-    .btn-sair {
-      width: 100%;
-      background: var(--red);
-      color: white;
-      margin-top: 20px;
-    }
-
-    @media (max-width: 1000px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
     }
 
     @media (max-width: 900px) {
@@ -303,6 +233,10 @@
 
       .content {
         margin-left: 0;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
       }
 
       .usuario {
@@ -325,14 +259,17 @@
         <a href="usuarios.html" id="menuUsuarios" class="ativo">Usuários</a>
       </nav>
 
-      <button id="btnSair" class="btn-sair" type="button">Sair</button>
+      <div style="margin-top:20px;">
+        <button id="btnSair" style="width:100%;padding:12px;border:none;border-radius:12px;background:#dc2626;color:white;font-weight:bold;cursor:pointer;">
+          Sair
+        </button>
+      </div>
     </aside>
 
     <main class="content">
       <div class="header">
         <h1>Usuários do sistema</h1>
-        <p>Gerencie acessos e níveis do sistema</p>
-        <p id="usuarioLogado" class="usuario-logado"></p>
+        <p id="usuarioLogado">Usuário logado:</p>
       </div>
 
       <div class="grid">
@@ -366,10 +303,7 @@
         </div>
 
         <div class="card">
-          <div class="lista-topo">
-            <h2 style="margin:0;">Usuários cadastrados</h2>
-            <span class="contador" id="contadorUsuarios">0 usuário(s)</span>
-          </div>
+          <h2>Usuários cadastrados</h2>
           <div id="listaUsuarios"></div>
         </div>
       </div>
@@ -398,7 +332,6 @@
       const campoNivel = document.getElementById('nivel');
       const campoId = document.getElementById('usuarioId');
       const titulo = document.getElementById('titulo-form');
-      const contadorUsuarios = document.getElementById('contadorUsuarios');
 
       function sair() {
         localStorage.removeItem('logado');
@@ -426,7 +359,7 @@
         const menuUsuarios = document.getElementById('menuUsuarios');
         const menuRelatorios = document.getElementById('menuRelatorios');
 
-        campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
+        campoUsuario.textContent = `Usuário logado: ${nomeUsuario} • Nível: ${nivelUsuario}`;
 
         if (nivelUsuario !== 'admin' && menuUsuarios) {
           menuUsuarios.style.display = 'none';
@@ -457,12 +390,9 @@
           const usuarios = await resposta.json();
 
           if (!Array.isArray(usuarios) || usuarios.length === 0) {
-            contadorUsuarios.textContent = '0 usuário(s)';
             campoLista.innerHTML = '<div class="vazio">Nenhum usuário cadastrado.</div>';
             return;
           }
-
-          contadorUsuarios.textContent = `${usuarios.length} usuário(s)`;
 
           campoLista.innerHTML = usuarios.map((usuarioItem) => `
             <div class="usuario">
@@ -480,7 +410,6 @@
           `).join('');
         } catch (erro) {
           console.error(erro);
-          contadorUsuarios.textContent = '0 usuário(s)';
           campoLista.innerHTML = '<div class="vazio">Erro ao carregar usuários.</div>';
         }
       }
