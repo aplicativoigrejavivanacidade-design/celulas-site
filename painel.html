@@ -1,269 +1,50 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>+Células | Painel</title>
-
-<style>
+<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>+Células | Painel</title><style>
 * { box-sizing: border-box; }
-
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: #eef2f7;
-  color: #1f2937;
+:root{
+  --bg:#eef2f7; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --line:#dbe3ee;
+  --blue:#2563eb; --blue-dark:#1d4ed8; --green:#16a34a; --amber:#f59e0b; --red:#dc2626;
+  --shadow:0 10px 25px rgba(0,0,0,0.05); --radius:16px;
 }
-
-.layout {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* SIDEBAR */
-.sidebar {
-  width: 250px;
-  background: linear-gradient(180deg, #1d4ed8, #16a34a);
-  color: white;
-  padding: 24px 18px;
-  position: fixed;
-  height: 100%;
-}
-
-.logo {
-  font-size: 30px;
-  font-weight: bold;
-}
-
-.logo-sub {
-  font-size: 13px;
-  opacity: 0.9;
-  margin-bottom: 30px;
-}
-
-.menu a {
-  display: block;
-  padding: 12px;
-  margin-bottom: 6px;
-  border-radius: 10px;
-  color: white;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.menu a:hover,
-.menu a.ativo {
-  background: rgba(255,255,255,0.18);
-}
-
-/* CONTENT */
-.content {
-  margin-left: 250px;
-  padding: 30px;
-  width: calc(100% - 250px);
-}
-
-/* HEADER */
-.hero {
-  background: white;
-  padding: 25px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-}
-
-.hero h1 {
-  margin: 0;
-}
-
-.hero p {
-  margin-top: 5px;
-  color: #6b7280;
-}
-
-/* CARDS */
-.resumo {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.card {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-}
-
-.card h3 {
-  margin: 0;
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.numero {
-  font-size: 32px;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-/* LISTA */
-.secao {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-}
-
-.lista {
-  margin-top: 10px;
-}
-
-.item {
-  border: 1px solid #e5e7eb;
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-}
-
-.vazio {
-  text-align: center;
-  color: #6b7280;
-  padding: 20px;
-}
-
-/* RESPONSIVO */
-@media(max-width:900px){
-  .layout { flex-direction: column; }
-  .sidebar { position: relative; width: 100%; }
-  .content { margin-left: 0; width: 100%; }
-  .resumo { grid-template-columns: 1fr; }
-}
-</style>
-</head>
-
-<body>
-
-<div class="layout">
-
-<!-- SIDEBAR -->
-<div class="sidebar">
-  <div class="logo">+Células</div>
-  <div class="logo-sub">Gestão de células</div>
-
-  <div class="menu">
-    <a href="painel.html" class="ativo">Painel</a>
-    <a href="cadastro.html">Membros</a>
-    <a href="presenca.html">Presença</a>
-    <a href="relatorios.html" id="menuRelatorios">Relatórios</a>
-    <a href="usuarios.html" id="menuUsuarios">Usuários</a>
-  </div>
-
-  <button id="btnSair" style="margin-top:20px;width:100%;padding:10px;border:none;border-radius:10px;background:#dc2626;color:white;font-weight:bold;">
-    Sair
-  </button>
-</div>
-
-<!-- CONTENT -->
-<div class="content">
-
-<div class="hero">
-  <h1>Painel principal</h1>
-  <p>Visão geral do sistema</p>
-  <p id="usuarioLogado"></p>
-</div>
-
-<div class="resumo">
-  <div class="card">
-    <h3>Total membros</h3>
-    <div class="numero" id="totalMembros">0</div>
-  </div>
-
-  <div class="card">
-    <h3>Presentes hoje</h3>
-    <div class="numero" id="presentesHoje">0</div>
-  </div>
-
-  <div class="card">
-    <h3>Ausentes hoje</h3>
-    <div class="numero" id="ausentesHoje">0</div>
-  </div>
-
-  <div class="card">
-    <h3>Total registros</h3>
-    <div class="numero" id="totalPresencas">0</div>
-  </div>
-</div>
-
-<div class="secao">
-  <h2>Últimos membros</h2>
-  <div id="ultimosMembros"></div>
-</div>
-
-</div>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", async () => {
-
-const API_MEMBROS = "https://celulas-backend.onrender.com/membros";
-const API_PRESENCAS = "https://celulas-backend.onrender.com/presencas";
-
-if(localStorage.getItem("logado")!=="sim"){
-  window.location.href="login.html";
-  return;
-}
-
-const nome = localStorage.getItem("nomeUsuario");
-const nivel = localStorage.getItem("nivelUsuario");
-
-document.getElementById("usuarioLogado").innerText =
-`Usuário: ${nome} | Nível: ${nivel}`;
-
-document.getElementById("btnSair").onclick = ()=>{
-  localStorage.clear();
-  window.location.href="login.html";
-};
-
-try{
-
-const res1 = await fetch(API_MEMBROS);
-const membros = await res1.json();
-
-const res2 = await fetch(API_PRESENCAS);
-const presencas = await res2.json();
-
-document.getElementById("totalMembros").innerText = membros.length;
-document.getElementById("totalPresencas").innerText = presencas.length;
-
-const hoje = new Date().toISOString().slice(0,10);
-
-const hojeLista = presencas.filter(p=>p.data===hoje);
-
-document.getElementById("presentesHoje").innerText =
-hojeLista.filter(p=>p.status==="presente").length;
-
-document.getElementById("ausentesHoje").innerText =
-hojeLista.filter(p=>p.status==="ausente").length;
-
-const ultimos = membros.slice(-5).reverse();
-
-document.getElementById("ultimosMembros").innerHTML =
-ultimos.length ? ultimos.map(m=>`
-<div class="item">
-<b>${m.nome}</b><br>
-${m.telefone||"-"}<br>
-${m.celula||"-"}
-</div>
-`).join("") : "<div class='vazio'>Nenhum membro</div>";
-
-}catch(e){
-document.getElementById("ultimosMembros").innerHTML =
-"<div class='vazio'>Erro ao carregar dados</div>";
-}
-
-});
-</script>
-
-</body>
-</html>
+body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
+.layout { display: flex; min-height: 100vh; }
+.sidebar { width: 250px; background: linear-gradient(180deg, var(--blue-dark), var(--green)); color: white; padding: 24px 18px; position: fixed; top: 0; left: 0; height: 100%; }
+.logo { font-size: 30px; font-weight: bold; margin: 0; }
+.logo-sub { margin: 6px 0 28px; font-size: 13px; opacity: 0.9; }
+.menu a { display: block; color: white; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 6px; font-weight: bold; }
+.menu a:hover, .menu a.ativo { background: rgba(255,255,255,0.16); }
+.btn-sair { margin-top: 20px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--red); color: white; font-weight: bold; cursor: pointer; }
+.content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
+.header { background: var(--card); padding: 22px; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--shadow); }
+.header h1 { margin: 0 0 8px; font-size: 30px; }
+.header p { margin: 0; color: var(--muted); }
+.header .usuario-logado { margin-top: 10px; font-size: 14px; }
+.card { background: var(--card); padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+label { display: block; margin-top: 12px; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
+input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-family: inherit; background: #fff; }
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+input[type="text"], textarea { text-transform: uppercase; }
+button { padding: 12px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; }
+.btn-primario { background: var(--blue); color: white; }
+.btn-sucesso { background: var(--green); color: white; }
+.btn-aviso { background: var(--amber); color: white; }
+.btn-perigo { background: var(--red); color: white; }
+.acoes { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
+.badge { display:inline-block; padding:8px 12px; border-radius:999px; font-size:13px; font-weight:bold; background:#e8f0ff; color:var(--blue-dark); }
+.item { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; background: #fafbfd; }
+.item h3 { margin: 0 0 6px; font-size: 17px; }
+.item p { margin: 0 0 4px; color: #4b5563; font-size: 13px; }
+.msg { margin-top: 14px; font-weight: bold; min-height: 20px; font-size: 14px; }
+.vazio { color: var(--muted); font-style: italic; text-align: center; padding: 20px; border: 2px dashed var(--line); border-radius: 12px; background: #fcfdff; }
+@media (max-width: 1100px) { .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+@media (max-width: 900px) { .layout { flex-direction: column; } .sidebar { position: relative; width: 100%; height: auto; } .content { margin-left: 0; width: 100%; padding: 20px; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+</style></head><body><div class="layout"><aside class="sidebar"><h2 class="logo">+Células</h2><div class="logo-sub">Gestão de células</div><div class="menu"><a href="painel.html" class="ativo">Painel</a><a href="cadastro.html" class="">Membros</a><a href="presenca.html" class="">Presença</a><a href="celulas.html" class="">Células</a><a href="relatorios.html" class="">Relatórios</a><a href="usuarios.html" class="">Usuários</a></div><button class="btn-sair" id="btnSair" type="button">Sair</button></aside><main class="content"><div class="header"><h1>Painel principal</h1><p>Visão geral do sistema</p><p class="usuario-logado" id="usuarioLogado"></p></div><div class="grid-4"><div class="card"><div class="badge">Total membros</div><h2 id="totalMembros">0</h2></div><div class="card"><div class="badge">Membros ativos</div><h2 id="ativos">0</h2></div><div class="card"><div class="badge">Com célula</div><h2 id="comCelula">0</h2></div><div class="card"><div class="badge">Sem célula</div><h2 id="semCelula">0</h2></div></div><div class="card" style="margin-top:20px"><h2>Últimos membros</h2><div id="listaMembros"></div></div></main></div><script>
+const API_BASE = "https://celulas-backend.onrender.com";
+function protegerPagina(){ if(localStorage.getItem("logado")!=="sim"){ window.location.href="login.html"; return false;} return true;}
+function preencherUsuarioLogado(){ const el=document.getElementById("usuarioLogado"); if(!el) return; el.textContent=`Usuário: ${localStorage.getItem("nomeUsuario")||"Administrador"} | Nível: ${localStorage.getItem("nivelUsuario")||"admin"}`; }
+function sairSistema(){ localStorage.clear(); window.location.href="login.html"; }
+function normalizarTexto(valor){ return String(valor||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toUpperCase(); }
+function formatarCep(valor){ const n=String(valor||"").replace(/\D/g,"").slice(0,8); return n.length>5?`${n.slice(0,5)}-${n.slice(5)}`:n; }
+if(protegerPagina())carregarPainel();async function carregarPainel(){const lista=document.getElementById("listaMembros");try{const resp=await fetch(API_BASE+"/membros",{cache:"no-store"});if(!resp.ok)throw new Error();const membros=await resp.json();document.getElementById("totalMembros").textContent=membros.length;document.getElementById("ativos").textContent=membros.filter(m=>normalizarTexto(m.status)==="ATIVO").length;document.getElementById("comCelula").textContent=membros.filter(m=>String(m.celula||"").trim()).length;document.getElementById("semCelula").textContent=membros.filter(m=>!String(m.celula||"").trim()).length;lista.innerHTML=membros.length?membros.slice(0,8).map(m=>`<div class="item"><h3>${m.nome||""}</h3><p><strong>Telefone:</strong> ${m.telefone||"-"}</p><p><strong>Célula:</strong> ${m.celula||"SEM CÉLULA"}</p><p><strong>Status:</strong> ${m.status||"-"}</p></div>`).join(""):'<div class="vazio">Nenhum membro cadastrado.</div>';}catch(e){lista.innerHTML='<div class="vazio">Erro ao carregar dados.</div>';}}document.getElementById("btnSair")?.addEventListener("click", sairSistema); preencherUsuarioLogado();</script></body></html>
