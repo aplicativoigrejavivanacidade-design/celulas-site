@@ -1,50 +1,260 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>+Células | Relatórios</title><style>
-* { box-sizing: border-box; }
-:root{
-  --bg:#eef2f7; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --line:#dbe3ee;
-  --blue:#2563eb; --blue-dark:#1d4ed8; --green:#16a34a; --amber:#f59e0b; --red:#dc2626;
-  --shadow:0 10px 25px rgba(0,0,0,0.05); --radius:16px;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>+Células | Relatórios</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root{
+      --bg:#eef2f7;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#dbe3ee;
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --green:#16a34a;
+      --amber:#f59e0b;
+      --red:#dc2626;
+      --shadow:0 10px 25px rgba(0,0,0,0.05);
+      --radius:16px;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .layout{display:flex;min-height:100vh;}
+
+    .sidebar{
+      width:250px;
+      background:linear-gradient(180deg,var(--blue-dark),var(--green));
+      color:#fff;
+      padding:24px 18px;
+      position:fixed;
+      top:0;
+      left:0;
+      height:100%;
+    }
+
+    .logo{font-size:30px;font-weight:bold;margin:0;}
+    .logo-sub{margin:6px 0 28px;font-size:13px;opacity:.9;}
+
+    .menu a{
+      display:block;
+      color:#fff;
+      padding:12px;
+      text-decoration:none;
+      border-radius:10px;
+      margin-bottom:6px;
+      font-weight:bold;
+    }
+
+    .menu a:hover,.menu a.ativo{
+      background:rgba(255,255,255,.16);
+    }
+
+    .btn-sair{
+      margin-top:20px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:var(--red);
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .content{
+      margin-left:250px;
+      padding:30px;
+      width:calc(100% - 250px);
+    }
+
+    .header,.card{
+      background:var(--card);
+      padding:22px;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .header{margin-bottom:20px;}
+
+    .grid-4{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:16px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:bold;
+      background:#e8f0ff;
+      color:var(--blue-dark);
+    }
+
+    .item{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      margin-bottom:10px;
+      background:#fafbfd;
+    }
+
+    .vazio{
+      color:var(--muted);
+      text-align:center;
+      padding:20px;
+      border:2px dashed var(--line);
+      border-radius:12px;
+      background:#fcfdff;
+    }
+
+    @media(max-width:900px){
+      .layout{flex-direction:column;}
+      .sidebar{position:relative;width:100%;height:auto;}
+      .content{margin-left:0;width:100%;padding:20px;}
+      .grid-4{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h2 class="logo">+Células</h2>
+    <div class="logo-sub">Gestão de células</div>
+
+    <div class="menu">
+      <a href="painel.html">Painel</a>
+      <a href="cadastro.html">Membros</a>
+      <a href="presenca.html">Presença</a>
+      <a href="celulas.html">Células</a>
+      <a href="relatorios.html" class="ativo">Relatórios</a>
+      <a href="usuarios.html">Usuários</a>
+    </div>
+
+    <button class="btn-sair" id="btnSair">Sair</button>
+  </aside>
+
+  <main class="content">
+    <div class="header">
+      <h1>Relatórios</h1>
+      <p>Dashboard gerencial do crescimento das células</p>
+      <p id="usuarioLogado"></p>
+    </div>
+
+    <div class="grid-4">
+      <div class="card">
+        <div class="badge">Total de membros</div>
+        <h2 id="rTotal">0</h2>
+      </div>
+
+      <div class="card">
+        <div class="badge">Ativos</div>
+        <h2 id="rAtivos">0</h2>
+      </div>
+
+      <div class="card">
+        <div class="badge">Com célula</div>
+        <h2 id="rComCelula">0</h2>
+      </div>
+
+      <div class="card">
+        <div class="badge">Taxa de vínculo</div>
+        <h2 id="rTaxa">0%</h2>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2>Membros por célula</h2>
+      <div id="listaRelatorios"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = "https://celulas-backend.onrender.com";
+
+if(localStorage.getItem("logado") !== "sim"){
+  window.location.href = "login.html";
 }
-body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
-.layout { display: flex; min-height: 100vh; }
-.sidebar { width: 250px; background: linear-gradient(180deg, var(--blue-dark), var(--green)); color: white; padding: 24px 18px; position: fixed; top: 0; left: 0; height: 100%; }
-.logo { font-size: 30px; font-weight: bold; margin: 0; }
-.logo-sub { margin: 6px 0 28px; font-size: 13px; opacity: 0.9; }
-.menu a { display: block; color: white; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 6px; font-weight: bold; }
-.menu a:hover, .menu a.ativo { background: rgba(255,255,255,0.16); }
-.btn-sair { margin-top: 20px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--red); color: white; font-weight: bold; cursor: pointer; }
-.content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
-.header { background: var(--card); padding: 22px; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--shadow); }
-.header h1 { margin: 0 0 8px; font-size: 30px; }
-.header p { margin: 0; color: var(--muted); }
-.header .usuario-logado { margin-top: 10px; font-size: 14px; }
-.card { background: var(--card); padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-label { display: block; margin-top: 12px; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-family: inherit; background: #fff; }
-input:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
-input[type="text"], textarea { text-transform: uppercase; }
-button { padding: 12px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; }
-.btn-primario { background: var(--blue); color: white; }
-.btn-sucesso { background: var(--green); color: white; }
-.btn-aviso { background: var(--amber); color: white; }
-.btn-perigo { background: var(--red); color: white; }
-.acoes { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-.badge { display:inline-block; padding:8px 12px; border-radius:999px; font-size:13px; font-weight:bold; background:#e8f0ff; color:var(--blue-dark); }
-.item { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; background: #fafbfd; }
-.item h3 { margin: 0 0 6px; font-size: 17px; }
-.item p { margin: 0 0 4px; color: #4b5563; font-size: 13px; }
-.msg { margin-top: 14px; font-weight: bold; min-height: 20px; font-size: 14px; }
-.vazio { color: var(--muted); font-style: italic; text-align: center; padding: 20px; border: 2px dashed var(--line); border-radius: 12px; background: #fcfdff; }
-@media (max-width: 1100px) { .grid-3, .grid-4 { grid-template-columns: 1fr; } }
-@media (max-width: 900px) { .layout { flex-direction: column; } .sidebar { position: relative; width: 100%; height: auto; } .content { margin-left: 0; width: 100%; padding: 20px; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
-</style></head><body><div class="layout"><aside class="sidebar"><h2 class="logo">+Células</h2><div class="logo-sub">Gestão de células</div><div class="menu"><a href="painel.html" class="">Painel</a><a href="cadastro.html" class="">Membros</a><a href="presenca.html" class="">Presença</a><a href="celulas.html" class="">Células</a><a href="relatorios.html" class="ativo">Relatórios</a><a href="usuarios.html" class="">Usuários</a></div><button class="btn-sair" id="btnSair" type="button">Sair</button></aside><main class="content"><div class="header"><h1>Relatórios</h1><p>Visão resumida dos membros e células</p><p class="usuario-logado" id="usuarioLogado"></p></div><div class="grid-3"><div class="card"><div class="badge">Total de membros</div><h2 id="rTotal">0</h2></div><div class="card"><div class="badge">Ativos</div><h2 id="rAtivos">0</h2></div><div class="card"><div class="badge">Com célula</div><h2 id="rComCelula">0</h2></div></div><div class="card" style="margin-top:20px"><h2>Membros por célula</h2><div id="listaRelatorios"></div></div></main></div><script>
-const API_BASE = "https://celulas-backend.onrender.com";
-function protegerPagina(){ if(localStorage.getItem("logado")!=="sim"){ window.location.href="login.html"; return false;} return true;}
-function preencherUsuarioLogado(){ const el=document.getElementById("usuarioLogado"); if(!el) return; el.textContent=`Usuário: ${localStorage.getItem("nomeUsuario")||"Administrador"} | Nível: ${localStorage.getItem("nivelUsuario")||"admin"}`; }
-function sairSistema(){ localStorage.clear(); window.location.href="login.html"; }
-function normalizarTexto(valor){ return String(valor||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toUpperCase(); }
-function formatarCep(valor){ const n=String(valor||"").replace(/\D/g,"").slice(0,8); return n.length>5?`${n.slice(0,5)}-${n.slice(5)}`:n; }
-if(protegerPagina())carregarRelatorios();async function carregarRelatorios(){const lista=document.getElementById("listaRelatorios");try{const r=await fetch(API_BASE+"/membros",{cache:"no-store"});if(!r.ok)throw new Error();const membros=await r.json();document.getElementById("rTotal").textContent=membros.length;document.getElementById("rAtivos").textContent=membros.filter(m=>normalizarTexto(m.status)==="ATIVO").length;document.getElementById("rComCelula").textContent=membros.filter(m=>String(m.celula||"").trim()).length;const grupos={};membros.forEach(m=>{const c=String(m.celula||"SEM CÉLULA").trim()||"SEM CÉLULA";grupos[c]=(grupos[c]||0)+1;});lista.innerHTML=Object.entries(grupos).sort((a,b)=>a[0].localeCompare(b[0],"pt-BR")).map(([nome,qtd])=>`<div class="item"><h3>${nome}</h3><p><strong>Membros:</strong> ${qtd}</p></div>`).join("")||'<div class="vazio">Sem dados.</div>';}catch(e){lista.innerHTML='<div class="vazio">Erro ao carregar relatórios.</div>';}}document.getElementById("btnSair")?.addEventListener("click", sairSistema); preencherUsuarioLogado();</script></body></html>
+
+document.getElementById("usuarioLogado").textContent =
+  `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
+
+document.getElementById("btnSair").onclick = function(){
+  localStorage.clear();
+  window.location.href = "login.html";
+};
+
+function normalizarTexto(valor){
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .trim()
+    .toUpperCase();
+}
+
+async function carregarRelatorios(){
+  const lista = document.getElementById("listaRelatorios");
+
+  try{
+    const resp = await fetch(API + "/membros",{cache:"no-store"});
+    const membros = await resp.json();
+
+    const total = membros.length;
+    const ativos = membros.filter(m =>
+      normalizarTexto(m.status) === "ATIVO"
+    ).length;
+
+    const comCelula = membros.filter(m =>
+      String(m.celula || "").trim()
+    ).length;
+
+    const taxa = total
+      ? Math.round((comCelula / total) * 100)
+      : 0;
+
+    document.getElementById("rTotal").textContent = total;
+    document.getElementById("rAtivos").textContent = ativos;
+    document.getElementById("rComCelula").textContent = comCelula;
+    document.getElementById("rTaxa").textContent = taxa + "%";
+
+    const grupos = {};
+
+    membros.forEach(m => {
+      const nome = String(m.celula || "SEM CÉLULA").trim() || "SEM CÉLULA";
+      grupos[nome] = (grupos[nome] || 0) + 1;
+    });
+
+    const ordenado = Object.entries(grupos)
+      .sort((a,b) => b[1] - a[1]);
+
+    lista.innerHTML = ordenado.length
+      ? ordenado.map(([nome,qtd]) => `
+          <div class="item">
+            <h3>${nome}</h3>
+            <p><strong>Membros:</strong> ${qtd}</p>
+          </div>
+        `).join("")
+      : '<div class="vazio">Sem dados.</div>';
+
+  }catch{
+    lista.innerHTML = '<div class="vazio">Erro ao carregar relatórios.</div>';
+  }
+}
+
+carregarRelatorios();
+</script>
+</body>
+</html>

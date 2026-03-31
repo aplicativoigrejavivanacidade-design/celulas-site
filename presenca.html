@@ -1,50 +1,326 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>+Células | Presença</title><style>
-* { box-sizing: border-box; }
-:root{
-  --bg:#eef2f7; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --line:#dbe3ee;
-  --blue:#2563eb; --blue-dark:#1d4ed8; --green:#16a34a; --amber:#f59e0b; --red:#dc2626;
-  --shadow:0 10px 25px rgba(0,0,0,0.05); --radius:16px;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>+Células | Presença</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root{
+      --bg:#eef2f7;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#dbe3ee;
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --green:#16a34a;
+      --red:#dc2626;
+      --shadow:0 10px 25px rgba(0,0,0,0.05);
+      --radius:16px;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .layout{display:flex;min-height:100vh;}
+
+    .sidebar{
+      width:250px;
+      background:linear-gradient(180deg,var(--blue-dark),var(--green));
+      color:#fff;
+      padding:24px 18px;
+      position:fixed;
+      top:0;
+      left:0;
+      height:100%;
+    }
+
+    .logo{font-size:30px;font-weight:bold;margin:0;}
+    .logo-sub{margin:6px 0 28px;font-size:13px;opacity:.9;}
+
+    .menu a{
+      display:block;
+      color:#fff;
+      padding:12px;
+      text-decoration:none;
+      border-radius:10px;
+      margin-bottom:6px;
+      font-weight:bold;
+    }
+
+    .menu a:hover,.menu a.ativo{
+      background:rgba(255,255,255,.16);
+    }
+
+    .btn-sair{
+      margin-top:20px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:var(--red);
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .content{
+      margin-left:250px;
+      padding:30px;
+      width:calc(100% - 250px);
+    }
+
+    .header,.card{
+      background:var(--card);
+      padding:22px;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .header{margin-bottom:20px;}
+    .header h1{margin:0 0 8px;font-size:30px;}
+    .header p{margin:0;color:var(--muted);}
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      align-items:end;
+    }
+
+    label{
+      display:block;
+      margin-top:12px;
+      margin-bottom:6px;
+      font-weight:bold;
+    }
+
+    input{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid var(--line);
+    }
+
+    .acoes{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      padding:12px 14px;
+      border-radius:10px;
+      border:none;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .btn-primario{background:var(--blue);color:#fff;}
+    .btn-sucesso{background:var(--green);color:#fff;}
+
+    .item{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:14px;
+      margin-bottom:10px;
+      background:#fafbfd;
+    }
+
+    .msg{
+      margin-top:14px;
+      font-weight:bold;
+      min-height:20px;
+    }
+
+    .vazio{
+      color:var(--muted);
+      text-align:center;
+      padding:20px;
+      border:2px dashed var(--line);
+      border-radius:12px;
+      background:#fcfdff;
+    }
+
+    @media(max-width:900px){
+      .layout{flex-direction:column;}
+      .sidebar{position:relative;width:100%;height:auto;}
+      .content{margin-left:0;width:100%;padding:20px;}
+      .grid-2{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h2 class="logo">+Células</h2>
+    <div class="logo-sub">Gestão de células</div>
+
+    <div class="menu">
+      <a href="painel.html">Painel</a>
+      <a href="cadastro.html">Membros</a>
+      <a href="presenca.html" class="ativo">Presença</a>
+      <a href="celulas.html">Células</a>
+      <a href="relatorios.html">Relatórios</a>
+      <a href="usuarios.html">Usuários</a>
+    </div>
+
+    <button class="btn-sair" id="btnSair">Sair</button>
+  </aside>
+
+  <main class="content">
+    <div class="header">
+      <h1>Presença</h1>
+      <p>Registre a presença dos membros</p>
+      <p id="usuarioLogado"></p>
+    </div>
+
+    <div class="card">
+      <div class="grid-2">
+        <div>
+          <label>Data</label>
+          <input id="dataPresenca" type="date">
+        </div>
+
+        <div class="acoes">
+          <button id="btnCarregar" class="btn-primario">Carregar</button>
+          <button id="btnSalvarPresenca" class="btn-sucesso">Salvar presença</button>
+        </div>
+      </div>
+
+      <div id="msg" class="msg"></div>
+      <div id="listaPresenca" style="margin-top:16px"></div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = "https://celulas-backend.onrender.com";
+let membros = [];
+
+if(localStorage.getItem("logado") !== "sim"){
+  window.location.href = "login.html";
 }
-body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
-.layout { display: flex; min-height: 100vh; }
-.sidebar { width: 250px; background: linear-gradient(180deg, var(--blue-dark), var(--green)); color: white; padding: 24px 18px; position: fixed; top: 0; left: 0; height: 100%; }
-.logo { font-size: 30px; font-weight: bold; margin: 0; }
-.logo-sub { margin: 6px 0 28px; font-size: 13px; opacity: 0.9; }
-.menu a { display: block; color: white; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 6px; font-weight: bold; }
-.menu a:hover, .menu a.ativo { background: rgba(255,255,255,0.16); }
-.btn-sair { margin-top: 20px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--red); color: white; font-weight: bold; cursor: pointer; }
-.content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
-.header { background: var(--card); padding: 22px; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--shadow); }
-.header h1 { margin: 0 0 8px; font-size: 30px; }
-.header p { margin: 0; color: var(--muted); }
-.header .usuario-logado { margin-top: 10px; font-size: 14px; }
-.card { background: var(--card); padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-label { display: block; margin-top: 12px; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-family: inherit; background: #fff; }
-input:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
-input[type="text"], textarea { text-transform: uppercase; }
-button { padding: 12px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; }
-.btn-primario { background: var(--blue); color: white; }
-.btn-sucesso { background: var(--green); color: white; }
-.btn-aviso { background: var(--amber); color: white; }
-.btn-perigo { background: var(--red); color: white; }
-.acoes { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-.badge { display:inline-block; padding:8px 12px; border-radius:999px; font-size:13px; font-weight:bold; background:#e8f0ff; color:var(--blue-dark); }
-.item { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; background: #fafbfd; }
-.item h3 { margin: 0 0 6px; font-size: 17px; }
-.item p { margin: 0 0 4px; color: #4b5563; font-size: 13px; }
-.msg { margin-top: 14px; font-weight: bold; min-height: 20px; font-size: 14px; }
-.vazio { color: var(--muted); font-style: italic; text-align: center; padding: 20px; border: 2px dashed var(--line); border-radius: 12px; background: #fcfdff; }
-@media (max-width: 1100px) { .grid-3, .grid-4 { grid-template-columns: 1fr; } }
-@media (max-width: 900px) { .layout { flex-direction: column; } .sidebar { position: relative; width: 100%; height: auto; } .content { margin-left: 0; width: 100%; padding: 20px; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
-</style></head><body><div class="layout"><aside class="sidebar"><h2 class="logo">+Células</h2><div class="logo-sub">Gestão de células</div><div class="menu"><a href="painel.html" class="">Painel</a><a href="cadastro.html" class="">Membros</a><a href="presenca.html" class="ativo">Presença</a><a href="celulas.html" class="">Células</a><a href="relatorios.html" class="">Relatórios</a><a href="usuarios.html" class="">Usuários</a></div><button class="btn-sair" id="btnSair" type="button">Sair</button></aside><main class="content"><div class="header"><h1>Presença</h1><p>Registre a presença dos membros</p><p class="usuario-logado" id="usuarioLogado"></p></div><div class="card"><div class="grid-2"><div><label>Data</label><input id="dataPresenca" type="date"></div><div class="acoes" style="align-items:end"><button id="btnCarregar" class="btn-primario" type="button">Carregar</button><button id="btnSalvarPresenca" class="btn-sucesso" type="button">Salvar presença</button></div></div><div id="msg" class="msg"></div><div id="listaPresenca" style="margin-top:16px"></div></div></main></div><script>
-const API_BASE = "https://celulas-backend.onrender.com";
-function protegerPagina(){ if(localStorage.getItem("logado")!=="sim"){ window.location.href="login.html"; return false;} return true;}
-function preencherUsuarioLogado(){ const el=document.getElementById("usuarioLogado"); if(!el) return; el.textContent=`Usuário: ${localStorage.getItem("nomeUsuario")||"Administrador"} | Nível: ${localStorage.getItem("nivelUsuario")||"admin"}`; }
-function sairSistema(){ localStorage.clear(); window.location.href="login.html"; }
-function normalizarTexto(valor){ return String(valor||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toUpperCase(); }
-function formatarCep(valor){ const n=String(valor||"").replace(/\D/g,"").slice(0,8); return n.length>5?`${n.slice(0,5)}-${n.slice(5)}`:n; }
-let membrosPresenca=[];if(protegerPagina())iniciarPresenca();function hoje(){const d=new Date();const m=String(d.getMonth()+1).padStart(2,"0");const dia=String(d.getDate()).padStart(2,"0");return`${d.getFullYear()}-${m}-${dia}`;}async function iniciarPresenca(){document.getElementById("dataPresenca").value=hoje();document.getElementById("btnCarregar").addEventListener("click",carregarPresenca);document.getElementById("btnSalvarPresenca").addEventListener("click",salvarPresenca);await carregarPresenca();}async function carregarPresenca(){const lista=document.getElementById("listaPresenca");const data=document.getElementById("dataPresenca").value;document.getElementById("msg").textContent="";try{const [rm,rp]=await Promise.all([fetch(API_BASE+"/membros",{cache:"no-store"}),fetch(API_BASE+`/presencas/${data}`,{cache:"no-store"})]);if(!rm.ok||!rp.ok)throw new Error();const membros=await rm.json();const presencas=await rp.json();const mapa=new Map(presencas.map(p=>[Number(p.membroId),p.status]));membrosPresenca=membros;lista.innerHTML=membros.length?membros.map(m=>{const st=mapa.get(Number(m.id))||"";return`<div class="item"><h3>${m.nome||""}</h3><p><strong>Célula:</strong> ${m.celula||"SEM CÉLULA"}</p><div class="acoes"><label style="display:flex;align-items:center;gap:8px;font-weight:normal"><input type="radio" name="st_${m.id}" value="PRESENTE" ${st==="PRESENTE"?"checked":""}> Presente</label><label style="display:flex;align-items:center;gap:8px;font-weight:normal"><input type="radio" name="st_${m.id}" value="AUSENTE" ${st==="AUSENTE"?"checked":""}> Ausente</label></div></div>`}).join(""):'<div class="vazio">Nenhum membro cadastrado.</div>';}catch(e){lista.innerHTML='<div class="vazio">Erro ao carregar presença.</div>';}}async function salvarPresenca(){const data=document.getElementById("dataPresenca").value;const msg=document.getElementById("msg");const registros=membrosPresenca.map(m=>{const marcado=document.querySelector(`input[name="st_${m.id}"]:checked`);return marcado?{membroId:Number(m.id),status:marcado.value}:null;}).filter(Boolean);if(!registros.length){msg.textContent="Selecione presente ou ausente para pelo menos um membro.";msg.style.color="#dc2626";return;}try{const r=await fetch(API_BASE+"/presencas",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({data,registros})});if(!r.ok)throw new Error();msg.textContent="Presença salva com sucesso!";msg.style.color="#16a34a";}catch(e){msg.textContent="Erro ao salvar presença.";msg.style.color="#dc2626";}}document.getElementById("btnSair")?.addEventListener("click", sairSistema); preencherUsuarioLogado();</script></body></html>
+
+document.getElementById("usuarioLogado").textContent =
+  `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
+
+document.getElementById("btnSair").onclick = function(){
+  localStorage.clear();
+  window.location.href = "login.html";
+};
+
+function hoje(){
+  const d = new Date();
+  return d.toISOString().split("T")[0];
+}
+
+document.getElementById("dataPresenca").value = hoje();
+
+async function carregarPresenca(){
+  const data = document.getElementById("dataPresenca").value;
+  const lista = document.getElementById("listaPresenca");
+  lista.innerHTML = '<div class="vazio">Carregando...</div>';
+
+  try{
+    const [rm,rp] = await Promise.all([
+      fetch(API + "/membros",{cache:"no-store"}),
+      fetch(API + "/presencas/" + data,{cache:"no-store"})
+    ]);
+
+    const membrosJson = await rm.json();
+    const presencas = await rp.json();
+
+    membros = membrosJson;
+
+    const mapa = new Map(
+      presencas.map(p => [Number(p.membroId), p.status])
+    );
+
+    if(!membros.length){
+      lista.innerHTML = '<div class="vazio">Nenhum membro cadastrado.</div>';
+      return;
+    }
+
+    lista.innerHTML = membros.map(m => {
+      const status = mapa.get(Number(m.id)) || "";
+
+      return `
+        <div class="item">
+          <strong>${m.nome}</strong><br>
+          ${m.celula || "SEM CÉLULA"}
+
+          <div class="acoes" style="margin-top:10px;">
+            <label>
+              <input type="radio" name="st_${m.id}" value="PRESENTE"
+                ${status === "PRESENTE" ? "checked" : ""}>
+              Presente
+            </label>
+
+            <label>
+              <input type="radio" name="st_${m.id}" value="AUSENTE"
+                ${status === "AUSENTE" ? "checked" : ""}>
+              Ausente
+            </label>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+  }catch{
+    lista.innerHTML = '<div class="vazio">Erro ao carregar presença.</div>';
+  }
+}
+
+async function salvarPresenca(){
+  const data = document.getElementById("dataPresenca").value;
+  const msg = document.getElementById("msg");
+
+  const registros = membros.map(m => {
+    const marcado = document.querySelector(`input[name="st_${m.id}"]:checked`);
+    return marcado ? {
+      membroId:Number(m.id),
+      status:marcado.value
+    } : null;
+  }).filter(Boolean);
+
+  if(!registros.length){
+    msg.textContent = "Selecione presença ou ausência.";
+    msg.style.color = "#dc2626";
+    return;
+  }
+
+  try{
+    const resp = await fetch(API + "/presencas",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({data, registros})
+    });
+
+    if(!resp.ok){
+      throw new Error();
+    }
+
+    msg.textContent = "Presença salva com sucesso!";
+    msg.style.color = "#16a34a";
+
+  }catch{
+    msg.textContent = "Erro ao salvar presença.";
+    msg.style.color = "#dc2626";
+  }
+}
+
+document.getElementById("btnCarregar").onclick = carregarPresenca;
+document.getElementById("btnSalvarPresenca").onclick = salvarPresenca;
+
+carregarPresenca();
+</script>
+</body>
+</html>

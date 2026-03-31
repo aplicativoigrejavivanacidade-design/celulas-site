@@ -1,50 +1,181 @@
-<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>+Células | Login</title><style>
-* { box-sizing: border-box; }
-:root{
-  --bg:#eef2f7; --card:#ffffff; --text:#1f2937; --muted:#6b7280; --line:#dbe3ee;
-  --blue:#2563eb; --blue-dark:#1d4ed8; --green:#16a34a; --amber:#f59e0b; --red:#dc2626;
-  --shadow:0 10px 25px rgba(0,0,0,0.05); --radius:16px;
-}
-body { margin: 0; font-family: Arial, sans-serif; background: var(--bg); color: var(--text); }
-.layout { display: flex; min-height: 100vh; }
-.sidebar { width: 250px; background: linear-gradient(180deg, var(--blue-dark), var(--green)); color: white; padding: 24px 18px; position: fixed; top: 0; left: 0; height: 100%; }
-.logo { font-size: 30px; font-weight: bold; margin: 0; }
-.logo-sub { margin: 6px 0 28px; font-size: 13px; opacity: 0.9; }
-.menu a { display: block; color: white; padding: 12px; text-decoration: none; border-radius: 10px; margin-bottom: 6px; font-weight: bold; }
-.menu a:hover, .menu a.ativo { background: rgba(255,255,255,0.16); }
-.btn-sair { margin-top: 20px; width: 100%; padding: 12px; border: none; border-radius: 12px; background: var(--red); color: white; font-weight: bold; cursor: pointer; }
-.content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
-.header { background: var(--card); padding: 22px; border-radius: var(--radius); margin-bottom: 20px; box-shadow: var(--shadow); }
-.header h1 { margin: 0 0 8px; font-size: 30px; }
-.header p { margin: 0; color: var(--muted); }
-.header .usuario-logado { margin-top: 10px; font-size: 14px; }
-.card { background: var(--card); padding: 22px; border-radius: var(--radius); box-shadow: var(--shadow); }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-label { display: block; margin-top: 12px; margin-bottom: 6px; font-weight: bold; font-size: 14px; }
-input, textarea, select { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--line); font-size: 15px; font-family: inherit; background: #fff; }
-input:focus, textarea:focus, select:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
-input[type="text"], textarea { text-transform: uppercase; }
-button { padding: 12px 14px; border-radius: 10px; border: none; font-weight: bold; cursor: pointer; font-size: 14px; }
-.btn-primario { background: var(--blue); color: white; }
-.btn-sucesso { background: var(--green); color: white; }
-.btn-aviso { background: var(--amber); color: white; }
-.btn-perigo { background: var(--red); color: white; }
-.acoes { display:flex; gap:10px; flex-wrap:wrap; margin-top:16px; }
-.badge { display:inline-block; padding:8px 12px; border-radius:999px; font-size:13px; font-weight:bold; background:#e8f0ff; color:var(--blue-dark); }
-.item { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin-bottom: 10px; background: #fafbfd; }
-.item h3 { margin: 0 0 6px; font-size: 17px; }
-.item p { margin: 0 0 4px; color: #4b5563; font-size: 13px; }
-.msg { margin-top: 14px; font-weight: bold; min-height: 20px; font-size: 14px; }
-.vazio { color: var(--muted); font-style: italic; text-align: center; padding: 20px; border: 2px dashed var(--line); border-radius: 12px; background: #fcfdff; }
-@media (max-width: 1100px) { .grid-3, .grid-4 { grid-template-columns: 1fr; } }
-@media (max-width: 900px) { .layout { flex-direction: column; } .sidebar { position: relative; width: 100%; height: auto; } .content { margin-left: 0; width: 100%; padding: 20px; } .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
-body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--blue-dark),#0f766e)}.card-login{width:100%;max-width:460px;background:white;padding:28px;border-radius:24px;box-shadow:var(--shadow)}h1{margin:0 0 8px;font-size:42px;color:var(--blue);text-align:center}.sub{text-align:center;color:var(--muted);margin-bottom:18px}button{width:100%;background:var(--blue);color:white}.box-ajuda{background:#eef4ff;padding:14px;border-radius:14px;margin-top:16px;font-size:14px}</style></head><body><div class="card-login"><h1>+Células</h1><div class="sub">Acesse o sistema com seu usuário</div><label>Usuário</label><input id="usuario" type="text" value="admin"/><label>Senha</label><input id="senha" type="password" value="1234"/><div class="acoes"><button id="btnEntrar" type="button">Entrar</button></div><div id="msg" class="msg"></div><div class="box-ajuda"><strong>Acesso inicial:</strong><br>Usuário: <strong>admin</strong><br>Senha: <strong>1234</strong></div></div><script>
-const API_BASE = "https://celulas-backend.onrender.com";
-function protegerPagina(){ if(localStorage.getItem("logado")!=="sim"){ window.location.href="login.html"; return false;} return true;}
-function preencherUsuarioLogado(){ const el=document.getElementById("usuarioLogado"); if(!el) return; el.textContent=`Usuário: ${localStorage.getItem("nomeUsuario")||"Administrador"} | Nível: ${localStorage.getItem("nivelUsuario")||"admin"}`; }
-function sairSistema(){ localStorage.clear(); window.location.href="login.html"; }
-function normalizarTexto(valor){ return String(valor||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toUpperCase(); }
-function formatarCep(valor){ const n=String(valor||"").replace(/\D/g,"").slice(0,8); return n.length>5?`${n.slice(0,5)}-${n.slice(5)}`:n; }
-localStorage.clear();document.getElementById("btnEntrar").addEventListener("click",async()=>{const usuario=document.getElementById("usuario").value.trim();const senha=document.getElementById("senha").value.trim();const msg=document.getElementById("msg");msg.textContent="Entrando...";msg.style.color="#6b7280";try{const resp=await fetch(API_BASE+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({usuario,senha})});const data=await resp.json().catch(()=>({}));if(!resp.ok||!data.usuario){msg.textContent="Usuário ou senha inválidos.";msg.style.color="#dc2626";return;}localStorage.setItem("logado","sim");localStorage.setItem("usuario",data.usuario.usuario||usuario);localStorage.setItem("nomeUsuario",data.usuario.nome||"Administrador");localStorage.setItem("nivelUsuario",data.usuario.nivel||"admin");window.location.href="painel.html";}catch(e){msg.textContent="Erro no servidor.";msg.style.color="#dc2626";}});</script></body></html>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>+Células | Login</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --green: #16a34a;
+      --red: #dc2626;
+      --muted: #6b7280;
+      --shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--blue-dark), #0f766e);
+      padding: 20px;
+    }
+
+    .card-login {
+      width: 100%;
+      max-width: 460px;
+      background: white;
+      padding: 30px;
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 42px;
+      color: var(--blue);
+      text-align: center;
+    }
+
+    .sub {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      margin-bottom: 6px;
+      font-weight: bold;
+      color: #111827;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid #dbe3ee;
+      font-size: 15px;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--blue);
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: var(--blue-dark);
+    }
+
+    .msg {
+      margin-top: 16px;
+      font-weight: bold;
+      min-height: 22px;
+      text-align: center;
+    }
+
+    .box-ajuda {
+      background: #eef4ff;
+      padding: 14px;
+      border-radius: 14px;
+      margin-top: 20px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card-login">
+    <h1>+Células</h1>
+    <div class="sub">Acesse o sistema com seu usuário</div>
+
+    <label>Usuário</label>
+    <input id="usuario" type="text" value="admin" />
+
+    <label>Senha</label>
+    <input id="senha" type="password" value="1234" />
+
+    <button id="btnEntrar" type="button">Entrar</button>
+
+    <div id="msg" class="msg"></div>
+
+    <div class="box-ajuda">
+      <strong>Acesso inicial:</strong><br />
+      Usuário: <strong>admin</strong><br />
+      Senha: <strong>1234</strong>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = "https://celulas-backend.onrender.com";
+
+    document.getElementById("btnEntrar").addEventListener("click", async () => {
+      const usuario = document.getElementById("usuario").value.trim();
+      const senha = document.getElementById("senha").value.trim();
+      const msg = document.getElementById("msg");
+
+      msg.textContent = "Entrando...";
+      msg.style.color = "#6b7280";
+
+      try {
+        const resp = await fetch(API_BASE + "/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ usuario, senha })
+        });
+
+        const data = await resp.json().catch(() => ({}));
+
+        if (!resp.ok || !data.usuario) {
+          msg.textContent = "Usuário ou senha inválidos.";
+          msg.style.color = "#dc2626";
+          return;
+        }
+
+        localStorage.setItem("logado", "sim");
+        localStorage.setItem("usuario", data.usuario.usuario || usuario);
+        localStorage.setItem("nomeUsuario", data.usuario.nome || "Administrador");
+        localStorage.setItem("nivelUsuario", data.usuario.nivel || "admin");
+
+        msg.textContent = "Login realizado com sucesso!";
+        msg.style.color = "#16a34a";
+
+        setTimeout(() => {
+          window.location.href = "painel.html";
+        }, 500);
+
+      } catch (erro) {
+        msg.textContent = "Erro ao conectar ao servidor.";
+        msg.style.color = "#dc2626";
+      }
+    });
+  </script>
+
+</body>
+</html>
