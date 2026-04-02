@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>+Células | Painel</title>
-
+  <title>+Células | Dashboard Executivo</title>
   <style>
     * { box-sizing: border-box; }
 
@@ -17,7 +16,9 @@
       --blue: #2563eb;
       --blue-dark: #1d4ed8;
       --green: #16a34a;
+      --amber: #f59e0b;
       --red: #dc2626;
+      --purple: #7c3aed;
       --shadow: 0 10px 25px rgba(0,0,0,0.05);
       --radius: 16px;
     }
@@ -90,16 +91,12 @@
       width: calc(100% - 250px);
     }
 
-    .header,
-    .card {
+    .header {
       background: var(--card);
       padding: 22px;
       border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .header {
       margin-bottom: 20px;
+      box-shadow: var(--shadow);
     }
 
     .header h1 {
@@ -117,20 +114,65 @@
       font-size: 14px;
     }
 
-    .grid-4 {
+    .grid-hero {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
     }
 
     .badge {
       display: inline-block;
       padding: 8px 12px;
       border-radius: 999px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: bold;
-      background: #e8f0ff;
-      color: var(--blue-dark);
+      margin-bottom: 10px;
+      color: white;
+    }
+
+    .b-blue { background: var(--blue); }
+    .b-green { background: var(--green); }
+    .b-amber { background: var(--amber); }
+    .b-red { background: var(--red); }
+    .b-purple { background: var(--purple); }
+
+    .numero {
+      font-size: 34px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .subnumero {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 13px;
     }
 
     .item {
@@ -142,7 +184,7 @@
     }
 
     .item h3 {
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       font-size: 17px;
     }
 
@@ -152,7 +194,40 @@
       font-size: 13px;
     }
 
-    .vazio {
+    .barra {
+      width: 100%;
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .barra-interna {
+      height: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--green));
+      border-radius: 999px;
+    }
+
+    .lista-simples {
+      display: grid;
+      gap: 10px;
+    }
+
+    .mini-kpi {
+      padding: 14px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+    }
+
+    .mini-kpi strong {
+      display: block;
+      font-size: 26px;
+      margin-top: 6px;
+    }
+
+    .msg-vazio {
       color: var(--muted);
       font-style: italic;
       text-align: center;
@@ -162,8 +237,15 @@
       background: #fcfdff;
     }
 
+    @media (max-width: 1400px) {
+      .grid-hero {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
     @media (max-width: 1100px) {
-      .grid-4 {
+      .grid-2,
+      .grid-3 {
         grid-template-columns: 1fr;
       }
     }
@@ -184,143 +266,358 @@
         width: 100%;
         padding: 20px;
       }
+
+      .grid-hero {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="logo">+Células</h2>
+      <div class="logo-sub">Dashboard Executivo</div>
 
-<div class="layout">
-  <aside class="sidebar">
-    <h2 class="logo">+Células</h2>
-    <div class="logo-sub">Gestão de células</div>
-
-    <div class="menu">
-      <a href="painel.html" class="ativo">Painel</a>
-      <a href="cadastro.html">Membros</a>
-      <a href="presenca.html">Presença</a>
-      <a href="celulas.html">Células</a>
-      <a href="relatorios.html">Relatórios</a>
-      <a href="usuarios.html">Usuários</a>
-    </div>
-
-    <button class="btn-sair" id="btnSair" type="button">Sair</button>
-  </aside>
-
-  <main class="content">
-    <div class="header">
-      <h1>Painel principal</h1>
-      <p>Visão geral do sistema</p>
-      <p class="usuario-logado" id="usuarioLogado"></p>
-    </div>
-
-    <div class="grid-4">
-      <div class="card">
-        <div class="badge">Total membros</div>
-        <h2 id="totalMembros">...</h2>
+      <div class="menu">
+        <a href="painel.html" class="ativo">Painel</a>
+        <a href="cadastro.html">Membros</a>
+        <a href="presenca.html">Presença</a>
+        <a href="celulas.html">Células</a>
+        <a href="relatorios.html">Relatórios</a>
+        <a href="usuarios.html">Usuários</a>
       </div>
 
-      <div class="card">
-        <div class="badge">Membros ativos</div>
-        <h2 id="ativos">...</h2>
+      <button class="btn-sair" id="btnSair" type="button">Sair</button>
+    </aside>
+
+    <main class="content">
+      <div class="header">
+        <h1>Dashboard Executivo V2</h1>
+        <p>Visão estratégica de crescimento, retenção e frequência ministerial</p>
+        <p id="usuarioLogado" class="usuario-logado"></p>
       </div>
 
-      <div class="card">
-        <div class="badge">Com célula</div>
-        <h2 id="comCelula">...</h2>
+      <div class="grid-hero">
+        <div class="card">
+          <div class="badge b-blue">Total membros</div>
+          <p class="numero" id="kpiTotal">0</p>
+          <div class="subnumero">Base geral</div>
+        </div>
+
+        <div class="card">
+          <div class="badge b-green">Frequência média</div>
+          <p class="numero" id="kpiFreq">0%</p>
+          <div class="subnumero">Últimos registros</div>
+        </div>
+
+        <div class="card">
+          <div class="badge b-purple">Células ativas</div>
+          <p class="numero" id="kpiCelulas">0</p>
+          <div class="subnumero">Com membros</div>
+        </div>
+
+        <div class="card">
+          <div class="badge b-amber">Sem célula</div>
+          <p class="numero" id="kpiSemCelula">0</p>
+          <div class="subnumero">Precisam vínculo</div>
+        </div>
+
+        <div class="card">
+          <div class="badge b-red">Visitantes</div>
+          <p class="numero" id="kpiVisitantes">0</p>
+          <div class="subnumero">Status visitante</div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="badge">Sem célula</div>
-        <h2 id="semCelula">...</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h2>🏆 Ranking de células por crescimento</h2>
+          <div id="rankingCelulas"></div>
+        </div>
+
+        <div class="card">
+          <h2>🔥 Célula com maior frequência</h2>
+          <div id="melhorCelula"></div>
+        </div>
       </div>
-    </div>
 
-    <div class="card" style="margin-top:20px">
-      <h2>Últimos membros</h2>
-      <div id="listaMembros">
-        <div class="vazio">Carregando dados...</div>
+      <div class="grid-3">
+        <div class="card">
+          <h2>📈 Novos membros por status</h2>
+          <div id="novosPorStatus"></div>
+        </div>
+
+        <div class="card">
+          <h2>⚠️ Membros sem célula</h2>
+          <div id="listaSemCelula"></div>
+        </div>
+
+        <div class="card">
+          <h2>🎯 Top retenção individual</h2>
+          <div id="topRetencao"></div>
+        </div>
       </div>
-    </div>
-  </main>
-</div>
+    </main>
+  </div>
 
-<script>
-  const API_BASE = "https://celulas-backend.onrender.com";
+  <script>
+    const API_BASE = "https://celulas-backend.onrender.com";
+    const API_MEMBROS = API_BASE + "/membros";
+    const API_PRESENCAS = API_BASE + "/presencas";
 
-  function protegerPagina() {
-    if (localStorage.getItem("logado") !== "sim") {
-      window.location.href = "login.html";
-      return false;
+    let membros = [];
+    let presencas = [];
+
+    function protegerPagina() {
+      if (localStorage.getItem("logado") !== "sim") {
+        window.location.href = "login.html";
+        return false;
+      }
+      return true;
     }
-    return true;
-  }
 
-  function preencherUsuarioLogado() {
-    const el = document.getElementById("usuarioLogado");
-    if (!el) return;
+    function preencherUsuario() {
+      document.getElementById("usuarioLogado").textContent =
+        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
+    }
 
-    el.textContent =
-      `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | ` +
-      `Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
-  }
+    function sair() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
 
-  function sairSistema() {
-    localStorage.clear();
-    window.location.href = "login.html";
-  }
+    function normalizarTexto(valor) {
+      return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toUpperCase();
+    }
 
-  function normalizarTexto(valor) {
-    return String(valor || "")
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim()
-      .toUpperCase();
-  }
+    function nomeCelula(valor) {
+      const texto = normalizarTexto(valor);
+      if (!texto) return "";
+      return texto.replace(/^CELULA\s*/i, "").trim();
+    }
 
-  async function carregarPainel() {
-    const lista = document.getElementById("listaMembros");
+    function nomeCelulaExibicao(valor) {
+      const base = nomeCelula(valor);
+      return base ? `CÉLULA ${base}` : "SEM CÉLULA";
+    }
 
-    try {
-      const resp = await fetch(API_BASE + "/membros", {
-        cache: "no-store"
+    function percentual(valor) {
+      return `${Math.round(valor || 0)}%`;
+    }
+
+    function atualizarKpis() {
+      const total = membros.length;
+      const semCelula = membros.filter(m => !String(m.celula || "").trim()).length;
+      const visitantes = membros.filter(m => normalizarTexto(m.status) === "VISITANTE").length;
+
+      const celulas = new Set(
+        membros.map(m => nomeCelulaExibicao(m.celula)).filter(c => c !== "SEM CÉLULA")
+      ).size;
+
+      const totalPres = presencas.length;
+      const presentes = presencas.filter(p => normalizarTexto(p.status) === "PRESENTE").length;
+      const freq = totalPres > 0 ? (presentes / totalPres) * 100 : 0;
+
+      document.getElementById("kpiTotal").textContent = total;
+      document.getElementById("kpiFreq").textContent = percentual(freq);
+      document.getElementById("kpiCelulas").textContent = celulas;
+      document.getElementById("kpiSemCelula").textContent = semCelula;
+      document.getElementById("kpiVisitantes").textContent = visitantes;
+    }
+
+    function renderRankingCelulas() {
+      const el = document.getElementById("rankingCelulas");
+      const mapa = new Map();
+
+      membros.forEach((m) => {
+        const nome = nomeCelulaExibicao(m.celula);
+        if (nome === "SEM CÉLULA") return;
+        mapa.set(nome, (mapa.get(nome) || 0) + 1);
       });
 
-      if (!resp.ok) throw new Error();
+      const ranking = Array.from(mapa.entries())
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
 
-      const membros = await resp.json();
+      if (!ranking.length) {
+        el.innerHTML = '<div class="msg-vazio">Nenhuma célula encontrada.</div>';
+        return;
+      }
 
-      document.getElementById("totalMembros").textContent = membros.length;
-      document.getElementById("ativos").textContent =
-        membros.filter(m => normalizarTexto(m.status) === "ATIVO").length;
-      document.getElementById("comCelula").textContent =
-        membros.filter(m => String(m.celula || "").trim()).length;
-      document.getElementById("semCelula").textContent =
-        membros.filter(m => !String(m.celula || "").trim()).length;
-
-      lista.innerHTML = membros.length
-        ? membros.slice(0, 8).map(m => `
-          <div class="item">
-            <h3>${m.nome || ""}</h3>
-            <p><strong>Telefone:</strong> ${m.telefone || "-"}</p>
-            <p><strong>Célula:</strong> ${m.celula || "SEM CÉLULA"}</p>
-            <p><strong>Status:</strong> ${m.status || "-"}</p>
+      el.innerHTML = ranking.map(([nome, total], index) => `
+        <div class="item">
+          <h3>${index + 1}. ${nome}</h3>
+          <p><strong>Membros:</strong> ${total}</p>
+          <div class="barra">
+            <div class="barra-interna" style="width:${Math.min(100, total * 10)}%"></div>
           </div>
-        `).join("")
-        : `<div class="vazio">Nenhum membro cadastrado.</div>`;
-
-    } catch (erro) {
-      lista.innerHTML =
-        `<div class="vazio">Erro ao carregar dados do backend.</div>`;
+        </div>
+      `).join("");
     }
-  }
 
-  document.getElementById("btnSair").addEventListener("click", sairSistema);
+    function renderMelhorCelula() {
+      const el = document.getElementById("melhorCelula");
+      const mapaMembros = new Map();
 
-  if (protegerPagina()) {
-    preencherUsuarioLogado();
-    carregarPainel();
-  }
-</script>
+      membros.forEach((m) => {
+        mapaMembros.set(Number(m.id), nomeCelulaExibicao(m.celula));
+      });
 
+      const mapa = new Map();
+
+      presencas.forEach((p) => {
+        const celula = mapaMembros.get(Number(p.membro_id || p.membroId)) || "SEM CÉLULA";
+        if (celula === "SEM CÉLULA") return;
+
+        if (!mapa.has(celula)) {
+          mapa.set(celula, { total: 0, presentes: 0 });
+        }
+
+        const item = mapa.get(celula);
+        item.total += 1;
+        if (normalizarTexto(p.status) === "PRESENTE") {
+          item.presentes += 1;
+        }
+      });
+
+      const ranking = Array.from(mapa.entries())
+        .map(([nome, dados]) => ({
+          nome,
+          perc: dados.total > 0 ? (dados.presentes / dados.total) * 100 : 0,
+          total: dados.total
+        }))
+        .sort((a, b) => b.perc - a.perc);
+
+      if (!ranking.length) {
+        el.innerHTML = '<div class="msg-vazio">Sem registros de presença.</div>';
+        return;
+      }
+
+      const melhor = ranking[0];
+
+      el.innerHTML = `
+        <div class="item">
+          <h3>${melhor.nome}</h3>
+          <p><strong>Frequência:</strong> ${percentual(melhor.perc)}</p>
+          <p><strong>Registros:</strong> ${melhor.total}</p>
+          <div class="barra">
+            <div class="barra-interna" style="width:${melhor.perc}%"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderNovosPorStatus() {
+      const el = document.getElementById("novosPorStatus");
+      const mapa = {};
+
+      membros.forEach((m) => {
+        const status = normalizarTexto(m.status) || "SEM STATUS";
+        mapa[status] = (mapa[status] || 0) + 1;
+      });
+
+      el.innerHTML = Object.entries(mapa)
+        .sort((a, b) => b[1] - a[1])
+        .map(([status, total]) => `
+          <div class="mini-kpi">
+            ${status}
+            <strong>${total}</strong>
+          </div>
+        `).join("");
+    }
+
+    function renderSemCelula() {
+      const el = document.getElementById("listaSemCelula");
+      const lista = membros
+        .filter(m => !String(m.celula || "").trim())
+        .slice(0, 10);
+
+      if (!lista.length) {
+        el.innerHTML = '<div class="msg-vazio">Todos estão vinculados.</div>';
+        return;
+      }
+
+      el.innerHTML = `<div class="lista-simples">${
+        lista.map(m => `<div class="item"><h3>${m.nome}</h3><p>${m.telefone || "-"}</p></div>`).join("")
+      }</div>`;
+    }
+
+    function renderTopRetencao() {
+      const el = document.getElementById("topRetencao");
+      const mapa = new Map();
+
+      membros.forEach((m) => {
+        mapa.set(Number(m.id), {
+          nome: m.nome,
+          total: 0,
+          presentes: 0
+        });
+      });
+
+      presencas.forEach((p) => {
+        const id = Number(p.membro_id || p.membroId);
+        if (!mapa.has(id)) return;
+        const item = mapa.get(id);
+        item.total += 1;
+        if (normalizarTexto(p.status) === "PRESENTE") item.presentes += 1;
+      });
+
+      const ranking = Array.from(mapa.values())
+        .map(i => ({
+          ...i,
+          perc: i.total > 0 ? (i.presentes / i.total) * 100 : 0
+        }))
+        .sort((a, b) => b.perc - a.perc)
+        .slice(0, 5);
+
+      if (!ranking.length) {
+        el.innerHTML = '<div class="msg-vazio">Sem dados.</div>';
+        return;
+      }
+
+      el.innerHTML = ranking.map((item, index) => `
+        <div class="item">
+          <h3>${index + 1}. ${item.nome}</h3>
+          <p><strong>Frequência:</strong> ${percentual(item.perc)}</p>
+          <div class="barra">
+            <div class="barra-interna" style="width:${item.perc}%"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderizarDashboard() {
+      atualizarKpis();
+      renderRankingCelulas();
+      renderMelhorCelula();
+      renderNovosPorStatus();
+      renderSemCelula();
+      renderTopRetencao();
+    }
+
+    async function carregarDados() {
+      const [respMembros, respPresencas] = await Promise.all([
+        fetch(API_MEMBROS, { cache: "no-store" }),
+        fetch(API_PRESENCAS, { cache: "no-store" })
+      ]);
+
+      membros = await respMembros.json();
+      presencas = await respPresencas.json();
+
+      renderizarDashboard();
+    }
+
+    document.getElementById("btnSair").addEventListener("click", sair);
+
+    if (protegerPagina()) {
+      preencherUsuario();
+      carregarDados();
+    }
+  </script>
 </body>
 </html>
