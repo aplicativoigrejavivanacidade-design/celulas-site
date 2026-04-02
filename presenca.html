@@ -2,325 +2,1029 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>+Células | Presença</title>
-
   <style>
     * { box-sizing: border-box; }
 
-    :root{
-      --bg:#eef2f7;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#dbe3ee;
-      --blue:#2563eb;
-      --blue-dark:#1d4ed8;
-      --green:#16a34a;
-      --red:#dc2626;
-      --shadow:0 10px 25px rgba(0,0,0,0.05);
-      --radius:16px;
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ee;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --amber: #f59e0b;
+      --red: #dc2626;
+      --red-dark: #b91c1c;
+      --gray: #64748b;
+      --gray-dark: #475569;
+      --shadow: 0 10px 25px rgba(0,0,0,0.05);
+      --radius: 16px;
     }
 
-    body{
-      margin:0;
-      font-family:Arial,sans-serif;
-      background:var(--bg);
-      color:var(--text);
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    .layout{display:flex;min-height:100vh;}
-
-    .sidebar{
-      width:250px;
-      background:linear-gradient(180deg,var(--blue-dark),var(--green));
-      color:#fff;
-      padding:24px 18px;
-      position:fixed;
-      top:0;
-      left:0;
-      height:100%;
+    .layout {
+      display: flex;
+      min-height: 100vh;
     }
 
-    .logo{font-size:30px;font-weight:bold;margin:0;}
-    .logo-sub{margin:6px 0 28px;font-size:13px;opacity:.9;}
-
-    .menu a{
-      display:block;
-      color:#fff;
-      padding:12px;
-      text-decoration:none;
-      border-radius:10px;
-      margin-bottom:6px;
-      font-weight:bold;
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, var(--blue-dark), var(--green));
+      color: white;
+      padding: 24px 18px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
     }
 
-    .menu a:hover,.menu a.ativo{
-      background:rgba(255,255,255,.16);
+    .logo {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 0;
     }
 
-    .btn-sair{
-      margin-top:20px;
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:12px;
-      background:var(--red);
-      color:#fff;
-      font-weight:bold;
-      cursor:pointer;
+    .logo-sub {
+      margin: 6px 0 28px;
+      font-size: 13px;
+      opacity: 0.9;
     }
 
-    .content{
-      margin-left:250px;
-      padding:30px;
-      width:calc(100% - 250px);
+    .menu a {
+      display: block;
+      color: white;
+      padding: 12px;
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-weight: bold;
     }
 
-    .header,.card{
-      background:var(--card);
-      padding:22px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+    .menu a:hover,
+    .menu a.ativo {
+      background: rgba(255,255,255,0.16);
     }
 
-    .header{margin-bottom:20px;}
-    .header h1{margin:0 0 8px;font-size:30px;}
-    .header p{margin:0;color:var(--muted);}
-
-    .grid-2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-      align-items:end;
+    .btn-sair {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: var(--red);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    label{
-      display:block;
-      margin-top:12px;
-      margin-bottom:6px;
-      font-weight:bold;
+    .content {
+      margin-left: 250px;
+      padding: 30px;
+      width: calc(100% - 250px);
     }
 
-    input{
-      width:100%;
-      padding:12px;
-      border-radius:10px;
-      border:1px solid var(--line);
+    .header {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
     }
 
-    .acoes{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
     }
 
-    button{
-      padding:12px 14px;
-      border-radius:10px;
-      border:none;
-      font-weight:bold;
-      cursor:pointer;
+    .header p {
+      margin: 0;
+      color: var(--muted);
     }
 
-    .btn-primario{background:var(--blue);color:#fff;}
-    .btn-sucesso{background:var(--green);color:#fff;}
-
-    .item{
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:14px;
-      margin-bottom:10px;
-      background:#fafbfd;
+    .usuario-logado {
+      margin-top: 10px !important;
+      font-size: 14px;
     }
 
-    .msg{
-      margin-top:14px;
-      font-weight:bold;
-      min-height:20px;
+    .grid-topo {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 20px;
+      margin-bottom: 20px;
+      align-items: start;
     }
 
-    .vazio{
-      color:var(--muted);
-      text-align:center;
-      padding:20px;
-      border:2px dashed var(--line);
-      border-radius:12px;
-      background:#fcfdff;
+    .card {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
-    @media(max-width:900px){
-      .layout{flex-direction:column;}
-      .sidebar{position:relative;width:100%;height:auto;}
-      .content{margin-left:0;width:100%;padding:20px;}
-      .grid-2{grid-template-columns:1fr;}
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    .acoes-topo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: var(--red-dark);
+    }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-dark);
+    }
+
+    .mensagem {
+      margin-top: 14px;
+      font-weight: bold;
+      min-height: 20px;
+      font-size: 14px;
+    }
+
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .badge-total {
+      background: #e0ecff;
+      color: var(--blue-dark);
+    }
+
+    .badge-presente {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-ausente {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-pendente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .lista {
+      display: grid;
+      gap: 12px;
+    }
+
+    .membro {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafbfd;
+      padding: 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .membro-info h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .membro-info p {
+      margin: 0 0 4px;
+      color: #4b5563;
+      font-size: 13px;
+    }
+
+    .tag-status {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .tag-presente {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tag-ausente {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .tag-pendente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .acoes-membro {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 240px;
+      justify-content: flex-end;
+    }
+
+    .btn-status {
+      min-width: 110px;
+    }
+
+    .btn-presente {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-presente.ativo {
+      background: #166534;
+      box-shadow: 0 0 0 3px rgba(22,101,52,0.15);
+    }
+
+    .btn-ausente {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-ausente.ativo {
+      background: #991b1b;
+      box-shadow: 0 0 0 3px rgba(153,27,27,0.15);
+    }
+
+    .historico-lista {
+      display: grid;
+      gap: 10px;
+    }
+
+    .historico-item {
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 12px;
+      background: #fafbfd;
+    }
+
+    .historico-item h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .historico-item p {
+      margin: 0;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .vazio {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      background: #fcfdff;
+    }
+
+    @media (max-width: 1200px) {
+      .grid-topo {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+
+      .content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+
+      .grid-2,
+      .grid-3,
+      .resumo {
+        grid-template-columns: 1fr;
+      }
+
+      .membro {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .acoes-membro {
+        min-width: 100%;
+        justify-content: stretch;
+      }
+
+      .btn-status {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-<div class="layout">
-  <aside class="sidebar">
-    <h2 class="logo">+Células</h2>
-    <div class="logo-sub">Gestão de células</div>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="logo">+Células</h2>
+      <div class="logo-sub">Gestão de células</div>
 
-    <div class="menu">
-      <a href="painel.html">Painel</a>
-      <a href="cadastro.html">Membros</a>
-      <a href="presenca.html" class="ativo">Presença</a>
-      <a href="celulas.html">Células</a>
-      <a href="relatorios.html">Relatórios</a>
-      <a href="usuarios.html">Usuários</a>
-    </div>
+      <div class="menu">
+        <a href="painel.html">Painel</a>
+        <a href="cadastro.html">Membros</a>
+        <a href="presenca.html" class="ativo">Presença</a>
+        <a href="celulas.html">Células</a>
+        <a href="relatorios.html">Relatórios</a>
+        <a href="usuarios.html">Usuários</a>
+      </div>
 
-    <button class="btn-sair" id="btnSair">Sair</button>
-  </aside>
+      <button class="btn-sair" id="btnSair" type="button">Sair</button>
+    </aside>
 
-  <main class="content">
-    <div class="header">
-      <h1>Presença</h1>
-      <p>Registre a presença dos membros</p>
-      <p id="usuarioLogado"></p>
-    </div>
+    <main class="content">
+      <div class="header">
+        <h1>Controle de presença</h1>
+        <p>Marque presença por célula e data, com edição e histórico do dia</p>
+        <p id="usuarioLogado" class="usuario-logado"></p>
+      </div>
 
-    <div class="card">
-      <div class="grid-2">
-        <div>
-          <label>Data</label>
-          <input id="dataPresenca" type="date">
+      <div class="grid-topo">
+        <div class="card">
+          <h2>Chamada da reunião</h2>
+
+          <div class="grid-3">
+            <div>
+              <label for="dataReuniao">Data da reunião</label>
+              <input type="date" id="dataReuniao" />
+            </div>
+
+            <div>
+              <label for="celulaSelecionada">Célula</label>
+              <select id="celulaSelecionada">
+                <option value="">Carregando células...</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="membroSelecionado">Resumo rápido</label>
+              <select id="membroSelecionado">
+                <option value="">Selecione um membro</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="statusSelecionado">Status rápido</label>
+              <select id="statusSelecionado">
+                <option value="">Selecione</option>
+                <option value="presente">PRESENTE</option>
+                <option value="ausente">AUSENTE</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="statusSalvo">Status salvo do membro</label>
+              <input id="statusSalvo" type="text" value="PENDENTE" readonly />
+            </div>
+          </div>
+
+          <div class="acoes-topo">
+            <button class="btn-success" id="btnSalvar" type="button">Salvar presença</button>
+            <button class="btn-primary" id="btnAtualizar" type="button">Alterar presença salva</button>
+            <button class="btn-secondary" id="btnPresenteTodos" type="button">Marcar todos presentes</button>
+            <button class="btn-danger" id="btnAusenteTodos" type="button">Marcar todos ausentes</button>
+            <button class="btn-secondary" id="btnLimpar" type="button">Limpar seleção</button>
+          </div>
+
+          <div class="mensagem" id="mensagem"></div>
         </div>
 
-        <div class="acoes">
-          <button id="btnCarregar" class="btn-primario">Carregar</button>
-          <button id="btnSalvarPresenca" class="btn-sucesso">Salvar presença</button>
+        <div class="card">
+          <h2>Resumo da chamada</h2>
+          <div class="resumo">
+            <span class="badge badge-total" id="totalMembros">0 membro(s)</span>
+            <span class="badge badge-presente" id="totalPresentes">0 presente(s)</span>
+            <span class="badge badge-ausente" id="totalAusentes">0 ausente(s)</span>
+            <span class="badge badge-pendente" id="totalPendentes">0 pendente(s)</span>
+          </div>
         </div>
       </div>
 
-      <div id="msg" class="msg"></div>
-      <div id="listaPresenca" style="margin-top:16px"></div>
-    </div>
-  </main>
-</div>
+      <div class="card" style="margin-bottom: 20px;">
+        <h2>Membros da célula selecionada</h2>
+        <div class="lista" id="listaMembros"></div>
+      </div>
 
-<script>
-const API = "https://celulas-backend.onrender.com";
-let membros = [];
+      <div class="card">
+        <h2>Histórico da data selecionada</h2>
+        <div id="historicoPresencas"></div>
+      </div>
+    </main>
+  </div>
 
-if(localStorage.getItem("logado") !== "sim"){
-  window.location.href = "login.html";
-}
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const API_BASE = "https://celulas-backend.onrender.com";
+      const apiMembros = `${API_BASE}/membros`;
+      const apiPresencas = `${API_BASE}/presencas`;
 
-document.getElementById("usuarioLogado").textContent =
-  `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
+      if (localStorage.getItem("logado") !== "sim") {
+        window.location.href = "login.html";
+        return;
+      }
 
-document.getElementById("btnSair").onclick = function(){
-  localStorage.clear();
-  window.location.href = "login.html";
-};
+      const nomeUsuario = localStorage.getItem("nomeUsuario") || "Administrador";
+      const nivelUsuario = localStorage.getItem("nivelUsuario") || "admin";
 
-function hoje(){
-  const d = new Date();
-  return d.toISOString().split("T")[0];
-}
+      let todosMembros = [];
+      let membrosFiltrados = [];
+      let presencas = {};
 
-document.getElementById("dataPresenca").value = hoje();
+      const campoUsuario = document.getElementById("usuarioLogado");
+      const campoLista = document.getElementById("listaMembros");
+      const campoHistorico = document.getElementById("historicoPresencas");
+      const campoMensagem = document.getElementById("mensagem");
+      const campoData = document.getElementById("dataReuniao");
+      const campoCelula = document.getElementById("celulaSelecionada");
+      const campoMembro = document.getElementById("membroSelecionado");
+      const campoStatus = document.getElementById("statusSelecionado");
+      const campoStatusSalvo = document.getElementById("statusSalvo");
 
-async function carregarPresenca(){
-  const data = document.getElementById("dataPresenca").value;
-  const lista = document.getElementById("listaPresenca");
-  lista.innerHTML = '<div class="vazio">Carregando...</div>';
+      function sair() {
+        localStorage.removeItem("logado");
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("nomeUsuario");
+        localStorage.removeItem("nivelUsuario");
+        window.location.href = "login.html";
+      }
 
-  try{
-    const [rm,rp] = await Promise.all([
-      fetch(API + "/membros",{cache:"no-store"}),
-      fetch(API + "/presencas/" + data,{cache:"no-store"})
-    ]);
+      function normalizarTexto(valor) {
+        return String(valor || "")
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/\s+/g, " ")
+          .trim()
+          .toUpperCase();
+      }
 
-    const membrosJson = await rm.json();
-    const presencas = await rp.json();
+      function normalizarNomeCelula(valor) {
+        return normalizarTexto(valor).replace(/^CELULA\s*/i, "").trim();
+      }
 
-    membros = membrosJson;
+      function nomeCelulaExibicao(valor) {
+        const base = normalizarNomeCelula(valor);
+        return base ? `CÉLULA ${base}` : "";
+      }
 
-    const mapa = new Map(
-      presencas.map(p => [Number(p.membroId), p.status])
-    );
+      function definirDataHoje() {
+        const hoje = new Date();
+        const ano = hoje.getFullYear();
+        const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+        const dia = String(hoje.getDate()).padStart(2, "0");
+        campoData.value = `${ano}-${mes}-${dia}`;
+      }
 
-    if(!membros.length){
-      lista.innerHTML = '<div class="vazio">Nenhum membro cadastrado.</div>';
-      return;
-    }
+      function textoStatus(status) {
+        if (status === "presente") return "PRESENTE";
+        if (status === "ausente") return "AUSENTE";
+        return "PENDENTE";
+      }
 
-    lista.innerHTML = membros.map(m => {
-      const status = mapa.get(Number(m.id)) || "";
+      function classeStatus(status) {
+        if (status === "presente") return "tag-status tag-presente";
+        if (status === "ausente") return "tag-status tag-ausente";
+        return "tag-status tag-pendente";
+      }
 
-      return `
-        <div class="item">
-          <strong>${m.nome}</strong><br>
-          ${m.celula || "SEM CÉLULA"}
+      function mostrarMensagem(texto, cor = "#dc2626") {
+        campoMensagem.textContent = texto;
+        campoMensagem.style.color = cor;
+      }
 
-          <div class="acoes" style="margin-top:10px;">
-            <label>
-              <input type="radio" name="st_${m.id}" value="PRESENTE"
-                ${status === "PRESENTE" ? "checked" : ""}>
-              Presente
-            </label>
+      function limparSelecao(limparMensagem = false) {
+        campoMembro.value = "";
+        campoStatus.value = "";
+        campoStatusSalvo.value = "PENDENTE";
 
-            <label>
-              <input type="radio" name="st_${m.id}" value="AUSENTE"
-                ${status === "AUSENTE" ? "checked" : ""}>
-              Ausente
-            </label>
+        if (!campoCelula.value) {
+          membrosFiltrados = [];
+        }
+
+        preencherSelectMembros();
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
+
+        if (limparMensagem) {
+          mostrarMensagem("", "#dc2626");
+        }
+      }
+
+      function atualizarResumo() {
+        const total = membrosFiltrados.length;
+        const presentes = membrosFiltrados.filter((m) => presencas[m.id] === "presente").length;
+        const ausentes = membrosFiltrados.filter((m) => presencas[m.id] === "ausente").length;
+        const pendentes = total - presentes - ausentes;
+
+        document.getElementById("totalMembros").textContent = `${total} membro(s)`;
+        document.getElementById("totalPresentes").textContent = `${presentes} presente(s)`;
+        document.getElementById("totalAusentes").textContent = `${ausentes} ausente(s)`;
+        document.getElementById("totalPendentes").textContent = `${pendentes} pendente(s)`;
+      }
+
+      function obterCelulasUnicas() {
+        const mapa = new Map();
+
+        todosMembros.forEach((membro) => {
+          const bruto = String(membro.celula || "").trim();
+          const chave = normalizarNomeCelula(bruto);
+          if (!chave) return;
+
+          if (!mapa.has(chave)) {
+            mapa.set(chave, nomeCelulaExibicao(bruto));
+          }
+        });
+
+        return Array.from(mapa.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
+      }
+
+      function preencherSelectCelulas() {
+        const celulas = obterCelulasUnicas();
+
+        if (celulas.length === 0) {
+          campoCelula.innerHTML = '<option value="">Nenhuma célula cadastrada</option>';
+          return;
+        }
+
+        const valorAtual = campoCelula.value;
+        campoCelula.innerHTML =
+          '<option value="">Selecione a célula</option>' +
+          celulas.map((celula) => `<option value="${celula}">${celula}</option>`).join("");
+
+        if (celulas.includes(valorAtual)) {
+          campoCelula.value = valorAtual;
+        }
+      }
+
+      function preencherSelectMembros() {
+        if (!campoCelula.value || membrosFiltrados.length === 0) {
+          campoMembro.innerHTML = '<option value="">Selecione um membro</option>';
+          return;
+        }
+
+        campoMembro.innerHTML =
+          '<option value="">Selecione um membro</option>' +
+          membrosFiltrados.map((membro) => {
+            return `<option value="${membro.id}">${membro.nome || ""}</option>`;
+          }).join("");
+      }
+
+      function filtrarMembrosPorCelula() {
+        const celulaSelecionada = campoCelula.value;
+        const alvo = normalizarNomeCelula(celulaSelecionada);
+
+        if (!alvo) {
+          membrosFiltrados = [];
+        } else {
+          membrosFiltrados = todosMembros.filter((membro) => {
+            return normalizarNomeCelula(membro.celula) === alvo;
+          });
+        }
+
+        preencherSelectMembros();
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
+      }
+
+      function renderizarMembros() {
+        if (!campoCelula.value) {
+          campoLista.innerHTML = '<div class="vazio">Selecione uma célula para carregar os membros.</div>';
+          return;
+        }
+
+        if (membrosFiltrados.length === 0) {
+          campoLista.innerHTML = '<div class="vazio">Nenhum membro encontrado para esta célula.</div>';
+          return;
+        }
+
+        campoLista.innerHTML = membrosFiltrados.map((membro) => {
+          const status = presencas[membro.id] || "";
+          return `
+            <div class="membro">
+              <div class="membro-info">
+                <h3>${membro.nome || ""}</h3>
+                <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+                <p><strong>Status do cadastro:</strong> ${(membro.status || "-").toUpperCase()}</p>
+                <p><strong>Célula:</strong> ${membro.celula || "-"}</p>
+                <span class="${classeStatus(status)}">${textoStatus(status)}</span>
+              </div>
+
+              <div class="acoes-membro">
+                <button
+                  type="button"
+                  class="btn-status btn-presente ${status === "presente" ? "ativo" : ""}"
+                  data-id="${membro.id}"
+                  data-status="presente"
+                >
+                  PRESENTE
+                </button>
+
+                <button
+                  type="button"
+                  class="btn-status btn-ausente ${status === "ausente" ? "ativo" : ""}"
+                  data-id="${membro.id}"
+                  data-status="ausente"
+                >
+                  AUSENTE
+                </button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderizarHistorico() {
+        if (!campoCelula.value) {
+          campoHistorico.innerHTML = '<div class="vazio">Selecione uma célula para ver o histórico da data.</div>';
+          return;
+        }
+
+        if (membrosFiltrados.length === 0) {
+          campoHistorico.innerHTML = '<div class="vazio">Nenhum membro encontrado para esta célula.</div>';
+          return;
+        }
+
+        const listaComStatus = membrosFiltrados.filter((membro) => !!presencas[membro.id]);
+
+        if (listaComStatus.length === 0) {
+          campoHistorico.innerHTML = '<div class="vazio">Nenhum registro salvo para esta data.</div>';
+          return;
+        }
+
+        campoHistorico.innerHTML = `
+          <div class="historico-lista">
+            ${listaComStatus.map((membro) => `
+              <div class="historico-item">
+                <h3>${membro.nome || ""}</h3>
+                <p><strong>Status salvo:</strong> ${textoStatus(presencas[membro.id])}</p>
+              </div>
+            `).join("")}
           </div>
-        </div>
-      `;
-    }).join("");
+        `;
+      }
 
-  }catch{
-    lista.innerHTML = '<div class="vazio">Erro ao carregar presença.</div>';
-  }
-}
+      async function carregarPresencasData() {
+        try {
+          presencas = {};
 
-async function salvarPresenca(){
-  const data = document.getElementById("dataPresenca").value;
-  const msg = document.getElementById("msg");
+          if (!campoData.value) {
+            renderizarMembros();
+            atualizarResumo();
+            renderizarHistorico();
+            return;
+          }
 
-  const registros = membros.map(m => {
-    const marcado = document.querySelector(`input[name="st_${m.id}"]:checked`);
-    return marcado ? {
-      membroId:Number(m.id),
-      status:marcado.value
-    } : null;
-  }).filter(Boolean);
+          const resposta = await fetch(`${apiPresencas}/${campoData.value}`, { cache: "no-store" });
 
-  if(!registros.length){
-    msg.textContent = "Selecione presença ou ausência.";
-    msg.style.color = "#dc2626";
-    return;
-  }
+          if (!resposta.ok) {
+            throw new Error("Erro ao carregar presença da data selecionada.");
+          }
 
-  try{
-    const resp = await fetch(API + "/presencas",{
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({data, registros})
+          const dados = await resposta.json();
+
+          (Array.isArray(dados) ? dados : []).forEach((item) => {
+            presencas[Number(item.membroId)] = item.status;
+          });
+
+          renderizarMembros();
+          atualizarResumo();
+          renderizarHistorico();
+          atualizarStatusSelecionado();
+        } catch (erro) {
+          console.error(erro);
+          mostrarMensagem("Erro ao carregar presença da data selecionada.");
+        }
+      }
+
+      function atualizarStatusSelecionado() {
+        const membroId = Number(campoMembro.value);
+
+        if (!membroId) {
+          campoStatusSalvo.value = "PENDENTE";
+          return;
+        }
+
+        campoStatusSalvo.value = textoStatus(presencas[membroId] || "");
+      }
+
+      function marcarStatusMembro(membroId, status) {
+        presencas[Number(membroId)] = status;
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
+
+        if (Number(campoMembro.value) === Number(membroId)) {
+          campoStatusSalvo.value = textoStatus(status);
+          campoStatus.value = status;
+        }
+      }
+
+      function aplicarStatusEmTodos(status) {
+        if (!campoCelula.value || membrosFiltrados.length === 0) {
+          mostrarMensagem("Selecione uma célula com membros.");
+          return;
+        }
+
+        membrosFiltrados.forEach((membro) => {
+          presencas[Number(membro.id)] = status;
+        });
+
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
+        atualizarStatusSelecionado();
+        mostrarMensagem(
+          status === "presente" ? "Todos marcados como presentes." : "Todos marcados como ausentes.",
+          status === "presente" ? "#16a34a" : "#dc2626"
+        );
+      }
+
+      async function salvarPresencas() {
+        if (!campoData.value) {
+          mostrarMensagem("Selecione a data da reunião.");
+          return;
+        }
+
+        if (!campoCelula.value) {
+          mostrarMensagem("Selecione a célula.");
+          return;
+        }
+
+        if (membrosFiltrados.length === 0) {
+          mostrarMensagem("Não há membros para salvar nesta célula.");
+          return;
+        }
+
+        const registros = membrosFiltrados
+          .filter((membro) => presencas[membro.id] === "presente" || presencas[membro.id] === "ausente")
+          .map((membro) => ({
+            membroId: membro.id,
+            status: presencas[membro.id]
+          }));
+
+        if (registros.length === 0) {
+          mostrarMensagem("Marque pelo menos um presente ou ausente.");
+          return;
+        }
+
+        try {
+          mostrarMensagem("Salvando presença...", "#2563eb");
+
+          const resposta = await fetch(apiPresencas, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              data: campoData.value,
+              registros
+            })
+          });
+
+          const dados = await resposta.json().catch(() => ({}));
+
+          if (!resposta.ok) {
+            throw new Error(dados.erro || "Erro ao salvar presença.");
+          }
+
+          mostrarMensagem("Presença salva com sucesso.", "#16a34a");
+          await carregarPresencasData();
+        } catch (erro) {
+          console.error(erro);
+          mostrarMensagem(erro.message || "Erro ao salvar presença.");
+        }
+      }
+
+      async function carregarMembros() {
+        try {
+          campoLista.innerHTML = '<div class="vazio">Carregando membros...</div>';
+          campoHistorico.innerHTML = '<div class="vazio">Carregando histórico...</div>';
+
+          const resposta = await fetch(apiMembros, { cache: "no-store" });
+
+          if (!resposta.ok) {
+            throw new Error("Erro ao carregar membros.");
+          }
+
+          todosMembros = await resposta.json();
+          preencherSelectCelulas();
+          filtrarMembrosPorCelula();
+          await carregarPresencasData();
+        } catch (erro) {
+          console.error(erro);
+          campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
+          campoHistorico.innerHTML = '<div class="vazio">Erro ao carregar histórico.</div>';
+          mostrarMensagem("Erro ao carregar membros.");
+        }
+      }
+
+      document.getElementById("btnSair").addEventListener("click", sair);
+
+      campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
+
+      campoData.addEventListener("change", async () => {
+        await carregarPresencasData();
+      });
+
+      campoCelula.addEventListener("change", async () => {
+        campoMembro.value = "";
+        campoStatus.value = "";
+        campoStatusSalvo.value = "PENDENTE";
+        filtrarMembrosPorCelula();
+        await carregarPresencasData();
+      });
+
+      campoMembro.addEventListener("change", () => {
+        const membroId = Number(campoMembro.value);
+        if (!membroId) {
+          campoStatus.value = "";
+          campoStatusSalvo.value = "PENDENTE";
+          return;
+        }
+
+        campoStatus.value = presencas[membroId] || "";
+        campoStatusSalvo.value = textoStatus(presencas[membroId] || "");
+      });
+
+      campoStatus.addEventListener("change", () => {
+        const membroId = Number(campoMembro.value);
+        if (!membroId) {
+          mostrarMensagem("Selecione um membro para alterar o status.");
+          campoStatus.value = "";
+          return;
+        }
+
+        if (!campoStatus.value) {
+          return;
+        }
+
+        marcarStatusMembro(membroId, campoStatus.value);
+        mostrarMensagem("Status do membro atualizado na tela. Agora clique em Salvar presença.", "#2563eb");
+      });
+
+      campoLista.addEventListener("click", (evento) => {
+        const botao = evento.target.closest(".btn-status");
+        if (!botao) return;
+
+        const membroId = Number(botao.dataset.id);
+        const status = botao.dataset.status;
+
+        marcarStatusMembro(membroId, status);
+        mostrarMensagem("Status atualizado na tela. Agora clique em Salvar presença.", "#2563eb");
+      });
+
+      document.getElementById("btnSalvar").addEventListener("click", salvarPresencas);
+      document.getElementById("btnAtualizar").addEventListener("click", salvarPresencas);
+
+      document.getElementById("btnPresenteTodos").addEventListener("click", () => {
+        aplicarStatusEmTodos("presente");
+      });
+
+      document.getElementById("btnAusenteTodos").addEventListener("click", () => {
+        aplicarStatusEmTodos("ausente");
+      });
+
+      document.getElementById("btnLimpar").addEventListener("click", () => {
+        if (membrosFiltrados.length > 0) {
+          membrosFiltrados.forEach((membro) => {
+            delete presencas[membro.id];
+          });
+        }
+
+        campoMembro.value = "";
+        campoStatus.value = "";
+        campoStatusSalvo.value = "PENDENTE";
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
+        mostrarMensagem("Seleção limpa na tela.", "#64748b");
+      });
+
+      definirDataHoje();
+      carregarMembros();
     });
-
-    if(!resp.ok){
-      throw new Error();
-    }
-
-    msg.textContent = "Presença salva com sucesso!";
-    msg.style.color = "#16a34a";
-
-  }catch{
-    msg.textContent = "Erro ao salvar presença.";
-    msg.style.color = "#dc2626";
-  }
-}
-
-document.getElementById("btnCarregar").onclick = carregarPresenca;
-document.getElementById("btnSalvarPresenca").onclick = salvarPresenca;
-
-carregarPresenca();
-</script>
+  </script>
 </body>
 </html>
