@@ -119,7 +119,7 @@
 
     .grid-topo {
       display: grid;
-      grid-template-columns: 1.3fr 0.9fr;
+      grid-template-columns: 1fr 1.2fr;
       gap: 20px;
       margin-bottom: 20px;
       align-items: start;
@@ -140,12 +140,6 @@
     .grid-2 {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .grid-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
       gap: 12px;
     }
 
@@ -272,20 +266,47 @@
       color: #92400e;
     }
 
-    .lista {
+    .lista-grid {
       display: grid;
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
 
-    .membro {
+    .membro-check {
       border: 1px solid var(--line);
       border-radius: 14px;
       background: #fafbfd;
       padding: 16px;
+      transition: 0.2s;
+    }
+
+    .membro-check.marcado {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.10);
+      background: #f3fff7;
+    }
+
+    .membro-check.bloqueado {
+      opacity: 0.75;
+    }
+
+    .membro-check-topo {
       display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      align-items: center;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .membro-check input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+      accent-color: var(--green);
+      flex: 0 0 auto;
+      cursor: pointer;
+    }
+
+    .membro-check input[type="checkbox"]:disabled {
+      cursor: not-allowed;
     }
 
     .membro-info h3 {
@@ -323,38 +344,6 @@
       color: #92400e;
     }
 
-    .acoes-membro {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      min-width: 240px;
-      justify-content: flex-end;
-    }
-
-    .btn-status {
-      min-width: 110px;
-    }
-
-    .btn-presente {
-      background: var(--green);
-      color: #fff;
-    }
-
-    .btn-presente.ativo {
-      background: #166534;
-      box-shadow: 0 0 0 3px rgba(22,101,52,0.15);
-    }
-
-    .btn-ausente {
-      background: var(--red);
-      color: #fff;
-    }
-
-    .btn-ausente.ativo {
-      background: #991b1b;
-      box-shadow: 0 0 0 3px rgba(153,27,27,0.15);
-    }
-
     .historico-lista {
       display: grid;
       gap: 10px;
@@ -378,6 +367,16 @@
       color: #4b5563;
     }
 
+    .info-edicao {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
     .vazio {
       color: var(--muted);
       font-style: italic;
@@ -390,6 +389,12 @@
 
     @media (max-width: 1200px) {
       .grid-topo {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .lista-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -412,23 +417,8 @@
       }
 
       .grid-2,
-      .grid-3,
       .resumo {
         grid-template-columns: 1fr;
-      }
-
-      .membro {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .acoes-membro {
-        min-width: 100%;
-        justify-content: stretch;
-      }
-
-      .btn-status {
-        width: 100%;
       }
     }
   </style>
@@ -454,7 +444,7 @@
     <main class="content">
       <div class="header">
         <h1>Controle de presença</h1>
-        <p>Marque presença por célula e data, com edição e histórico do dia</p>
+        <p>Selecione a célula, marque os presentes e salve. Desmarcado = ausente.</p>
         <p id="usuarioLogado" class="usuario-logado"></p>
       </div>
 
@@ -462,7 +452,7 @@
         <div class="card">
           <h2>Chamada da reunião</h2>
 
-          <div class="grid-3">
+          <div class="grid-2">
             <div>
               <label for="dataReuniao">Data da reunião</label>
               <input type="date" id="dataReuniao" />
@@ -474,37 +464,18 @@
                 <option value="">Carregando células...</option>
               </select>
             </div>
-
-            <div>
-              <label for="membroSelecionado">Resumo rápido</label>
-              <select id="membroSelecionado">
-                <option value="">Selecione um membro</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="grid-2">
-            <div>
-              <label for="statusSelecionado">Status rápido</label>
-              <select id="statusSelecionado">
-                <option value="">Selecione</option>
-                <option value="presente">PRESENTE</option>
-                <option value="ausente">AUSENTE</option>
-              </select>
-            </div>
-
-            <div>
-              <label for="statusSalvo">Status salvo do membro</label>
-              <input id="statusSalvo" type="text" value="PENDENTE" readonly />
-            </div>
           </div>
 
           <div class="acoes-topo">
             <button class="btn-success" id="btnSalvar" type="button">Salvar presença</button>
-            <button class="btn-primary" id="btnAtualizar" type="button">Alterar presença salva</button>
-            <button class="btn-secondary" id="btnPresenteTodos" type="button">Marcar todos presentes</button>
-            <button class="btn-danger" id="btnAusenteTodos" type="button">Marcar todos ausentes</button>
+            <button class="btn-primary" id="btnEditar" type="button">Editar presença</button>
+            <button class="btn-secondary" id="btnMarcarTodos" type="button">Marcar todos presentes</button>
+            <button class="btn-danger" id="btnDesmarcarTodos" type="button">Marcar todos ausentes</button>
             <button class="btn-secondary" id="btnLimpar" type="button">Limpar seleção</button>
+          </div>
+
+          <div class="info-edicao" id="infoEdicao">
+            Modo atual: EDIÇÃO LIBERADA
           </div>
 
           <div class="mensagem" id="mensagem"></div>
@@ -522,8 +493,8 @@
       </div>
 
       <div class="card" style="margin-bottom: 20px;">
-        <h2>Membros da célula selecionada</h2>
-        <div class="lista" id="listaMembros"></div>
+        <h2>Membros vinculados à célula</h2>
+        <div class="lista-grid" id="listaMembros"></div>
       </div>
 
       <div class="card">
@@ -550,6 +521,8 @@
       let todosMembros = [];
       let membrosFiltrados = [];
       let presencas = {};
+      let edicaoLiberada = true;
+      let houveSalvamentoInicial = false;
 
       const campoUsuario = document.getElementById("usuarioLogado");
       const campoLista = document.getElementById("listaMembros");
@@ -557,9 +530,7 @@
       const campoMensagem = document.getElementById("mensagem");
       const campoData = document.getElementById("dataReuniao");
       const campoCelula = document.getElementById("celulaSelecionada");
-      const campoMembro = document.getElementById("membroSelecionado");
-      const campoStatus = document.getElementById("statusSelecionado");
-      const campoStatusSalvo = document.getElementById("statusSalvo");
+      const campoInfoEdicao = document.getElementById("infoEdicao");
 
       function sair() {
         localStorage.removeItem("logado");
@@ -612,22 +583,15 @@
         campoMensagem.style.color = cor;
       }
 
-      function limparSelecao(limparMensagem = false) {
-        campoMembro.value = "";
-        campoStatus.value = "";
-        campoStatusSalvo.value = "PENDENTE";
-
-        if (!campoCelula.value) {
-          membrosFiltrados = [];
-        }
-
-        preencherSelectMembros();
-        renderizarMembros();
-        atualizarResumo();
-        renderizarHistorico();
-
-        if (limparMensagem) {
-          mostrarMensagem("", "#dc2626");
+      function atualizarModoEdicao() {
+        if (edicaoLiberada) {
+          campoInfoEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA";
+          campoInfoEdicao.style.background = "#eff6ff";
+          campoInfoEdicao.style.color = "#1d4ed8";
+        } else {
+          campoInfoEdicao.textContent = "Modo atual: PRESENÇA TRAVADA. Para alterar, clique em Editar presença.";
+          campoInfoEdicao.style.background = "#fef3c7";
+          campoInfoEdicao.style.color = "#92400e";
         }
       }
 
@@ -677,19 +641,6 @@
         }
       }
 
-      function preencherSelectMembros() {
-        if (!campoCelula.value || membrosFiltrados.length === 0) {
-          campoMembro.innerHTML = '<option value="">Selecione um membro</option>';
-          return;
-        }
-
-        campoMembro.innerHTML =
-          '<option value="">Selecione um membro</option>' +
-          membrosFiltrados.map((membro) => {
-            return `<option value="${membro.id}">${membro.nome || ""}</option>`;
-          }).join("");
-      }
-
       function filtrarMembrosPorCelula() {
         const celulaSelecionada = campoCelula.value;
         const alvo = normalizarNomeCelula(celulaSelecionada);
@@ -702,7 +653,6 @@
           });
         }
 
-        preencherSelectMembros();
         renderizarMembros();
         atualizarResumo();
         renderizarHistorico();
@@ -721,35 +671,29 @@
 
         campoLista.innerHTML = membrosFiltrados.map((membro) => {
           const status = presencas[membro.id] || "";
+          const marcado = status === "presente" ? "checked" : "";
+          const bloqueado = !edicaoLiberada ? "disabled" : "";
+          const classeMarcado = status === "presente" ? "marcado" : "";
+          const classeBloqueado = !edicaoLiberada ? "bloqueado" : "";
+
           return `
-            <div class="membro">
-              <div class="membro-info">
-                <h3>${membro.nome || ""}</h3>
-                <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
-                <p><strong>Status do cadastro:</strong> ${(membro.status || "-").toUpperCase()}</p>
-                <p><strong>Célula:</strong> ${membro.celula || "-"}</p>
-                <span class="${classeStatus(status)}">${textoStatus(status)}</span>
-              </div>
-
-              <div class="acoes-membro">
-                <button
-                  type="button"
-                  class="btn-status btn-presente ${status === "presente" ? "ativo" : ""}"
+            <div class="membro-check ${classeMarcado} ${classeBloqueado}">
+              <label class="membro-check-topo">
+                <input
+                  type="checkbox"
+                  class="check-presenca"
                   data-id="${membro.id}"
-                  data-status="presente"
+                  ${marcado}
+                  ${bloqueado}
                 >
-                  PRESENTE
-                </button>
-
-                <button
-                  type="button"
-                  class="btn-status btn-ausente ${status === "ausente" ? "ativo" : ""}"
-                  data-id="${membro.id}"
-                  data-status="ausente"
-                >
-                  AUSENTE
-                </button>
-              </div>
+                <div class="membro-info">
+                  <h3>${membro.nome || ""}</h3>
+                  <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+                  <p><strong>Status do cadastro:</strong> ${(membro.status || "-").toUpperCase()}</p>
+                  <p><strong>Célula:</strong> ${membro.celula || "-"}</p>
+                  <span class="${classeStatus(status)}">${textoStatus(status)}</span>
+                </div>
+              </label>
             </div>
           `;
         }).join("");
@@ -808,56 +752,47 @@
             presencas[Number(item.membroId)] = item.status;
           });
 
+          houveSalvamentoInicial = Object.keys(presencas).length > 0;
+          edicaoLiberada = !houveSalvamentoInicial;
+
+          atualizarModoEdicao();
           renderizarMembros();
           atualizarResumo();
           renderizarHistorico();
-          atualizarStatusSelecionado();
         } catch (erro) {
           console.error(erro);
           mostrarMensagem("Erro ao carregar presença da data selecionada.");
         }
       }
 
-      function atualizarStatusSelecionado() {
-        const membroId = Number(campoMembro.value);
-
-        if (!membroId) {
-          campoStatusSalvo.value = "PENDENTE";
-          return;
-        }
-
-        campoStatusSalvo.value = textoStatus(presencas[membroId] || "");
-      }
-
-      function marcarStatusMembro(membroId, status) {
-        presencas[Number(membroId)] = status;
+      function atualizarCheckboxPresenca(membroId, marcado) {
+        presencas[Number(membroId)] = marcado ? "presente" : "ausente";
         renderizarMembros();
         atualizarResumo();
         renderizarHistorico();
-
-        if (Number(campoMembro.value) === Number(membroId)) {
-          campoStatusSalvo.value = textoStatus(status);
-          campoStatus.value = status;
-        }
       }
 
-      function aplicarStatusEmTodos(status) {
+      function marcarTodosComo(valorPresente) {
         if (!campoCelula.value || membrosFiltrados.length === 0) {
           mostrarMensagem("Selecione uma célula com membros.");
           return;
         }
 
+        if (!edicaoLiberada) {
+          mostrarMensagem("A presença está travada. Clique em Editar presença para alterar.");
+          return;
+        }
+
         membrosFiltrados.forEach((membro) => {
-          presencas[Number(membro.id)] = status;
+          presencas[Number(membro.id)] = valorPresente ? "presente" : "ausente";
         });
 
         renderizarMembros();
         atualizarResumo();
         renderizarHistorico();
-        atualizarStatusSelecionado();
         mostrarMensagem(
-          status === "presente" ? "Todos marcados como presentes." : "Todos marcados como ausentes.",
-          status === "presente" ? "#16a34a" : "#dc2626"
+          valorPresente ? "Todos marcados como presentes." : "Todos marcados como ausentes.",
+          valorPresente ? "#16a34a" : "#dc2626"
         );
       }
 
@@ -877,17 +812,10 @@
           return;
         }
 
-        const registros = membrosFiltrados
-          .filter((membro) => presencas[membro.id] === "presente" || presencas[membro.id] === "ausente")
-          .map((membro) => ({
-            membroId: membro.id,
-            status: presencas[membro.id]
-          }));
-
-        if (registros.length === 0) {
-          mostrarMensagem("Marque pelo menos um presente ou ausente.");
-          return;
-        }
+        const registros = membrosFiltrados.map((membro) => ({
+          membroId: membro.id,
+          status: presencas[membro.id] === "presente" ? "presente" : "ausente"
+        }));
 
         try {
           mostrarMensagem("Salvando presença...", "#2563eb");
@@ -908,6 +836,10 @@
           if (!resposta.ok) {
             throw new Error(dados.erro || "Erro ao salvar presença.");
           }
+
+          houveSalvamentoInicial = true;
+          edicaoLiberada = false;
+          atualizarModoEdicao();
 
           mostrarMensagem("Presença salva com sucesso.", "#16a34a");
           await carregarPresencasData();
@@ -945,84 +877,80 @@
       campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
 
       campoData.addEventListener("change", async () => {
+        houveSalvamentoInicial = false;
+        edicaoLiberada = true;
+        atualizarModoEdicao();
         await carregarPresencasData();
       });
 
       campoCelula.addEventListener("change", async () => {
-        campoMembro.value = "";
-        campoStatus.value = "";
-        campoStatusSalvo.value = "PENDENTE";
+        houveSalvamentoInicial = false;
+        edicaoLiberada = true;
+        atualizarModoEdicao();
         filtrarMembrosPorCelula();
         await carregarPresencasData();
       });
 
-      campoMembro.addEventListener("change", () => {
-        const membroId = Number(campoMembro.value);
-        if (!membroId) {
-          campoStatus.value = "";
-          campoStatusSalvo.value = "PENDENTE";
+      campoLista.addEventListener("change", (evento) => {
+        const checkbox = evento.target.closest(".check-presenca");
+        if (!checkbox) return;
+
+        if (!edicaoLiberada) {
+          checkbox.checked = !checkbox.checked;
+          mostrarMensagem("A presença está travada. Clique em Editar presença para alterar.");
           return;
         }
 
-        campoStatus.value = presencas[membroId] || "";
-        campoStatusSalvo.value = textoStatus(presencas[membroId] || "");
-      });
-
-      campoStatus.addEventListener("change", () => {
-        const membroId = Number(campoMembro.value);
-        if (!membroId) {
-          mostrarMensagem("Selecione um membro para alterar o status.");
-          campoStatus.value = "";
-          return;
-        }
-
-        if (!campoStatus.value) {
-          return;
-        }
-
-        marcarStatusMembro(membroId, campoStatus.value);
-        mostrarMensagem("Status do membro atualizado na tela. Agora clique em Salvar presença.", "#2563eb");
-      });
-
-      campoLista.addEventListener("click", (evento) => {
-        const botao = evento.target.closest(".btn-status");
-        if (!botao) return;
-
-        const membroId = Number(botao.dataset.id);
-        const status = botao.dataset.status;
-
-        marcarStatusMembro(membroId, status);
-        mostrarMensagem("Status atualizado na tela. Agora clique em Salvar presença.", "#2563eb");
+        const membroId = Number(checkbox.dataset.id);
+        atualizarCheckboxPresenca(membroId, checkbox.checked);
+        mostrarMensagem("Alteração feita na tela. Clique em Salvar presença para gravar.", "#2563eb");
       });
 
       document.getElementById("btnSalvar").addEventListener("click", salvarPresencas);
-      document.getElementById("btnAtualizar").addEventListener("click", salvarPresencas);
 
-      document.getElementById("btnPresenteTodos").addEventListener("click", () => {
-        aplicarStatusEmTodos("presente");
+      document.getElementById("btnEditar").addEventListener("click", () => {
+        if (!campoCelula.value) {
+          mostrarMensagem("Selecione uma célula para editar a presença.");
+          return;
+        }
+
+        edicaoLiberada = true;
+        atualizarModoEdicao();
+        renderizarMembros();
+        mostrarMensagem("Edição liberada. Agora ajuste os checkboxes e salve novamente.", "#2563eb");
       });
 
-      document.getElementById("btnAusenteTodos").addEventListener("click", () => {
-        aplicarStatusEmTodos("ausente");
+      document.getElementById("btnMarcarTodos").addEventListener("click", () => {
+        marcarTodosComo(true);
+      });
+
+      document.getElementById("btnDesmarcarTodos").addEventListener("click", () => {
+        marcarTodosComo(false);
       });
 
       document.getElementById("btnLimpar").addEventListener("click", () => {
-        if (membrosFiltrados.length > 0) {
-          membrosFiltrados.forEach((membro) => {
-            delete presencas[membro.id];
-          });
+        if (!campoCelula.value || membrosFiltrados.length === 0) {
+          mostrarMensagem("Selecione uma célula para limpar.");
+          return;
         }
 
-        campoMembro.value = "";
-        campoStatus.value = "";
-        campoStatusSalvo.value = "PENDENTE";
+        if (!edicaoLiberada) {
+          mostrarMensagem("A presença está travada. Clique em Editar presença para alterar.");
+          return;
+        }
+
+        membrosFiltrados.forEach((membro) => {
+          presencas[Number(membro.id)] = "ausente";
+        });
+
         renderizarMembros();
         atualizarResumo();
         renderizarHistorico();
-        mostrarMensagem("Seleção limpa na tela.", "#64748b");
+        mostrarMensagem("Todos marcados como ausentes na tela.", "#64748b");
       });
 
       definirDataHoje();
+      atualizarModoEdicao();
       carregarMembros();
     });
   </script>
