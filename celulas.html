@@ -477,7 +477,7 @@
           </div>
 
           <div class="campo-ajuda">
-            Clique em uma célula da lista para editar. Os membros marcados ficarão vinculados à célula salva.
+            Clique em uma célula da lista para editar. A lista de disponíveis mostra apenas membros sem célula.
           </div>
 
           <p id="msg"></p>
@@ -603,16 +603,8 @@
       return membros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo);
     }
 
-    function membrosDisponiveisParaMarcacao() {
-      if (!celulaSelecionada) {
-        return membros.filter((m) => !String(m.celula || "").trim());
-      }
-
-      const alvo = normalizarNomeCelula(celulaSelecionada);
-      return membros.filter((m) => {
-        const atual = normalizarNomeCelula(m.celula);
-        return !atual || atual === alvo;
-      });
+    function membrosSemCelula() {
+      return membros.filter((membro) => !String(membro.celula || "").trim());
     }
 
     function preencherAnfitriao() {
@@ -628,9 +620,17 @@
         }).join("");
     }
 
+    function obterIdsJaVinculadosNaCelulaSelecionada() {
+      return membrosDaCelula(celulaSelecionada).map((m) => Number(m.id));
+    }
+
     function obterMembrosSelecionados() {
-      return Array.from(document.querySelectorAll(".membro-checkbox:checked"))
+      const novosSelecionados = Array.from(document.querySelectorAll(".membro-checkbox:checked"))
         .map((item) => Number(item.value));
+
+      const jaVinculados = obterIdsJaVinculadosNaCelulaSelecionada();
+
+      return Array.from(new Set([...jaVinculados, ...novosSelecionados]));
     }
 
     function renderizarVinculados(nomeCelula) {
@@ -663,14 +663,12 @@
     }
 
     function renderizarListaSemCelula() {
-      const lista = membrosDisponiveisParaMarcacao();
-      const idsVinculados = new Set(membrosDaCelula(celulaSelecionada).map((m) => Number(m.id)));
-
+      const lista = membrosSemCelula();
       contadorSemCelula.textContent = `${lista.length} membro(s)`;
 
       if (lista.length === 0) {
         campoListaSemCelula.innerHTML =
-          '<div class="vazio">Nenhum membro disponível para vínculo.</div>';
+          '<div class="vazio">Nenhum membro sem célula disponível para vínculo.</div>';
         return;
       }
 
@@ -681,13 +679,12 @@
               type="checkbox"
               class="membro-checkbox"
               value="${membro.id}"
-              ${idsVinculados.has(Number(membro.id)) ? "checked" : ""}
             >
             <div>
               <h3>${membro.nome || ""}</h3>
               <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
               <p><strong>Status:</strong> ${(membro.status || "-").toUpperCase()}</p>
-              <p><strong>Célula atual:</strong> ${membro.celula || "SEM CÉLULA"}</p>
+              <p><strong>Célula atual:</strong> SEM CÉLULA</p>
             </div>
           </div>
         </label>
