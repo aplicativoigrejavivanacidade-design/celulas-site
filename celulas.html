@@ -16,8 +16,12 @@
       --blue: #2563eb;
       --blue-dark: #1d4ed8;
       --green: #16a34a;
+      --green-dark: #15803d;
       --amber: #f59e0b;
       --red: #dc2626;
+      --red-dark: #b91c1c;
+      --gray: #64748b;
+      --gray-dark: #475569;
       --shadow: 0 10px 25px rgba(0,0,0,0.05);
       --radius: 16px;
     }
@@ -113,9 +117,9 @@
       font-size: 14px;
     }
 
-    .grid {
+    .top-grid {
       display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
+      grid-template-columns: 1fr 1.25fr;
       gap: 20px;
       align-items: start;
     }
@@ -128,15 +132,8 @@
     }
 
     .card h2 {
-      margin-top: 0;
-      margin-bottom: 16px;
+      margin: 0 0 16px;
       font-size: 22px;
-    }
-
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
     }
 
     label {
@@ -172,11 +169,24 @@
       text-transform: uppercase;
     }
 
-    .acoes-form {
+    input[readonly],
+    select:disabled {
+      background: #f8fafc;
+      color: #475569;
+      cursor: not-allowed;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .acoes {
       display: flex;
       gap: 10px;
-      margin-top: 16px;
       flex-wrap: wrap;
+      margin-top: 18px;
     }
 
     button {
@@ -188,29 +198,58 @@
       font-size: 14px;
     }
 
-    .acoes-form button {
-      flex: 1;
-      min-width: 150px;
-    }
-
-    .btn-salvar {
+    .btn-primary {
       background: var(--blue);
       color: white;
     }
 
-    .btn-limpar {
-      background: var(--amber);
-      color: white;
+    .btn-primary:hover {
+      background: var(--blue-dark);
     }
 
-    .btn-geo {
+    .btn-success {
       background: var(--green);
       color: white;
     }
 
-    .btn-novo {
-      background: #64748b;
+    .btn-success:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-warning {
+      background: var(--amber);
       color: white;
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-dark);
+    }
+
+    .status-edicao {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .msg {
+      margin-top: 14px;
+      font-weight: bold;
+      min-height: 20px;
+      font-size: 14px;
     }
 
     .contador {
@@ -231,34 +270,48 @@
       margin-bottom: 14px;
     }
 
-    .lista-membro {
+    .item-celula {
       border: 1px solid var(--line);
-      padding: 12px;
-      margin-bottom: 10px;
       border-radius: 12px;
+      padding: 12px;
       background: #fafbfd;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
+      margin-bottom: 10px;
     }
 
-    .lista-membro h3 {
+    .item-celula h3 {
       margin: 0 0 6px;
       font-size: 16px;
     }
 
-    .lista-membro p {
+    .item-celula p {
       margin: 0;
-      color: #4b5563;
       font-size: 13px;
+      color: #4b5563;
+    }
+
+    .membro-box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      background: #fafbfd;
+      margin-bottom: 10px;
+    }
+
+    .membro-box h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .membro-box p {
+      margin: 0;
+      font-size: 13px;
+      color: #4b5563;
     }
 
     .check-wrap {
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      width: 100%;
     }
 
     .check-wrap input[type="checkbox"] {
@@ -266,13 +319,12 @@
       height: 18px;
       margin-top: 2px;
       accent-color: var(--blue);
+      cursor: pointer;
       flex: 0 0 auto;
     }
 
-    .campo-ajuda {
-      margin-top: 8px;
-      font-size: 13px;
-      color: var(--muted);
+    .check-wrap input[type="checkbox"]:disabled {
+      cursor: not-allowed;
     }
 
     .vazio {
@@ -285,58 +337,18 @@
       background: #fcfdff;
     }
 
-    .celula-item {
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 10px;
-      background: #fafbfd;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .celula-item:hover,
-    .celula-item.ativa {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
-      background: #f8fbff;
-    }
-
-    .celula-item h3 {
-      margin: 0 0 6px;
-      font-size: 17px;
-    }
-
-    .celula-item p {
-      margin: 0;
-      color: #4b5563;
-      font-size: 13px;
-    }
-
-    .membros-vinculados {
-      margin-top: 20px;
-    }
-
-    .membros-vinculados h3 {
-      margin: 0 0 12px;
-      font-size: 18px;
-    }
-
-    .geo-status {
-      margin-top: 8px;
+    .info-ajuda {
+      margin-top: 10px;
       font-size: 13px;
       color: var(--muted);
     }
 
-    #msg {
-      margin-top: 14px;
-      font-weight: bold;
-      min-height: 20px;
-      font-size: 14px;
+    .secao {
+      margin-top: 20px;
     }
 
-    @media (max-width: 1100px) {
-      .grid {
+    @media (max-width: 1200px) {
+      .top-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -361,11 +373,6 @@
       .grid-2 {
         grid-template-columns: 1fr;
       }
-
-      .lista-membro {
-        flex-direction: column;
-        align-items: flex-start;
-      }
     }
   </style>
 </head>
@@ -389,23 +396,33 @@
 
     <main class="content">
       <div class="header">
-        <h1>Cadastro de células</h1>
-        <p>Cadastre, consulte e edite células na mesma tela</p>
+        <h1>Células</h1>
+        <p>Selecione a célula, visualize os dados e clique em editar para alterar com segurança</p>
         <p class="usuario-logado" id="usuarioLogado"></p>
       </div>
 
-      <div class="grid">
+      <div class="top-grid">
         <div class="card">
-          <h2 id="tituloForm">Nova célula</h2>
-          <input id="celulaId" type="hidden">
+          <h2>Editar célula</h2>
+
+          <input id="celulaId" type="hidden" />
+
+          <label for="seletorCelula">Selecionar célula cadastrada</label>
+          <select id="seletorCelula">
+            <option value="">Carregando células...</option>
+          </select>
+
+          <div class="status-edicao" id="statusEdicao">
+            Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar célula.
+          </div>
 
           <label for="nomeCelula">Nome da célula</label>
-          <input id="nomeCelula" type="text" placeholder="Nome da célula">
+          <input id="nomeCelula" type="text" placeholder="Nome da célula" readonly />
 
           <div class="grid-2">
             <div>
               <label for="diaSemana">Dia da semana</label>
-              <select id="diaSemana">
+              <select id="diaSemana" disabled>
                 <option value="">Selecione</option>
                 <option value="SEGUNDA-FEIRA">SEGUNDA-FEIRA</option>
                 <option value="TERÇA-FEIRA">TERÇA-FEIRA</option>
@@ -416,94 +433,100 @@
                 <option value="DOMINGO">DOMINGO</option>
               </select>
             </div>
+
             <div>
               <label for="horaReuniao">Hora</label>
-              <input id="horaReuniao" type="time">
+              <input id="horaReuniao" type="time" readonly />
             </div>
           </div>
 
           <label for="anfitriao">Anfitrião</label>
-          <select id="anfitriao">
+          <select id="anfitriao" disabled>
+            <option value="">Carregando membros...</option>
+          </select>
+
+          <label for="liderCelula">LÍDER DA CÉLULA</label>
+          <select id="liderCelula" disabled>
             <option value="">Carregando membros...</option>
           </select>
 
           <label for="cep">CEP</label>
-          <input id="cep" type="text" placeholder="00000-000">
+          <input id="cep" type="text" placeholder="00000-000" readonly />
 
           <label for="rua">Rua</label>
-          <input id="rua" type="text" placeholder="Rua">
+          <input id="rua" type="text" placeholder="Rua" readonly />
 
           <div class="grid-2">
             <div>
               <label for="numero">Número</label>
-              <input id="numero" type="text" placeholder="Número">
+              <input id="numero" type="text" placeholder="Número" readonly />
             </div>
+
             <div>
               <label for="complemento">Complemento</label>
-              <input id="complemento" type="text" placeholder="Complemento">
+              <input id="complemento" type="text" placeholder="Complemento" readonly />
             </div>
           </div>
 
           <div class="grid-2">
             <div>
               <label for="bairro">Bairro</label>
-              <input id="bairro" type="text" placeholder="Bairro">
+              <input id="bairro" type="text" placeholder="Bairro" readonly />
             </div>
+
             <div>
               <label for="cidade">Cidade</label>
-              <input id="cidade" type="text" placeholder="Cidade">
+              <input id="cidade" type="text" placeholder="Cidade" readonly />
             </div>
           </div>
 
           <div class="grid-2">
             <div>
               <label for="estado">Estado</label>
-              <input id="estado" type="text" placeholder="UF">
+              <input id="estado" type="text" placeholder="UF" readonly />
             </div>
+
             <div>
               <label for="geolocalizacao">Geolocalização</label>
-              <input id="geolocalizacao" type="text" placeholder="-23.000000, -51.000000" readonly>
+              <input id="geolocalizacao" type="text" placeholder="-23.000000, -51.000000" readonly />
             </div>
           </div>
 
-          <div class="geo-status" id="geoStatus">
-            A geolocalização será preenchida automaticamente com base no endereço do CEP.
+          <div class="acoes">
+            <button class="btn-primary" id="btnEditar" type="button">Editar célula</button>
+            <button class="btn-success" id="btnSalvar" type="button">Salvar edição</button>
+            <button class="btn-warning" id="btnGeo" type="button">Atualizar geolocalização</button>
+            <button class="btn-secondary" id="btnNova" type="button">Nova célula</button>
           </div>
 
-          <div class="acoes-form">
-            <button class="btn-geo" id="btnGeo" type="button">Atualizar geolocalização</button>
-            <button class="btn-salvar" id="btnSalvar" type="button">Salvar célula</button>
-            <button class="btn-novo" id="btnNova" type="button">Nova célula</button>
+          <div class="info-ajuda">
+            A seleção da célula apenas carrega os dados. As alterações só são permitidas após clicar em <strong>Editar célula</strong>.
           </div>
 
-          <div class="campo-ajuda">
-            Clique em uma célula da lista para editar. A lista de disponíveis mostra apenas membros sem célula.
-          </div>
-
-          <p id="msg"></p>
+          <div id="msg" class="msg"></div>
         </div>
 
         <div class="card">
           <div class="topo-card">
-            <h2 style="margin:0;">Células cadastradas</h2>
-            <span class="contador" id="contadorCelulas">0 célula(s)</span>
+            <h2 style="margin:0;">Resumo da célula selecionada</h2>
+            <span class="contador" id="contadorMembrosVinculados">0 membro(s)</span>
           </div>
-          <div id="listaCelulas"></div>
 
-          <div class="membros-vinculados">
-            <div class="topo-card" style="margin-top:18px;">
-              <h3 style="margin:0;">Membros vinculados à célula selecionada</h3>
-              <span class="contador" id="contadorVinculados">0 membro(s)</span>
+          <div id="resumoCelula"></div>
+
+          <div class="secao">
+            <div class="topo-card">
+              <h2 style="margin:0;">Membros vinculados à célula</h2>
             </div>
             <div id="listaVinculados"></div>
           </div>
 
-          <div class="membros-vinculados">
-            <div class="topo-card" style="margin-top:18px;">
-              <h3 style="margin:0;">Membros disponíveis para vínculo</h3>
-              <span class="contador" id="contadorSemCelula">0 membro(s)</span>
+          <div class="secao">
+            <div class="topo-card">
+              <h2 style="margin:0;">Membros disponíveis para vínculo</h2>
+              <span class="contador" id="contadorDisponiveis">0 membro(s)</span>
             </div>
-            <div id="listaSemCelula"></div>
+            <div id="listaDisponiveis"></div>
           </div>
         </div>
       </div>
@@ -515,11 +538,18 @@
     const API_MEMBROS = API_BASE + "/membros";
     const API_CELULAS = API_BASE + "/celulas";
 
+    let membros = [];
+    let celulas = [];
+    let modoEdicao = false;
+    let celulaAtual = null;
+
     const campoCelulaId = document.getElementById("celulaId");
+    const campoSeletorCelula = document.getElementById("seletorCelula");
     const campoNomeCelula = document.getElementById("nomeCelula");
     const campoDiaSemana = document.getElementById("diaSemana");
     const campoHoraReuniao = document.getElementById("horaReuniao");
     const campoAnfitriao = document.getElementById("anfitriao");
+    const campoLiderCelula = document.getElementById("liderCelula");
     const campoCep = document.getElementById("cep");
     const campoRua = document.getElementById("rua");
     const campoNumero = document.getElementById("numero");
@@ -528,21 +558,14 @@
     const campoCidade = document.getElementById("cidade");
     const campoEstado = document.getElementById("estado");
     const campoGeolocalizacao = document.getElementById("geolocalizacao");
-    const campoGeoStatus = document.getElementById("geoStatus");
     const campoMsg = document.getElementById("msg");
-    const campoListaCelulas = document.getElementById("listaCelulas");
+    const campoUsuarioLogado = document.getElementById("usuarioLogado");
+    const campoStatusEdicao = document.getElementById("statusEdicao");
+    const campoResumoCelula = document.getElementById("resumoCelula");
     const campoListaVinculados = document.getElementById("listaVinculados");
-    const campoListaSemCelula = document.getElementById("listaSemCelula");
-    const contadorCelulas = document.getElementById("contadorCelulas");
-    const contadorVinculados = document.getElementById("contadorVinculados");
-    const contadorSemCelula = document.getElementById("contadorSemCelula");
-    const tituloForm = document.getElementById("tituloForm");
-    const btnSalvar = document.getElementById("btnSalvar");
-
-    let membros = [];
-    let celulas = [];
-    let celulaSelecionada = "";
-    let celulaSelecionadaId = "";
+    const campoListaDisponiveis = document.getElementById("listaDisponiveis");
+    const contadorMembrosVinculados = document.getElementById("contadorMembrosVinculados");
+    const contadorDisponiveis = document.getElementById("contadorDisponiveis");
 
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
@@ -553,16 +576,18 @@
     }
 
     function preencherUsuarioLogado() {
-      const el = document.getElementById("usuarioLogado");
-      if (!el) return;
-      el.textContent =
-        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | ` +
-        `Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
+      campoUsuarioLogado.textContent =
+        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
     }
 
     function sairSistema() {
       localStorage.clear();
       window.location.href = "login.html";
+    }
+
+    function mostrarMensagem(texto, cor = "#dc2626") {
+      campoMsg.textContent = texto;
+      campoMsg.style.color = cor;
     }
 
     function normalizarTexto(valor) {
@@ -580,128 +605,62 @@
       return texto.replace(/^CELULA\s*/i, "").trim();
     }
 
-    function exibirNomeCelula(valor) {
+    function nomeCelulaExibicao(valor) {
       const base = normalizarNomeCelula(valor);
       return base ? `CÉLULA ${base}` : "";
     }
 
-    function mostrarMensagem(texto, cor = "#dc2626") {
-      campoMsg.textContent = texto;
-      campoMsg.style.color = cor;
-    }
-
     function formatarCep(valor) {
       const numeros = String(valor || "").replace(/\D/g, "").slice(0, 8);
-      if (numeros.length > 5) {
-        return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
-      }
+      if (numeros.length > 5) return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
       return numeros;
     }
 
-    function membrosDaCelula(nomeCelula) {
-      const alvo = normalizarNomeCelula(nomeCelula);
-      return membros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo);
-    }
-
-    function membrosSemCelula() {
-      return membros.filter((membro) => !String(membro.celula || "").trim());
-    }
-
-    function preencherAnfitriao() {
-      if (!Array.isArray(membros) || membros.length === 0) {
-        campoAnfitriao.innerHTML = '<option value="">Nenhum membro encontrado</option>';
-        return;
+    function atualizarStatusEdicao() {
+      if (modoEdicao) {
+        campoStatusEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA. Revise os dados e clique em Salvar edição.";
+        campoStatusEdicao.style.background = "#ecfdf5";
+        campoStatusEdicao.style.color = "#166534";
+      } else {
+        campoStatusEdicao.textContent = "Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar célula.";
+        campoStatusEdicao.style.background = "#eff6ff";
+        campoStatusEdicao.style.color = "#1d4ed8";
       }
-
-      campoAnfitriao.innerHTML =
-        '<option value="">Selecione o anfitrião</option>' +
-        membros.map((membro) => {
-          return `<option value="${membro.id}">${membro.nome || ""}</option>`;
-        }).join("");
     }
 
-    function obterIdsJaVinculadosNaCelulaSelecionada() {
-      return membrosDaCelula(celulaSelecionada).map((m) => Number(m.id));
+    function setCamposEditaveis(liberado) {
+      modoEdicao = liberado;
+      campoNomeCelula.readOnly = !liberado;
+      campoHoraReuniao.readOnly = !liberado;
+      campoCep.readOnly = !liberado;
+      campoRua.readOnly = !liberado;
+      campoNumero.readOnly = !liberado;
+      campoComplemento.readOnly = !liberado;
+      campoBairro.readOnly = !liberado;
+      campoCidade.readOnly = !liberado;
+      campoEstado.readOnly = !liberado;
+
+      campoDiaSemana.disabled = !liberado;
+      campoAnfitriao.disabled = !liberado;
+      campoLiderCelula.disabled = !liberado;
+
+      document.querySelectorAll(".membro-disponivel-checkbox").forEach((item) => {
+        item.disabled = !liberado;
+      });
+
+      atualizarStatusEdicao();
     }
 
-    function obterMembrosSelecionados() {
-      const novosSelecionados = Array.from(document.querySelectorAll(".membro-checkbox:checked"))
-        .map((item) => Number(item.value));
-
-      const jaVinculados = obterIdsJaVinculadosNaCelulaSelecionada();
-
-      return Array.from(new Set([...jaVinculados, ...novosSelecionados]));
-    }
-
-    function renderizarVinculados(nomeCelula) {
-      if (!nomeCelula) {
-        contadorVinculados.textContent = "0 membro(s)";
-        campoListaVinculados.innerHTML =
-          '<div class="vazio">Selecione uma célula para ver os membros vinculados.</div>';
-        return;
-      }
-
-      const lista = membrosDaCelula(nomeCelula);
-      contadorVinculados.textContent = `${lista.length} membro(s)`;
-
-      if (lista.length === 0) {
-        campoListaVinculados.innerHTML =
-          '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
-        return;
-      }
-
-      campoListaVinculados.innerHTML = lista.map((membro) => `
-        <div class="lista-membro">
-          <div>
-            <h3>${membro.nome || ""}</h3>
-            <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
-            <p><strong>Status:</strong> ${(membro.status || "-").toUpperCase()}</p>
-            <p><strong>Célula no cadastro:</strong> ${membro.celula || "-"}</p>
-          </div>
-        </div>
-      `).join("");
-    }
-
-    function renderizarListaSemCelula() {
-      const lista = membrosSemCelula();
-      contadorSemCelula.textContent = `${lista.length} membro(s)`;
-
-      if (lista.length === 0) {
-        campoListaSemCelula.innerHTML =
-          '<div class="vazio">Nenhum membro sem célula disponível para vínculo.</div>';
-        return;
-      }
-
-      campoListaSemCelula.innerHTML = lista.map((membro) => `
-        <label class="lista-membro">
-          <div class="check-wrap">
-            <input
-              type="checkbox"
-              class="membro-checkbox"
-              value="${membro.id}"
-            >
-            <div>
-              <h3>${membro.nome || ""}</h3>
-              <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
-              <p><strong>Status:</strong> ${(membro.status || "-").toUpperCase()}</p>
-              <p><strong>Célula atual:</strong> SEM CÉLULA</p>
-            </div>
-          </div>
-        </label>
-      `).join("");
-    }
-
-    function deduplicarCelulas(listaCelulas) {
+    function deduplicarCelulas(lista) {
       const mapa = new Map();
 
-      (Array.isArray(listaCelulas) ? listaCelulas : []).forEach((celula) => {
+      (Array.isArray(lista) ? lista : []).forEach((celula) => {
         const chave = normalizarNomeCelula(celula.nome);
         if (!chave) return;
-
         if (!mapa.has(chave)) {
           mapa.set(chave, {
             ...celula,
-            nomeExibicao: exibirNomeCelula(celula.nome)
+            nomeExibicao: nomeCelulaExibicao(celula.nome)
           });
         }
       });
@@ -711,44 +670,166 @@
       );
     }
 
-    function renderizarCelulas() {
-      const listaTratada = deduplicarCelulas(celulas);
-      contadorCelulas.textContent = `${listaTratada.length} célula(s)`;
+    function preencherSelectCelulas() {
+      const lista = deduplicarCelulas(celulas);
+      const valorAtual = campoSeletorCelula.value;
 
-      if (listaTratada.length === 0) {
-        campoListaCelulas.innerHTML =
-          '<div class="vazio">Nenhuma célula cadastrada ainda.</div>';
-        renderizarVinculados("");
-        renderizarListaSemCelula();
+      campoSeletorCelula.innerHTML =
+        '<option value="">Selecione a célula</option>' +
+        lista.map((celula) =>
+          `<option value="${celula.id}">${celula.nomeExibicao}</option>`
+        ).join("");
+
+      if (lista.some((c) => String(c.id) === String(valorAtual))) {
+        campoSeletorCelula.value = valorAtual;
+      }
+    }
+
+    function obterIdsLideresJaUsados(celulaIdAtual = "") {
+      const ids = new Set();
+
+      deduplicarCelulas(celulas).forEach((celula) => {
+        if (String(celula.id) === String(celulaIdAtual)) return;
+        if (String(celula.lider_celula || celula.liderCelula || "").trim()) {
+          ids.add(String(celula.lider_celula || celula.liderCelula));
+        }
+      });
+
+      return ids;
+    }
+
+    function obterIdsAnfitrioesJaUsados(celulaIdAtual = "") {
+      const ids = new Set();
+
+      deduplicarCelulas(celulas).forEach((celula) => {
+        if (String(celula.id) === String(celulaIdAtual)) return;
+        if (String(celula.anfitriao || "").trim()) {
+          ids.add(String(celula.anfitriao));
+        }
+      });
+
+      return ids;
+    }
+
+    function preencherSelectMembrosEspeciais() {
+      const celulaIdAtual = campoCelulaId.value || "";
+      const idsLideresUsados = obterIdsLideresJaUsados(celulaIdAtual);
+      const idsAnfitrioesUsados = obterIdsAnfitrioesJaUsados(celulaIdAtual);
+
+      const atualAnfitriao = String(campoAnfitriao.value || "");
+      const atualLider = String(campoLiderCelula.value || "");
+
+      const opcoesAnfitriao = membros.filter((membro) => {
+        const id = String(membro.id);
+        return !idsAnfitrioesUsados.has(id) || id === atualAnfitriao;
+      });
+
+      const opcoesLider = membros.filter((membro) => {
+        const id = String(membro.id);
+        return !idsLideresUsados.has(id) || id === atualLider;
+      });
+
+      campoAnfitriao.innerHTML =
+        '<option value="">Selecione o anfitrião</option>' +
+        opcoesAnfitriao.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
+
+      campoLiderCelula.innerHTML =
+        '<option value="">Selecione o líder</option>' +
+        opcoesLider.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
+
+      if (atualAnfitriao) campoAnfitriao.value = atualAnfitriao;
+      if (atualLider) campoLiderCelula.value = atualLider;
+    }
+
+    function membrosDaCelula(nomeCelula) {
+      const alvo = normalizarNomeCelula(nomeCelula);
+      return membros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo);
+    }
+
+    function membrosDisponiveis() {
+      return membros.filter((membro) => !String(membro.celula || "").trim());
+    }
+
+    function renderResumoCelula(celula) {
+      if (!celula) {
+        campoResumoCelula.innerHTML = '<div class="vazio">Selecione uma célula para ver o resumo.</div>';
         return;
       }
 
-      if (!celulaSelecionada) {
-        celulaSelecionada = listaTratada[0].nomeExibicao;
-        celulaSelecionadaId = listaTratada[0].id;
-      }
+      const nomeLider = membros.find((m) => String(m.id) === String(celula.lider_celula || celula.liderCelula))?.nome || "-";
+      const nomeAnfitriao = membros.find((m) => String(m.id) === String(celula.anfitriao))?.nome || "-";
 
-      campoListaCelulas.innerHTML = listaTratada.map((celula) => `
-        <div
-          class="celula-item ${normalizarNomeCelula(celulaSelecionada) === normalizarNomeCelula(celula.nomeExibicao) ? "ativa" : ""}"
-          data-id="${celula.id}"
-          data-celula="${celula.nomeExibicao}"
-        >
-          <h3>${celula.nomeExibicao}</h3>
-          <p>${(celula.dia_semana || celula.diaSemana || "-")} - ${(celula.hora || celula.horaReuniao || "-")}</p>
+      campoResumoCelula.innerHTML = `
+        <div class="item-celula">
+          <h3>${celula.nomeExibicao || nomeCelulaExibicao(celula.nome)}</h3>
+          <p><strong>Dia:</strong> ${celula.dia_semana || celula.diaSemana || "-"}</p>
+          <p><strong>Hora:</strong> ${celula.hora || celula.horaReuniao || "-"}</p>
+          <p><strong>Anfitrião:</strong> ${nomeAnfitriao}</p>
+          <p><strong>Líder da célula:</strong> ${nomeLider}</p>
+          <p><strong>Endereço:</strong> ${celula.rua || "-"}, ${celula.numero || "-"} - ${celula.bairro || "-"} - ${celula.cidade || "-"} / ${celula.estado || "-"}</p>
         </div>
-      `).join("");
-
-      renderizarVinculados(celulaSelecionada);
-      renderizarListaSemCelula();
+      `;
     }
 
-    function limparFormulario(limparSelecao = false) {
+    function renderMembrosVinculados(nomeCelula) {
+      const lista = membrosDaCelula(nomeCelula);
+      contadorMembrosVinculados.textContent = `${lista.length} membro(s)`;
+
+      if (!lista.length) {
+        campoListaVinculados.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
+        return;
+      }
+
+      campoListaVinculados.innerHTML = lista.map((membro) => `
+        <div class="membro-box">
+          <h3>${membro.nome || ""}</h3>
+          <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+        </div>
+      `).join("");
+    }
+
+    function renderMembrosDisponiveis() {
+      const lista = membrosDisponiveis();
+      contadorDisponiveis.textContent = `${lista.length} membro(s)`;
+
+      if (!lista.length) {
+        campoListaDisponiveis.innerHTML = '<div class="vazio">Nenhum membro sem célula disponível para vínculo.</div>';
+        return;
+      }
+
+      campoListaDisponiveis.innerHTML = lista.map((membro) => `
+        <label class="membro-box">
+          <div class="check-wrap">
+            <input
+              type="checkbox"
+              class="membro-disponivel-checkbox"
+              value="${membro.id}"
+              disabled
+            />
+            <div>
+              <h3>${membro.nome || ""}</h3>
+              <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+            </div>
+          </div>
+        </label>
+      `).join("");
+    }
+
+    function marcarMembrosDisponiveisSelecionados(idsSelecionados = []) {
+      const conjunto = new Set(idsSelecionados.map((id) => String(id)));
+      document.querySelectorAll(".membro-disponivel-checkbox").forEach((checkbox) => {
+        checkbox.checked = conjunto.has(String(checkbox.value));
+      });
+    }
+
+    function limparFormulario() {
       campoCelulaId.value = "";
+      campoSeletorCelula.value = "";
       campoNomeCelula.value = "";
       campoDiaSemana.value = "";
       campoHoraReuniao.value = "";
       campoAnfitriao.value = "";
+      campoLiderCelula.value = "";
       campoCep.value = "";
       campoRua.value = "";
       campoNumero.value = "";
@@ -757,28 +838,21 @@
       campoCidade.value = "";
       campoEstado.value = "";
       campoGeolocalizacao.value = "";
-      campoGeoStatus.textContent =
-        "A geolocalização será preenchida automaticamente com base no endereço do CEP.";
-      campoGeoStatus.style.color = "#6b7280";
+      celulaAtual = null;
+      campoResumoCelula.innerHTML = '<div class="vazio">Selecione uma célula para ver o resumo.</div>';
+      campoListaVinculados.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
       mostrarMensagem("", "#dc2626");
-
-      tituloForm.textContent = "Nova célula";
-      btnSalvar.textContent = "Salvar célula";
-
-      if (limparSelecao) {
-        celulaSelecionada = "";
-        celulaSelecionadaId = "";
-      }
-
-      renderizarListaSemCelula();
+      renderMembrosDisponiveis();
+      contadorMembrosVinculados.textContent = "0 membro(s)";
+      setCamposEditaveis(false);
     }
 
     function carregarFormularioCelula(celula) {
+      celulaAtual = celula;
       campoCelulaId.value = celula.id || "";
       campoNomeCelula.value = normalizarNomeCelula(celula.nome);
       campoDiaSemana.value = celula.dia_semana || celula.diaSemana || "";
       campoHoraReuniao.value = celula.hora || celula.horaReuniao || "";
-      campoAnfitriao.value = celula.anfitriao || "";
       campoCep.value = formatarCep(celula.cep || "");
       campoRua.value = celula.rua || "";
       campoNumero.value = celula.numero || "";
@@ -788,20 +862,14 @@
       campoEstado.value = celula.estado || "";
       campoGeolocalizacao.value = celula.geolocalizacao || "";
 
-      tituloForm.textContent = "Editar célula";
-      btnSalvar.textContent = "Salvar edição";
+      preencherSelectMembrosEspeciais();
+      campoAnfitriao.value = celula.anfitriao || "";
+      campoLiderCelula.value = celula.lider_celula || celula.liderCelula || "";
 
-      if (campoGeolocalizacao.value) {
-        campoGeoStatus.textContent = "Geolocalização carregada da célula selecionada.";
-        campoGeoStatus.style.color = "#16a34a";
-      } else {
-        campoGeoStatus.textContent =
-          "A geolocalização será preenchida automaticamente com base no endereço do CEP.";
-        campoGeoStatus.style.color = "#6b7280";
-      }
-
-      renderizarListaSemCelula();
-      renderizarVinculados(celula.nome);
+      renderResumoCelula(celula);
+      renderMembrosVinculados(celula.nome);
+      renderMembrosDisponiveis();
+      setCamposEditaveis(false);
       mostrarMensagem("", "#dc2626");
     }
 
@@ -812,7 +880,6 @@
       try {
         const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
         const dados = await resposta.json();
-
         if (dados.erro) return;
 
         campoRua.value = (dados.logradouro || "").toUpperCase();
@@ -824,80 +891,107 @@
       }
     }
 
-    async function atualizarGeolocalizacaoAutomatica() {
-      const rua = campoRua.value.trim();
-      const bairro = campoBairro.value.trim();
-      const cidade = campoCidade.value.trim();
-      const estado = campoEstado.value.trim();
-      const cep = campoCep.value.trim();
-
-      const partes = [rua, bairro, cidade, estado, cep].filter(Boolean);
-      if (partes.length < 4) {
-        campoGeoStatus.textContent = "Preencha o endereço para gerar a geolocalização.";
-        campoGeoStatus.style.color = "#dc2626";
+    async function atualizarGeolocalizacao() {
+      if (!modoEdicao) {
+        mostrarMensagem("Clique em Editar célula antes de atualizar a geolocalização.");
         return;
       }
 
+      const partes = [
+        campoNumero.value.trim(),
+        campoRua.value.trim(),
+        campoBairro.value.trim(),
+        campoCidade.value.trim(),
+        campoEstado.value.trim(),
+        campoCep.value.trim()
+      ].filter(Boolean);
+
+      if (partes.length < 4) {
+        mostrarMensagem("Preencha o endereço corretamente para gerar a geolocalização.");
+        return;
+      }
+
+      const geoAnterior = campoGeolocalizacao.value.trim();
+
       try {
-        campoGeoStatus.textContent = "Gerando geolocalização automática...";
-        campoGeoStatus.style.color = "#6b7280";
+        mostrarMensagem("Gerando geolocalização...", "#2563eb");
 
         const endereco = encodeURIComponent(partes.join(", "));
         const resposta = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${endereco}`);
         const dados = await resposta.json();
 
-        if (!Array.isArray(dados) || dados.length === 0) {
-          campoGeoStatus.textContent = "Não foi possível gerar a geolocalização.";
-          campoGeoStatus.style.color = "#dc2626";
+        if (Array.isArray(dados) && dados.length > 0) {
+          const lat = Number(dados[0].lat).toFixed(6);
+          const lon = Number(dados[0].lon).toFixed(6);
+          campoGeolocalizacao.value = `${lat}, ${lon}`;
+          mostrarMensagem("Geolocalização atualizada com sucesso.", "#16a34a");
           return;
         }
 
-        const lat = Number(dados[0].lat).toFixed(6);
-        const lon = Number(dados[0].lon).toFixed(6);
-        campoGeolocalizacao.value = `${lat}, ${lon}`;
-        campoGeoStatus.textContent = "Geolocalização gerada com sucesso.";
-        campoGeoStatus.style.color = "#16a34a";
+        const cep = String(campoCep.value || "").replace(/\D/g, "");
+        if (cep.length === 8) {
+          const fallback = await fetch(`https://nominatim.openstreetmap.org/search?format=json&country=Brazil&postalcode=${cep}`);
+          const dadosFallback = await fallback.json();
+
+          if (Array.isArray(dadosFallback) && dadosFallback.length > 0) {
+            const lat = Number(dadosFallback[0].lat).toFixed(6);
+            const lon = Number(dadosFallback[0].lon).toFixed(6);
+            campoGeolocalizacao.value = `${lat}, ${lon}`;
+            mostrarMensagem("Geolocalização atualizada com sucesso pelo CEP.", "#16a34a");
+            return;
+          }
+        }
+
+        campoGeolocalizacao.value = geoAnterior;
+        mostrarMensagem("Não foi possível gerar a geolocalização. A coordenada anterior foi mantida.");
       } catch (erro) {
-        console.error("Erro na geolocalização:", erro);
-        campoGeoStatus.textContent = "Erro ao gerar a geolocalização.";
-        campoGeoStatus.style.color = "#dc2626";
+        console.error("Erro ao gerar geolocalização:", erro);
+        campoGeolocalizacao.value = geoAnterior;
+        mostrarMensagem("Não foi possível gerar a geolocalização. A coordenada anterior foi mantida.");
       }
     }
 
-    async function carregarCelulas() {
-      const resposta = await fetch(API_CELULAS, { cache: "no-store" });
-      if (!resposta.ok) throw new Error("Erro ao carregar células");
-      celulas = await resposta.json();
-      renderizarCelulas();
-    }
-
-    async function carregarMembros() {
+    async function carregarDados() {
       try {
-        campoListaSemCelula.innerHTML = '<div class="vazio">Carregando membros...</div>';
-        campoListaCelulas.innerHTML = '<div class="vazio">Carregando células...</div>';
-        campoListaVinculados.innerHTML = '<div class="vazio">Carregando dados...</div>';
+        const [resMembros, resCelulas] = await Promise.all([
+          fetch(API_MEMBROS, { cache: "no-store" }),
+          fetch(API_CELULAS, { cache: "no-store" })
+        ]);
 
-        const resposta = await fetch(API_MEMBROS, { cache: "no-store" });
-        if (!resposta.ok) throw new Error("Erro ao carregar membros");
+        if (!resMembros.ok || !resCelulas.ok) {
+          throw new Error("Erro ao carregar dados da tela de células.");
+        }
 
-        membros = await resposta.json();
-        preencherAnfitriao();
-        await carregarCelulas();
+        membros = await resMembros.json();
+        celulas = await resCelulas.json();
+
+        preencherSelectCelulas();
+        preencherSelectMembrosEspeciais();
+        renderMembrosDisponiveis();
       } catch (erro) {
         console.error(erro);
-        contadorSemCelula.textContent = "0 membro(s)";
-        contadorCelulas.textContent = "0 célula(s)";
-        contadorVinculados.textContent = "0 membro(s)";
-        campoAnfitriao.innerHTML = '<option value="">Erro ao carregar membros</option>';
-        campoListaSemCelula.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
-        campoListaCelulas.innerHTML = '<div class="vazio">Erro ao carregar células.</div>';
-        campoListaVinculados.innerHTML = '<div class="vazio">Erro ao carregar membros vinculados.</div>';
+        mostrarMensagem("Erro ao carregar dados da tela de células.");
       }
     }
 
-    async function salvarCelula() {
-      const nomeCelula = campoNomeCelula.value.trim();
+    function obterIdsDisponiveisMarcados() {
+      return Array.from(document.querySelectorAll(".membro-disponivel-checkbox:checked"))
+        .map((item) => Number(item.value));
+    }
 
+    async function salvarEdicao() {
+      if (!modoEdicao) {
+        mostrarMensagem("Clique em Editar célula antes de salvar.");
+        return;
+      }
+
+      const id = campoCelulaId.value.trim();
+      if (!id) {
+        mostrarMensagem("Selecione uma célula para editar.");
+        return;
+      }
+
+      const nomeCelula = campoNomeCelula.value.trim();
       if (!nomeCelula) {
         mostrarMensagem("Informe o nome da célula.");
         return;
@@ -908,6 +1002,7 @@
         diaSemana: campoDiaSemana.value,
         horaReuniao: campoHoraReuniao.value,
         anfitriao: campoAnfitriao.value,
+        liderCelula: campoLiderCelula.value,
         cep: campoCep.value.trim(),
         rua: campoRua.value.trim(),
         numero: campoNumero.value.trim(),
@@ -916,18 +1011,14 @@
         cidade: campoCidade.value.trim(),
         estado: campoEstado.value.trim(),
         geolocalizacao: campoGeolocalizacao.value.trim(),
-        membrosSelecionados: obterMembrosSelecionados()
+        membrosSelecionados: obterIdsDisponiveisMarcados()
       };
 
       try {
-        mostrarMensagem("Salvando célula...", "#2563eb");
+        mostrarMensagem("Salvando edição...", "#2563eb");
 
-        const id = campoCelulaId.value.trim();
-        const url = id ? `${API_CELULAS}/${id}` : API_CELULAS;
-        const metodo = id ? "PUT" : "POST";
-
-        const resposta = await fetch(url, {
-          method: metodo,
+        const resposta = await fetch(`${API_CELULAS}/${id}`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json"
           },
@@ -940,24 +1031,15 @@
           throw new Error(dados.erro || "Erro ao salvar célula.");
         }
 
-        mostrarMensagem(id ? "Célula atualizada com sucesso." : "Célula salva com sucesso.", "#16a34a");
+        mostrarMensagem("Célula atualizada com sucesso.", "#16a34a");
 
-        const nomeSalvo = exibirNomeCelula(nomeCelula);
-        celulaSelecionada = nomeSalvo;
-        celulaSelecionadaId = dados.celulaId || id || "";
+        await carregarDados();
 
-        await carregarMembros();
-
-        const listaTratada = deduplicarCelulas(celulas);
-        const achada = listaTratada.find((item) =>
-          normalizarNomeCelula(item.nomeExibicao) === normalizarNomeCelula(nomeSalvo)
-        );
-
-        if (achada) {
-          celulaSelecionada = achada.nomeExibicao;
-          celulaSelecionadaId = achada.id;
-          carregarFormularioCelula(achada);
-          renderizarCelulas();
+        const lista = deduplicarCelulas(celulas);
+        const celulaRecarregada = lista.find((item) => String(item.id) === String(id));
+        if (celulaRecarregada) {
+          campoSeletorCelula.value = String(celulaRecarregada.id);
+          carregarFormularioCelula(celulaRecarregada);
         }
       } catch (erro) {
         console.error(erro);
@@ -966,44 +1048,57 @@
     }
 
     document.getElementById("btnSair").addEventListener("click", sairSistema);
-    document.getElementById("btnGeo").addEventListener("click", atualizarGeolocalizacaoAutomatica);
-    document.getElementById("btnSalvar").addEventListener("click", salvarCelula);
+
+    document.getElementById("btnEditar").addEventListener("click", () => {
+      if (!campoCelulaId.value) {
+        mostrarMensagem("Selecione uma célula antes de editar.");
+        return;
+      }
+
+      setCamposEditaveis(true);
+      mostrarMensagem("Edição liberada. Faça os ajustes e clique em Salvar edição.", "#2563eb");
+    });
+
+    document.getElementById("btnSalvar").addEventListener("click", salvarEdicao);
+
+    document.getElementById("btnGeo").addEventListener("click", atualizarGeolocalizacao);
+
     document.getElementById("btnNova").addEventListener("click", () => {
-      limparFormulario(true);
-      renderizarCelulas();
+      limparFormulario();
+      setCamposEditaveis(true);
+      mostrarMensagem("Modo nova célula liberado. Preencha os dados.", "#2563eb");
+    });
+
+    campoSeletorCelula.addEventListener("change", () => {
+      const id = campoSeletorCelula.value;
+      if (!id) {
+        limparFormulario();
+        return;
+      }
+
+      const lista = deduplicarCelulas(celulas);
+      const celula = lista.find((item) => String(item.id) === String(id));
+
+      if (!celula) {
+        mostrarMensagem("Erro ao carregar a célula selecionada.");
+        return;
+      }
+
+      carregarFormularioCelula(celula);
     });
 
     campoCep.addEventListener("input", () => {
       campoCep.value = formatarCep(campoCep.value);
     });
 
-    campoCep.addEventListener("blur", buscarCep);
-
-    campoListaCelulas.addEventListener("click", (evento) => {
-      const item = evento.target.closest(".celula-item");
-      if (!item) return;
-
-      const id = Number(item.dataset.id);
-      const nome = item.dataset.celula;
-
-      celulaSelecionada = nome;
-      celulaSelecionadaId = id;
-
-      const listaTratada = deduplicarCelulas(celulas);
-      const celula = listaTratada.find((c) => Number(c.id) === id);
-
-      if (!celula) {
-        mostrarMensagem("Erro ao carregar célula.");
-        return;
-      }
-
-      carregarFormularioCelula(celula);
-      renderizarCelulas();
+    campoCep.addEventListener("blur", () => {
+      if (modoEdicao) buscarCep();
     });
 
     if (protegerPagina()) {
       preencherUsuarioLogado();
-      carregarMembros();
+      atualizarStatusEdicao();
+      carregarDados();
     }
   </script>
 </body>
