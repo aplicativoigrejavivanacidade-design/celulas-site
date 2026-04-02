@@ -3,181 +3,77 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>+Células | Relatórios</title>
+  <title>+Células | Relatórios V9</title>
 
   <style>
-    * { box-sizing: border-box; }
-
-    :root{
-      --bg:#eef2f7;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#dbe3ee;
-      --blue:#2563eb;
-      --blue-dark:#1d4ed8;
-      --green:#16a34a;
-      --amber:#f59e0b;
-      --red:#dc2626;
-      --shadow:0 10px 25px rgba(0,0,0,0.05);
-      --radius:16px;
-    }
-
-    body{
-      margin:0;
-      font-family:Arial,sans-serif;
-      background:var(--bg);
-      color:var(--text);
-    }
-
-    .layout{display:flex;min-height:100vh;}
-
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Arial,sans-serif;background:#eef2f7}
+    .layout{display:flex;min-height:100vh}
     .sidebar{
       width:250px;
-      background:linear-gradient(180deg,var(--blue-dark),var(--green));
+      background:linear-gradient(180deg,#1d4ed8,#16a34a);
       color:#fff;
       padding:24px 18px;
       position:fixed;
-      top:0;
-      left:0;
       height:100%;
     }
-
-    .logo{font-size:30px;font-weight:bold;margin:0;}
-    .logo-sub{margin:6px 0 28px;font-size:13px;opacity:.9;}
-
     .menu a{
-      display:block;
-      color:#fff;
-      padding:12px;
-      text-decoration:none;
-      border-radius:10px;
-      margin-bottom:6px;
-      font-weight:bold;
+      display:block;color:#fff;padding:12px;
+      text-decoration:none;border-radius:10px;
+      margin-bottom:6px;font-weight:bold;
     }
-
-    .menu a:hover,.menu a.ativo{
-      background:rgba(255,255,255,.16);
-    }
-
-    .btn-sair{
-      margin-top:20px;
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:12px;
-      background:var(--red);
-      color:#fff;
-      font-weight:bold;
-      cursor:pointer;
-    }
-
     .content{
       margin-left:250px;
-      padding:30px;
       width:calc(100% - 250px);
+      padding:30px;
     }
-
-    .header,.card{
-      background:var(--card);
+    .card{
+      background:#fff;
       padding:22px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+      border-radius:16px;
+      box-shadow:0 10px 25px rgba(0,0,0,.05);
+      margin-bottom:20px;
     }
-
-    .header{margin-bottom:20px;}
-
-    .grid-4{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:16px;
+    .acoes{
+      display:flex;
+      gap:12px;
+      margin-top:20px;
+      flex-wrap:wrap;
     }
-
-    .badge{
-      display:inline-block;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:13px;
+    .btn{
+      padding:14px 18px;
+      border:none;
+      border-radius:10px;
       font-weight:bold;
-      background:#e8f0ff;
-      color:var(--blue-dark);
+      cursor:pointer;
+      color:#fff;
     }
-
-    .item{
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:14px;
-      margin-bottom:10px;
-      background:#fafbfd;
-    }
-
-    .vazio{
-      color:var(--muted);
-      text-align:center;
-      padding:20px;
-      border:2px dashed var(--line);
-      border-radius:12px;
-      background:#fcfdff;
-    }
-
-    @media(max-width:900px){
-      .layout{flex-direction:column;}
-      .sidebar{position:relative;width:100%;height:auto;}
-      .content{margin-left:0;width:100%;padding:20px;}
-      .grid-4{grid-template-columns:1fr;}
-    }
+    .pdf{background:#2563eb}
+    .backup{background:#16a34a}
   </style>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar">
-    <h2 class="logo">+Células</h2>
-    <div class="logo-sub">Gestão de células</div>
-
+    <h2>+Células</h2>
     <div class="menu">
       <a href="painel.html">Painel</a>
       <a href="cadastro.html">Membros</a>
       <a href="presenca.html">Presença</a>
       <a href="celulas.html">Células</a>
-      <a href="relatorios.html" class="ativo">Relatórios</a>
-      <a href="usuarios.html">Usuários</a>
+      <a href="relatorios.html">Relatórios</a>
     </div>
-
-    <button class="btn-sair" id="btnSair">Sair</button>
   </aside>
 
   <main class="content">
-    <div class="header">
-      <h1>Relatórios</h1>
-      <p>Dashboard gerencial do crescimento das células</p>
-      <p id="usuarioLogado"></p>
-    </div>
+    <div class="card">
+      <h1>Relatórios Premium V9</h1>
+      <p>Exportação profissional e backup seguro do sistema.</p>
 
-    <div class="grid-4">
-      <div class="card">
-        <div class="badge">Total de membros</div>
-        <h2 id="rTotal">0</h2>
+      <div class="acoes">
+        <button class="btn pdf" onclick="baixarPDF()">Exportar PDF</button>
+        <button class="btn backup" onclick="baixarBackup()">Backup JSON</button>
       </div>
-
-      <div class="card">
-        <div class="badge">Ativos</div>
-        <h2 id="rAtivos">0</h2>
-      </div>
-
-      <div class="card">
-        <div class="badge">Com célula</div>
-        <h2 id="rComCelula">0</h2>
-      </div>
-
-      <div class="card">
-        <div class="badge">Taxa de vínculo</div>
-        <h2 id="rTaxa">0%</h2>
-      </div>
-    </div>
-
-    <div class="card" style="margin-top:20px;">
-      <h2>Membros por célula</h2>
-      <div id="listaRelatorios"></div>
     </div>
   </main>
 </div>
@@ -185,76 +81,13 @@
 <script>
 const API = "https://celulas-backend.onrender.com";
 
-if(localStorage.getItem("logado") !== "sim"){
-  window.location.href = "login.html";
+function baixarPDF(){
+  window.open(API + "/relatorio-pdf", "_blank");
 }
 
-document.getElementById("usuarioLogado").textContent =
-  `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
-
-document.getElementById("btnSair").onclick = function(){
-  localStorage.clear();
-  window.location.href = "login.html";
-};
-
-function normalizarTexto(valor){
-  return String(valor || "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g,"")
-    .trim()
-    .toUpperCase();
+function baixarBackup(){
+  window.open(API + "/backup", "_blank");
 }
-
-async function carregarRelatorios(){
-  const lista = document.getElementById("listaRelatorios");
-
-  try{
-    const resp = await fetch(API + "/membros",{cache:"no-store"});
-    const membros = await resp.json();
-
-    const total = membros.length;
-    const ativos = membros.filter(m =>
-      normalizarTexto(m.status) === "ATIVO"
-    ).length;
-
-    const comCelula = membros.filter(m =>
-      String(m.celula || "").trim()
-    ).length;
-
-    const taxa = total
-      ? Math.round((comCelula / total) * 100)
-      : 0;
-
-    document.getElementById("rTotal").textContent = total;
-    document.getElementById("rAtivos").textContent = ativos;
-    document.getElementById("rComCelula").textContent = comCelula;
-    document.getElementById("rTaxa").textContent = taxa + "%";
-
-    const grupos = {};
-
-    membros.forEach(m => {
-      const nome = String(m.celula || "SEM CÉLULA").trim() || "SEM CÉLULA";
-      grupos[nome] = (grupos[nome] || 0) + 1;
-    });
-
-    const ordenado = Object.entries(grupos)
-      .sort((a,b) => b[1] - a[1]);
-
-    lista.innerHTML = ordenado.length
-      ? ordenado.map(([nome,qtd]) => `
-          <div class="item">
-            <h3>${nome}</h3>
-            <p><strong>Membros:</strong> ${qtd}</p>
-          </div>
-        `).join("")
-      : '<div class="vazio">Sem dados.</div>';
-
-  }catch{
-    lista.innerHTML = '<div class="vazio">Erro ao carregar relatórios.</div>';
-  }
-}
-
-carregarRelatorios();
 </script>
 </body>
 </html>
