@@ -118,7 +118,7 @@
 
     .grid {
       display: grid;
-      grid-template-columns: 1fr 1.1fr;
+      grid-template-columns: 1fr 1.15fr;
       gap: 20px;
       align-items: start;
     }
@@ -144,7 +144,6 @@
     }
 
     input,
-    textarea,
     select {
       width: 100%;
       padding: 12px;
@@ -156,15 +155,13 @@
     }
 
     input:focus,
-    textarea:focus,
     select:focus {
       outline: none;
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
-    input[type="text"],
-    textarea {
+    input[type="text"] {
       text-transform: uppercase;
     }
 
@@ -228,11 +225,28 @@
       background: var(--gray-dark);
     }
 
+    .status-edicao {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
     .msg {
       margin-top: 14px;
       font-weight: bold;
       min-height: 20px;
       font-size: 14px;
+    }
+
+    .filtros {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
     .membro-item {
@@ -271,7 +285,7 @@
       background: #fcfdff;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1150px) {
       .grid {
         grid-template-columns: 1fr;
       }
@@ -294,7 +308,8 @@
         padding: 20px;
       }
 
-      .grid-2 {
+      .grid-2,
+      .filtros {
         grid-template-columns: 1fr;
       }
     }
@@ -328,6 +343,31 @@
       <div class="grid">
         <div class="card">
           <h2>Membros cadastrados</h2>
+
+          <div class="filtros">
+            <div>
+              <label for="filtroNome">Pesquisar por nome</label>
+              <input id="filtroNome" type="text" placeholder="Digite o nome" />
+            </div>
+
+            <div>
+              <label for="filtroStatus">Filtrar por status</label>
+              <select id="filtroStatus">
+                <option value="">Todos</option>
+                <option value="ATIVO">ATIVO</option>
+                <option value="VISITANTE">VISITANTE</option>
+                <option value="AFASTADO">AFASTADO</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="filtroCelula">Filtrar por célula</label>
+              <select id="filtroCelula">
+                <option value="">Todas</option>
+              </select>
+            </div>
+          </div>
+
           <div id="listaMembros"></div>
         </div>
 
@@ -336,25 +376,29 @@
 
           <input id="membroId" type="hidden" />
 
+          <div class="status-edicao" id="statusEdicao">
+            Modo atual: VISUALIZAÇÃO. Selecione um membro e clique em Editar membro.
+          </div>
+
           <label for="nome">Nome completo</label>
-          <input id="nome" type="text" placeholder="Nome completo" />
+          <input id="nome" type="text" placeholder="Nome completo" readonly />
 
           <div class="grid-2">
             <div>
               <label for="telefone">Telefone</label>
-              <input id="telefone" type="text" placeholder="Telefone" />
+              <input id="telefone" type="text" placeholder="Telefone" readonly />
             </div>
 
             <div>
               <label for="nascimento">Data de nascimento</label>
-              <input id="nascimento" type="date" />
+              <input id="nascimento" type="date" max="9999-12-31" readonly />
             </div>
           </div>
 
           <div class="grid-2">
             <div>
               <label for="status">Status</label>
-              <select id="status">
+              <select id="status" disabled>
                 <option value="">Selecione</option>
                 <option value="ATIVO">ATIVO</option>
                 <option value="VISITANTE">VISITANTE</option>
@@ -369,52 +413,53 @@
           </div>
 
           <label for="cep">CEP</label>
-          <input id="cep" type="text" placeholder="00000-000" />
+          <input id="cep" type="text" placeholder="00000-000" readonly />
 
           <label for="rua">Rua</label>
-          <input id="rua" type="text" placeholder="Rua" />
+          <input id="rua" type="text" placeholder="Rua" readonly />
 
           <div class="grid-2">
             <div>
               <label for="numero">Número</label>
-              <input id="numero" type="text" placeholder="Número" />
+              <input id="numero" type="text" placeholder="Número" readonly />
             </div>
 
             <div>
               <label for="complemento">Complemento</label>
-              <input id="complemento" type="text" placeholder="Complemento" />
+              <input id="complemento" type="text" placeholder="Complemento" readonly />
             </div>
           </div>
 
           <div class="grid-2">
             <div>
               <label for="bairro">Bairro</label>
-              <input id="bairro" type="text" placeholder="Bairro" />
+              <input id="bairro" type="text" placeholder="Bairro" readonly />
             </div>
 
             <div>
               <label for="cidade">Cidade</label>
-              <input id="cidade" type="text" placeholder="Cidade" />
+              <input id="cidade" type="text" placeholder="Cidade" readonly />
             </div>
           </div>
 
           <div class="grid-2">
             <div>
               <label for="estado">Estado</label>
-              <input id="estado" type="text" placeholder="UF" />
+              <input id="estado" type="text" placeholder="UF" readonly />
             </div>
 
             <div>
               <label for="observacoes">Observações</label>
-              <input id="observacoes" type="text" placeholder="Observações" />
+              <input id="observacoes" type="text" placeholder="Observações" readonly />
             </div>
           </div>
 
           <div class="acoes">
+            <button class="btn-primary" id="btnEditar" type="button">Editar membro</button>
             <button class="btn-success" id="btnSalvar" type="button">Salvar membro</button>
-            <button class="btn-primary" id="btnAtualizar" type="button">Atualizar membro</button>
-            <button class="btn-danger" id="btnExcluir" type="button">Excluir membro</button>
+            <button class="btn-secondary" id="btnCancelar" type="button">Cancelar edição</button>
             <button class="btn-secondary" id="btnNovo" type="button">Novo cadastro</button>
+            <button class="btn-danger" id="btnExcluir" type="button">Excluir membro</button>
           </div>
 
           <div id="msg" class="msg"></div>
@@ -429,6 +474,8 @@
 
     let membros = [];
     let membroSelecionadoId = "";
+    let modoEdicao = false;
+    let membroAtual = null;
 
     const campoId = document.getElementById("membroId");
     const campoNome = document.getElementById("nome");
@@ -447,6 +494,10 @@
     const campoLista = document.getElementById("listaMembros");
     const campoMsg = document.getElementById("msg");
     const campoUsuario = document.getElementById("usuarioLogado");
+    const campoStatusEdicao = document.getElementById("statusEdicao");
+    const campoFiltroNome = document.getElementById("filtroNome");
+    const campoFiltroStatus = document.getElementById("filtroStatus");
+    const campoFiltroCelula = document.getElementById("filtroCelula");
 
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
@@ -471,10 +522,90 @@
       campoMsg.style.color = cor;
     }
 
+    function normalizarTexto(valor) {
+      return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toUpperCase();
+    }
+
     function formatarCep(valor) {
       const numeros = String(valor || "").replace(/\D/g, "").slice(0, 8);
       if (numeros.length > 5) return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
       return numeros;
+    }
+
+    function setCamposEditaveis(liberado) {
+      modoEdicao = liberado;
+
+      campoNome.readOnly = !liberado;
+      campoTelefone.readOnly = !liberado;
+      campoNascimento.readOnly = !liberado;
+      campoCep.readOnly = !liberado;
+      campoRua.readOnly = !liberado;
+      campoNumero.readOnly = !liberado;
+      campoComplemento.readOnly = !liberado;
+      campoBairro.readOnly = !liberado;
+      campoCidade.readOnly = !liberado;
+      campoEstado.readOnly = !liberado;
+      campoObservacoes.readOnly = !liberado;
+      campoStatus.disabled = !liberado;
+
+      if (modoEdicao) {
+        campoStatusEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA. Revise os dados e clique em Salvar membro.";
+        campoStatusEdicao.style.background = "#ecfdf5";
+        campoStatusEdicao.style.color = "#166534";
+      } else {
+        campoStatusEdicao.textContent = "Modo atual: VISUALIZAÇÃO. Selecione um membro e clique em Editar membro.";
+        campoStatusEdicao.style.background = "#eff6ff";
+        campoStatusEdicao.style.color = "#1d4ed8";
+      }
+    }
+
+    function ordenarMembros(lista) {
+      return [...lista].sort((a, b) =>
+        String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+      );
+    }
+
+    function preencherFiltroCelula() {
+      const mapa = new Map();
+
+      membros.forEach((membro) => {
+        const celula = String(membro.celula || "").trim();
+        if (!celula) return;
+        const chave = normalizarTexto(celula);
+        if (!mapa.has(chave)) mapa.set(chave, celula);
+      });
+
+      const atuais = Array.from(mapa.values()).sort((a, b) =>
+        String(a).localeCompare(String(b), "pt-BR")
+      );
+
+      const valorAtual = campoFiltroCelula.value;
+
+      campoFiltroCelula.innerHTML =
+        '<option value="">Todas</option>' +
+        atuais.map((celula) => `<option value="${celula}">${celula}</option>`).join("");
+
+      if (atuais.includes(valorAtual)) {
+        campoFiltroCelula.value = valorAtual;
+      }
+    }
+
+    function membrosFiltrados() {
+      const nome = normalizarTexto(campoFiltroNome.value);
+      const status = normalizarTexto(campoFiltroStatus.value);
+      const celula = normalizarTexto(campoFiltroCelula.value);
+
+      return ordenarMembros(membros).filter((membro) => {
+        const nomeOk = !nome || normalizarTexto(membro.nome).includes(nome);
+        const statusOk = !status || normalizarTexto(membro.status) === status;
+        const celulaOk = !celula || normalizarTexto(membro.celula) === celula;
+        return nomeOk && statusOk && celulaOk;
+      });
     }
 
     function limparFormulario() {
@@ -493,6 +624,8 @@
       campoEstado.value = "";
       campoObservacoes.value = "";
       membroSelecionadoId = "";
+      membroAtual = null;
+      setCamposEditaveis(false);
       mostrarMensagem("", "#dc2626");
       renderLista();
     }
@@ -501,7 +634,7 @@
       campoId.value = membro.id || "";
       campoNome.value = membro.nome || "";
       campoTelefone.value = membro.telefone || "";
-      campoNascimento.value = membro.nascimento || "";
+      campoNascimento.value = String(membro.nascimento || "").slice(0, 10);
       campoStatus.value = membro.status || "";
       campoCelula.value = membro.celula || "";
       campoCep.value = membro.cep || "";
@@ -513,16 +646,20 @@
       campoEstado.value = membro.estado || "";
       campoObservacoes.value = membro.observacoes || "";
       membroSelecionadoId = String(membro.id || "");
+      membroAtual = { ...membro };
+      setCamposEditaveis(false);
       renderLista();
     }
 
     function renderLista() {
-      if (!membros.length) {
-        campoLista.innerHTML = '<div class="vazio">Nenhum membro cadastrado.</div>';
+      const lista = membrosFiltrados();
+
+      if (!lista.length) {
+        campoLista.innerHTML = '<div class="vazio">Nenhum membro encontrado.</div>';
         return;
       }
 
-      campoLista.innerHTML = membros.map((membro) => `
+      campoLista.innerHTML = lista.map((membro) => `
         <div class="membro-item ${String(membro.id) === membroSelecionadoId ? "ativo" : ""}" data-id="${membro.id}">
           <h3>${membro.nome || ""}</h3>
           <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
@@ -551,7 +688,18 @@
       }
     }
 
+    function corrigirNascimento() {
+      const valor = String(campoNascimento.value || "");
+      if (!valor) return;
+      const partes = valor.split("-");
+      if (partes.length !== 3) return;
+      partes[0] = partes[0].slice(0, 4);
+      campoNascimento.value = `${partes[0]}-${partes[1]}-${partes[2]}`;
+    }
+
     function payloadMembro() {
+      corrigirNascimento();
+
       return {
         nome: campoNome.value.trim(),
         telefone: campoTelefone.value.trim(),
@@ -572,7 +720,9 @@
       try {
         const resposta = await fetch(API_MEMBROS, { cache: "no-store" });
         if (!resposta.ok) throw new Error("Erro ao carregar membros.");
+
         membros = await resposta.json();
+        preencherFiltroCelula();
         renderLista();
       } catch (erro) {
         console.error(erro);
@@ -580,7 +730,7 @@
       }
     }
 
-    async function salvarMembro() {
+    async function salvarNovoMembro() {
       try {
         const resposta = await fetch(API_MEMBROS, {
           method: "POST",
@@ -653,16 +803,57 @@
     }
 
     document.getElementById("btnSair").addEventListener("click", sair);
-    document.getElementById("btnSalvar").addEventListener("click", salvarMembro);
-    document.getElementById("btnAtualizar").addEventListener("click", atualizarMembro);
+
+    document.getElementById("btnEditar").addEventListener("click", () => {
+      if (!campoId.value) {
+        mostrarMensagem("Selecione um membro antes de editar.");
+        return;
+      }
+
+      setCamposEditaveis(true);
+      mostrarMensagem("Edição liberada. Revise os dados e clique em Salvar membro.", "#2563eb");
+    });
+
+    document.getElementById("btnSalvar").addEventListener("click", () => {
+      if (campoId.value) {
+        atualizarMembro();
+      } else {
+        salvarNovoMembro();
+      }
+    });
+
+    document.getElementById("btnCancelar").addEventListener("click", () => {
+      if (membroAtual) {
+        preencherFormulario(membroAtual);
+        mostrarMensagem("Edição cancelada. Dados atuais restaurados.", "#64748b");
+      } else {
+        limparFormulario();
+        mostrarMensagem("Edição cancelada.", "#64748b");
+      }
+    });
+
+    document.getElementById("btnNovo").addEventListener("click", () => {
+      limparFormulario();
+      setCamposEditaveis(true);
+      mostrarMensagem("Modo novo cadastro liberado. Preencha os dados e salve.", "#2563eb");
+    });
+
     document.getElementById("btnExcluir").addEventListener("click", excluirMembro);
-    document.getElementById("btnNovo").addEventListener("click", limparFormulario);
 
     campoCep.addEventListener("input", () => {
       campoCep.value = formatarCep(campoCep.value);
     });
 
-    campoCep.addEventListener("blur", buscarCep);
+    campoCep.addEventListener("blur", () => {
+      if (modoEdicao) buscarCep();
+    });
+
+    campoNascimento.addEventListener("change", corrigirNascimento);
+    campoNascimento.addEventListener("blur", corrigirNascimento);
+
+    campoFiltroNome.addEventListener("input", renderLista);
+    campoFiltroStatus.addEventListener("change", renderLista);
+    campoFiltroCelula.addEventListener("change", renderLista);
 
     campoLista.addEventListener("click", (evento) => {
       const item = evento.target.closest(".membro-item");
@@ -675,6 +866,7 @@
 
     if (protegerPagina()) {
       preencherUsuario();
+      setCamposEditaveis(false);
       carregarMembros();
     }
   </script>

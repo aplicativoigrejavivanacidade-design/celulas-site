@@ -309,14 +309,19 @@
     .btn-whatsapp {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      border-radius: 10px;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
       background: #25D366;
-      color: white;
       text-decoration: none;
-      font-size: 12px;
-      font-weight: bold;
+      flex: 0 0 auto;
+    }
+
+    .btn-whatsapp svg {
+      width: 22px;
+      height: 22px;
+      fill: #ffffff;
     }
 
     .check-wrap {
@@ -433,7 +438,7 @@
           </div>
 
           <label for="nomeCelula">Nome da célula</label>
-          <input id="nomeCelula" type="text" placeholder="Nome da célula" readonly />
+          <input id="nomeCelula" type="text" placeholder="CÉLULA 00" readonly />
 
           <div class="grid-2">
             <div>
@@ -696,6 +701,12 @@
       );
     }
 
+    function ordenarPorNome(lista) {
+      return [...lista].sort((a, b) =>
+        String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+      );
+    }
+
     function preencherSelectCelulas() {
       const lista = deduplicarCelulas(celulas);
       const valorAtual = campoSeletorCelula.value;
@@ -728,11 +739,13 @@
       const idsLideresUsados = obterIdsLideresJaUsados(celulaIdAtual);
       const atualLider = String(campoLiderCelula.value || "");
 
+      const membrosOrdenados = ordenarPorNome(membros);
+
       campoAnfitriao.innerHTML =
         '<option value="">Selecione o anfitrião</option>' +
-        membros.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
+        membrosOrdenados.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
 
-      const opcoesLider = membros.filter((membro) => {
+      const opcoesLider = membrosOrdenados.filter((membro) => {
         const id = String(membro.id);
         return !idsLideresUsados.has(id) || id === atualLider;
       });
@@ -744,11 +757,15 @@
 
     function membrosDaCelula(nomeCelula) {
       const alvo = normalizarNomeCelula(nomeCelula);
-      return membros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo);
+      return ordenarPorNome(
+        membros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo)
+      );
     }
 
     function membrosDisponiveis() {
-      return membros.filter((membro) => !String(membro.celula || "").trim());
+      return ordenarPorNome(
+        membros.filter((membro) => !String(membro.celula || "").trim())
+      );
     }
 
     function renderResumoCelula(celula) {
@@ -783,6 +800,7 @@
 
       campoListaVinculados.innerHTML = lista.map((membro) => {
         const linkZap = formatarWhatsapp(membro.telefone);
+
         return `
           <div class="membro-box">
             <div class="membro-topo">
@@ -790,7 +808,13 @@
                 <h3>${membro.nome || ""}</h3>
                 <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
               </div>
-              ${linkZap ? `<a class="btn-whatsapp" target="_blank" href="https://wa.me/${linkZap}">📲 WhatsApp</a>` : ""}
+              ${linkZap ? `
+                <a class="btn-whatsapp" target="_blank" href="https://wa.me/${linkZap}" aria-label="WhatsApp">
+                  <svg viewBox="0 0 32 32" aria-hidden="true">
+                    <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03.64.28 1.14.45 1.53.58.64.2 1.22.17 1.67.1.51-.08 1.58-.64 1.8-1.25.22-.61.22-1.13.15-1.25-.07-.11-.25-.18-.52-.32zM16.27 27.2h-.01a11.07 11.07 0 0 1-5.64-1.54l-.4-.24-4.19 1.1 1.12-4.09-.26-.42a11.03 11.03 0 0 1-1.69-5.86c0-6.08 4.95-11.02 11.04-11.02 2.95 0 5.71 1.15 7.79 3.23a10.94 10.94 0 0 1 3.23 7.78c0 6.08-4.95 11.03-11.01 11.03zm9.36-20.39A13.16 13.16 0 0 0 16.27 3C8.94 3 3 8.92 3 16.22c0 2.34.61 4.63 1.77 6.65L3 29l6.3-1.65a13.27 13.27 0 0 0 6.96 1.99h.01c7.32 0 13.27-5.92 13.27-13.22 0-3.53-1.38-6.85-3.91-9.31z"/>
+                  </svg>
+                </a>
+              ` : ""}
             </div>
           </div>
         `;
@@ -852,7 +876,7 @@
       celulaAtual = { ...celula };
 
       campoCelulaId.value = celula.id || "";
-      campoNomeCelula.value = normalizarNomeCelula(celula.nome);
+      campoNomeCelula.value = celula.nomeExibicao || nomeCelulaExibicao(celula.nome);
       campoDiaSemana.value = celula.dia_semana || "";
       campoHoraReuniao.value = celula.hora || "";
       campoCep.value = formatarCep(celula.cep || "");
@@ -1063,6 +1087,7 @@
     document.getElementById("btnNova").addEventListener("click", () => {
       campoSeletorCelula.value = "";
       limparFormulario();
+      campoNomeCelula.value = "CÉLULA ";
       setCamposEditaveis(true);
       mostrarMensagem("Modo nova célula liberado. Preencha os dados e salve.", "#2563eb");
     });
