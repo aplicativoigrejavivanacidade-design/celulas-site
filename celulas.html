@@ -330,6 +330,26 @@
       fill: #ffffff;
     }
 
+    .status-celula {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .status-celula.ativa {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-celula.inativa {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
     .btn-whatsapp.disabled {
       background: #cbd5e1;
       pointer-events: none;
@@ -533,6 +553,9 @@
             <button class="btn-warning" id="btnGeo" type="button" disabled>Atualizar geolocalização</button>
             <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar edição</button>
             <button class="btn-secondary" id="btnNova" type="button">Nova célula</button>
+            <button class="btn-secondary" id="btnInativar" type="button" disabled>Inativar célula</button>
+            <button class="btn-secondary" id="btnAtivar" type="button" disabled>Ativar célula</button>
+            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir célula</button>
           </div>
 
           <div class="info-ajuda">
@@ -609,6 +632,9 @@
     const btnGeo = document.getElementById("btnGeo");
     const btnCancelar = document.getElementById("btnCancelar");
     const btnNova = document.getElementById("btnNova");
+    const btnInativar = document.getElementById("btnInativar");
+    const btnAtivar = document.getElementById("btnAtivar");
+    const btnExcluir = document.getElementById("btnExcluir");
 
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
@@ -666,11 +692,13 @@
     }
 
     function whatsappIcon(link) {
+      const iconPath = "M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z";
+
       if (!link) {
         return `
           <span class="btn-whatsapp disabled" aria-hidden="true">
             <svg viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+              <path d="${iconPath}"/>
             </svg>
           </span>
         `;
@@ -679,7 +707,7 @@
       return `
         <a class="btn-whatsapp" target="_blank" href="https://wa.me/${link}" aria-label="WhatsApp">
           <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+            <path d="${iconPath}"/>
           </svg>
         </a>
       `;
@@ -697,8 +725,14 @@
       }
     }
 
+    function celulaSelecionadaEstaAtiva() {
+      if (!celulaAtual) return true;
+      return celulaAtual.ativo !== false;
+    }
+
     function atualizarEstadoBotoes() {
       const temCelulaSelecionada = !!campoCelulaId.value;
+      const celulaAtiva = celulaSelecionadaEstaAtiva();
 
       if (modoEdicao) {
         btnEditar.disabled = true;
@@ -706,12 +740,18 @@
         btnGeo.disabled = false;
         btnCancelar.disabled = false;
         btnNova.disabled = true;
+        btnInativar.disabled = true;
+        btnAtivar.disabled = true;
+        btnExcluir.disabled = true;
       } else {
-        btnEditar.disabled = !temCelulaSelecionada;
+        btnEditar.disabled = !temCelulaSelecionada || !celulaAtiva;
         btnSalvar.disabled = true;
         btnGeo.disabled = true;
         btnCancelar.disabled = true;
         btnNova.disabled = false;
+        btnInativar.disabled = !temCelulaSelecionada || !celulaAtiva;
+        btnAtivar.disabled = !temCelulaSelecionada || celulaAtiva;
+        btnExcluir.disabled = !temCelulaSelecionada;
       }
     }
 
@@ -844,6 +884,7 @@
           <p><strong>Hora:</strong> ${celula.hora || "-"}</p>
           <p><strong>Anfitrião:</strong> ${nomeAnfitriao}</p>
           <p><strong>Líder da célula:</strong> ${nomeLider}</p>
+          <div class="status-celula ${celula.ativo === false ? "inativa" : "ativa"}">${celula.ativo === false ? "INATIVA" : "ATIVA"}</div>
           <p><strong>Endereço:</strong> ${celula.rua || "-"}, ${celula.numero || "-"} - ${celula.bairro || "-"} - ${celula.cidade || "-"} / ${celula.estado || "-"}</p>
         </div>
       `;
@@ -956,7 +997,15 @@
       renderResumoCelula(celula);
       renderMembrosVinculados(celula.nome);
       setCamposEditaveis(false);
+      campoStatusEdicao.textContent = celula.ativo === false
+        ? "Modo atual: VISUALIZAÇÃO. Esta célula está INATIVA. Ative a célula para editar novamente."
+        : "Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar célula.";
+      if (celula.ativo === false) {
+        campoStatusEdicao.style.background = "#fef2f2";
+        campoStatusEdicao.style.color = "#991b1b";
+      }
       mostrarMensagem("", "#dc2626");
+      atualizarEstadoBotoes();
     }
 
     async function buscarCep() {
@@ -1049,6 +1098,95 @@
         .map((item) => Number(item.value));
     }
 
+
+    async function inativarCelula() {
+      const id = campoCelulaId.value.trim();
+      if (!id) {
+        mostrarMensagem("Selecione uma célula para inativar.");
+        return;
+      }
+
+      const confirmou = window.confirm("Deseja realmente inativar esta célula?");
+      if (!confirmou) return;
+
+      try {
+        const resposta = await fetch(`${API_CELULAS}/${id}/inativar`, { method: "POST" });
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+          throw new Error(dados.erro || "Erro ao inativar célula.");
+        }
+
+        await carregarDados();
+        const lista = deduplicarCelulas(celulas);
+        const celulaRecarregada = lista.find((item) => String(item.id) === String(id));
+        if (celulaRecarregada) {
+          campoSeletorCelula.value = String(celulaRecarregada.id);
+          carregarFormularioCelula(celulaRecarregada);
+        }
+        mostrarMensagem(dados.mensagem || "Célula inativada com sucesso.", "#16a34a");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem(erro.message || "Erro ao inativar célula.");
+      }
+    }
+
+    async function ativarCelula() {
+      const id = campoCelulaId.value.trim();
+      if (!id) {
+        mostrarMensagem("Selecione uma célula para ativar.");
+        return;
+      }
+
+      try {
+        const resposta = await fetch(`${API_CELULAS}/${id}/ativar`, { method: "POST" });
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+          throw new Error(dados.erro || "Erro ao ativar célula.");
+        }
+
+        await carregarDados();
+        const lista = deduplicarCelulas(celulas);
+        const celulaRecarregada = lista.find((item) => String(item.id) === String(id));
+        if (celulaRecarregada) {
+          campoSeletorCelula.value = String(celulaRecarregada.id);
+          carregarFormularioCelula(celulaRecarregada);
+        }
+        mostrarMensagem(dados.mensagem || "Célula ativada com sucesso.", "#16a34a");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem(erro.message || "Erro ao ativar célula.");
+      }
+    }
+
+    async function excluirCelula() {
+      const id = campoCelulaId.value.trim();
+      if (!id) {
+        mostrarMensagem("Selecione uma célula para excluir.");
+        return;
+      }
+
+      const confirmou = window.confirm("Deseja realmente excluir esta célula?");
+      if (!confirmou) return;
+
+      try {
+        const resposta = await fetch(`${API_CELULAS}/${id}`, { method: "DELETE" });
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+          throw new Error(dados.erro || "Erro ao excluir célula.");
+        }
+
+        await carregarDados();
+        limparFormulario();
+        mostrarMensagem("Célula excluída com sucesso.", "#16a34a");
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem(erro.message || "Erro ao excluir célula.");
+      }
+    }
+
     async function salvarEdicao() {
       const id = campoCelulaId.value.trim();
 
@@ -1134,6 +1272,9 @@
     btnSalvar.addEventListener("click", salvarEdicao);
 
     btnGeo.addEventListener("click", atualizarGeolocalizacao);
+    btnInativar.addEventListener("click", inativarCelula);
+    btnAtivar.addEventListener("click", ativarCelula);
+    btnExcluir.addEventListener("click", excluirCelula);
 
     btnCancelar.addEventListener("click", () => {
       if (celulaAtual) {
