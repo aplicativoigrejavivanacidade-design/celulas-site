@@ -225,6 +225,11 @@
       background: var(--gray-dark);
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .status-edicao {
       margin-top: 14px;
       padding: 12px;
@@ -507,11 +512,11 @@
           </div>
 
           <div class="acoes">
-            <button class="btn-primary" id="btnEditar" type="button">Editar membro</button>
-            <button class="btn-success" id="btnSalvar" type="button">Salvar membro</button>
-            <button class="btn-secondary" id="btnCancelar" type="button">Cancelar edição</button>
+            <button class="btn-primary" id="btnEditar" type="button" disabled>Editar membro</button>
+            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar membro</button>
+            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar edição</button>
             <button class="btn-secondary" id="btnNovo" type="button">Novo cadastro</button>
-            <button class="btn-danger" id="btnExcluir" type="button">Excluir membro</button>
+            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir membro</button>
           </div>
 
           <div id="msg" class="msg"></div>
@@ -551,6 +556,12 @@
     const campoFiltroStatus = document.getElementById("filtroStatus");
     const campoFiltroCelula = document.getElementById("filtroCelula");
     const campoWhatsappTelefone = document.getElementById("whatsappCampoTelefone");
+
+    const btnEditar = document.getElementById("btnEditar");
+    const btnSalvar = document.getElementById("btnSalvar");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const btnNovo = document.getElementById("btnNovo");
+    const btnExcluir = document.getElementById("btnExcluir");
 
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
@@ -596,18 +607,8 @@
       return numero.startsWith("55") ? numero : `55${numero}`;
     }
 
-    function whatsappIcon(link, habilitado = true) {
+    function whatsappIcon(link) {
       if (!link) {
-        return `
-          <span class="btn-whatsapp disabled" aria-hidden="true">
-            <svg viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
-            </svg>
-          </span>
-        `;
-      }
-
-      if (!habilitado) {
         return `
           <span class="btn-whatsapp disabled" aria-hidden="true">
             <svg viewBox="0 0 32 32" aria-hidden="true">
@@ -628,7 +629,25 @@
 
     function atualizarWhatsappCampoTelefone() {
       const linkZap = formatarWhatsapp(campoTelefone.value);
-      campoWhatsappTelefone.innerHTML = whatsappIcon(linkZap, modoEdicao);
+      campoWhatsappTelefone.innerHTML = whatsappIcon(linkZap);
+    }
+
+    function atualizarEstadoBotoes() {
+      const temMembroSelecionado = !!campoId.value;
+
+      if (modoEdicao) {
+        btnEditar.disabled = true;
+        btnSalvar.disabled = false;
+        btnCancelar.disabled = false;
+        btnNovo.disabled = true;
+        btnExcluir.disabled = true;
+      } else {
+        btnEditar.disabled = !temMembroSelecionado;
+        btnSalvar.disabled = true;
+        btnCancelar.disabled = true;
+        btnNovo.disabled = false;
+        btnExcluir.disabled = !temMembroSelecionado;
+      }
     }
 
     function setCamposEditaveis(liberado) {
@@ -658,6 +677,7 @@
       }
 
       atualizarWhatsappCampoTelefone();
+      atualizarEstadoBotoes();
       renderLista();
     }
 
@@ -769,7 +789,7 @@
                 <p><strong>Status:</strong> ${membro.status || "-"}</p>
                 <p><strong>Célula:</strong> ${membro.celula || "SEM CÉLULA"}</p>
               </div>
-              ${whatsappIcon(linkZap, modoEdicao)}
+              ${whatsappIcon(linkZap)}
             </div>
           </div>
         `;
@@ -831,6 +851,7 @@
         membros = await resposta.json();
         preencherFiltroCelula();
         renderLista();
+        atualizarEstadoBotoes();
       } catch (erro) {
         console.error(erro);
         mostrarMensagem("Erro ao carregar membros.");
@@ -911,7 +932,7 @@
 
     document.getElementById("btnSair").addEventListener("click", sair);
 
-    document.getElementById("btnEditar").addEventListener("click", () => {
+    btnEditar.addEventListener("click", () => {
       if (!campoId.value) {
         mostrarMensagem("Selecione um membro antes de editar.");
         return;
@@ -921,7 +942,7 @@
       mostrarMensagem("Edição liberada. Revise os dados e clique em Salvar membro.", "#2563eb");
     });
 
-    document.getElementById("btnSalvar").addEventListener("click", () => {
+    btnSalvar.addEventListener("click", () => {
       if (campoId.value) {
         atualizarMembro();
       } else {
@@ -929,7 +950,7 @@
       }
     });
 
-    document.getElementById("btnCancelar").addEventListener("click", () => {
+    btnCancelar.addEventListener("click", () => {
       if (membroAtual) {
         preencherFormulario(membroAtual);
         mostrarMensagem("Edição cancelada. Dados atuais restaurados.", "#64748b");
@@ -939,13 +960,13 @@
       }
     });
 
-    document.getElementById("btnNovo").addEventListener("click", () => {
+    btnNovo.addEventListener("click", () => {
       limparFormulario();
       setCamposEditaveis(true);
       mostrarMensagem("Modo novo cadastro liberado. Preencha os dados e salve.", "#2563eb");
     });
 
-    document.getElementById("btnExcluir").addEventListener("click", excluirMembro);
+    btnExcluir.addEventListener("click", excluirMembro);
 
     campoCep.addEventListener("input", () => {
       campoCep.value = formatarCep(campoCep.value);
@@ -977,6 +998,7 @@
       preencherUsuario();
       setCamposEditaveis(false);
       atualizarWhatsappCampoTelefone();
+      atualizarEstadoBotoes();
       carregarMembros();
     }
   </script>
