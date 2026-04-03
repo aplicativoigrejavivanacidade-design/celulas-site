@@ -19,7 +19,6 @@
       --green-dark: #15803d;
       --amber: #f59e0b;
       --red: #dc2626;
-      --red-dark: #b91c1c;
       --gray: #64748b;
       --gray-dark: #475569;
       --shadow: 0 10px 25px rgba(0,0,0,0.05);
@@ -145,7 +144,6 @@
     }
 
     input,
-    textarea,
     select {
       width: 100%;
       padding: 12px;
@@ -157,15 +155,13 @@
     }
 
     input:focus,
-    textarea:focus,
     select:focus {
       outline: none;
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
-    input[type="text"],
-    textarea {
+    input[type="text"] {
       text-transform: uppercase;
     }
 
@@ -218,11 +214,6 @@
 
     .btn-warning {
       background: var(--amber);
-      color: white;
-    }
-
-    .btn-danger {
-      background: var(--red);
       color: white;
     }
 
@@ -284,7 +275,7 @@
     }
 
     .item-celula p {
-      margin: 0;
+      margin: 0 0 4px;
       font-size: 13px;
       color: #4b5563;
     }
@@ -303,9 +294,29 @@
     }
 
     .membro-box p {
-      margin: 0;
+      margin: 0 0 4px;
       font-size: 13px;
       color: #4b5563;
+    }
+
+    .membro-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: #25D366;
+      color: white;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: bold;
     }
 
     .check-wrap {
@@ -372,6 +383,11 @@
 
       .grid-2 {
         grid-template-columns: 1fr;
+      }
+
+      .membro-topo {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
@@ -496,6 +512,7 @@
             <button class="btn-primary" id="btnEditar" type="button">Editar célula</button>
             <button class="btn-success" id="btnSalvar" type="button">Salvar edição</button>
             <button class="btn-warning" id="btnGeo" type="button">Atualizar geolocalização</button>
+            <button class="btn-secondary" id="btnCancelar" type="button">Cancelar edição</button>
             <button class="btn-secondary" id="btnNova" type="button">Nova célula</button>
           </div>
 
@@ -537,6 +554,7 @@
     const API_BASE = "https://celulas-backend.onrender.com";
     const API_MEMBROS = API_BASE + "/membros";
     const API_CELULAS = API_BASE + "/celulas";
+    const API_GEO = API_BASE + "/geolocalizacao";
 
     let membros = [];
     let celulas = [];
@@ -616,6 +634,12 @@
       return numeros;
     }
 
+    function formatarWhatsapp(telefone) {
+      const numero = String(telefone || "").replace(/\D/g, "");
+      if (!numero) return "";
+      return numero.startsWith("55") ? numero : `55${numero}`;
+    }
+
     function atualizarStatusEdicao() {
       if (modoEdicao) {
         campoStatusEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA. Revise os dados e clique em Salvar edição.";
@@ -630,6 +654,7 @@
 
     function setCamposEditaveis(liberado) {
       modoEdicao = liberado;
+
       campoNomeCelula.readOnly = !liberado;
       campoHoraReuniao.readOnly = !liberado;
       campoCep.readOnly = !liberado;
@@ -657,6 +682,7 @@
       (Array.isArray(lista) ? lista : []).forEach((celula) => {
         const chave = normalizarNomeCelula(celula.nome);
         if (!chave) return;
+
         if (!mapa.has(chave)) {
           mapa.set(chave, {
             ...celula,
@@ -690,22 +716,8 @@
 
       deduplicarCelulas(celulas).forEach((celula) => {
         if (String(celula.id) === String(celulaIdAtual)) return;
-        if (String(celula.lider_celula || celula.liderCelula || "").trim()) {
-          ids.add(String(celula.lider_celula || celula.liderCelula));
-        }
-      });
-
-      return ids;
-    }
-
-    function obterIdsAnfitrioesJaUsados(celulaIdAtual = "") {
-      const ids = new Set();
-
-      deduplicarCelulas(celulas).forEach((celula) => {
-        if (String(celula.id) === String(celulaIdAtual)) return;
-        if (String(celula.anfitriao || "").trim()) {
-          ids.add(String(celula.anfitriao));
-        }
+        const valor = String(celula.lider_celula || "").trim();
+        if (valor) ids.add(valor);
       });
 
       return ids;
@@ -714,31 +726,20 @@
     function preencherSelectMembrosEspeciais() {
       const celulaIdAtual = campoCelulaId.value || "";
       const idsLideresUsados = obterIdsLideresJaUsados(celulaIdAtual);
-      const idsAnfitrioesUsados = obterIdsAnfitrioesJaUsados(celulaIdAtual);
-
-      const atualAnfitriao = String(campoAnfitriao.value || "");
       const atualLider = String(campoLiderCelula.value || "");
 
-      const opcoesAnfitriao = membros.filter((membro) => {
-        const id = String(membro.id);
-        return !idsAnfitrioesUsados.has(id) || id === atualAnfitriao;
-      });
+      campoAnfitriao.innerHTML =
+        '<option value="">Selecione o anfitrião</option>' +
+        membros.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
 
       const opcoesLider = membros.filter((membro) => {
         const id = String(membro.id);
         return !idsLideresUsados.has(id) || id === atualLider;
       });
 
-      campoAnfitriao.innerHTML =
-        '<option value="">Selecione o anfitrião</option>' +
-        opcoesAnfitriao.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
-
       campoLiderCelula.innerHTML =
         '<option value="">Selecione o líder</option>' +
         opcoesLider.map((membro) => `<option value="${membro.id}">${membro.nome || ""}</option>`).join("");
-
-      if (atualAnfitriao) campoAnfitriao.value = atualAnfitriao;
-      if (atualLider) campoLiderCelula.value = atualLider;
     }
 
     function membrosDaCelula(nomeCelula) {
@@ -756,14 +757,14 @@
         return;
       }
 
-      const nomeLider = membros.find((m) => String(m.id) === String(celula.lider_celula || celula.liderCelula))?.nome || "-";
-      const nomeAnfitriao = membros.find((m) => String(m.id) === String(celula.anfitriao))?.nome || "-";
+      const nomeLider = membros.find((m) => String(m.id) === String(celula.lider_celula || ""))?.nome || "-";
+      const nomeAnfitriao = membros.find((m) => String(m.id) === String(celula.anfitriao || ""))?.nome || "-";
 
       campoResumoCelula.innerHTML = `
         <div class="item-celula">
           <h3>${celula.nomeExibicao || nomeCelulaExibicao(celula.nome)}</h3>
-          <p><strong>Dia:</strong> ${celula.dia_semana || celula.diaSemana || "-"}</p>
-          <p><strong>Hora:</strong> ${celula.hora || celula.horaReuniao || "-"}</p>
+          <p><strong>Dia:</strong> ${celula.dia_semana || "-"}</p>
+          <p><strong>Hora:</strong> ${celula.hora || "-"}</p>
           <p><strong>Anfitrião:</strong> ${nomeAnfitriao}</p>
           <p><strong>Líder da célula:</strong> ${nomeLider}</p>
           <p><strong>Endereço:</strong> ${celula.rua || "-"}, ${celula.numero || "-"} - ${celula.bairro || "-"} - ${celula.cidade || "-"} / ${celula.estado || "-"}</p>
@@ -780,12 +781,20 @@
         return;
       }
 
-      campoListaVinculados.innerHTML = lista.map((membro) => `
-        <div class="membro-box">
-          <h3>${membro.nome || ""}</h3>
-          <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
-        </div>
-      `).join("");
+      campoListaVinculados.innerHTML = lista.map((membro) => {
+        const linkZap = formatarWhatsapp(membro.telefone);
+        return `
+          <div class="membro-box">
+            <div class="membro-topo">
+              <div>
+                <h3>${membro.nome || ""}</h3>
+                <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+              </div>
+              ${linkZap ? `<a class="btn-whatsapp" target="_blank" href="https://wa.me/${linkZap}">📲 WhatsApp</a>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function renderMembrosDisponiveis() {
@@ -815,16 +824,8 @@
       `).join("");
     }
 
-    function marcarMembrosDisponiveisSelecionados(idsSelecionados = []) {
-      const conjunto = new Set(idsSelecionados.map((id) => String(id)));
-      document.querySelectorAll(".membro-disponivel-checkbox").forEach((checkbox) => {
-        checkbox.checked = conjunto.has(String(checkbox.value));
-      });
-    }
-
     function limparFormulario() {
       campoCelulaId.value = "";
-      campoSeletorCelula.value = "";
       campoNomeCelula.value = "";
       campoDiaSemana.value = "";
       campoHoraReuniao.value = "";
@@ -841,18 +842,19 @@
       celulaAtual = null;
       campoResumoCelula.innerHTML = '<div class="vazio">Selecione uma célula para ver o resumo.</div>';
       campoListaVinculados.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
-      mostrarMensagem("", "#dc2626");
-      renderMembrosDisponiveis();
       contadorMembrosVinculados.textContent = "0 membro(s)";
+      renderMembrosDisponiveis();
       setCamposEditaveis(false);
+      mostrarMensagem("", "#dc2626");
     }
 
     function carregarFormularioCelula(celula) {
-      celulaAtual = celula;
+      celulaAtual = { ...celula };
+
       campoCelulaId.value = celula.id || "";
       campoNomeCelula.value = normalizarNomeCelula(celula.nome);
-      campoDiaSemana.value = celula.dia_semana || celula.diaSemana || "";
-      campoHoraReuniao.value = celula.hora || celula.horaReuniao || "";
+      campoDiaSemana.value = celula.dia_semana || "";
+      campoHoraReuniao.value = celula.hora || "";
       campoCep.value = formatarCep(celula.cep || "");
       campoRua.value = celula.rua || "";
       campoNumero.value = celula.numero || "";
@@ -864,7 +866,7 @@
 
       preencherSelectMembrosEspeciais();
       campoAnfitriao.value = celula.anfitriao || "";
-      campoLiderCelula.value = celula.lider_celula || celula.liderCelula || "";
+      campoLiderCelula.value = celula.lider_celula || "";
 
       renderResumoCelula(celula);
       renderMembrosVinculados(celula.nome);
@@ -880,6 +882,7 @@
       try {
         const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
         const dados = await resposta.json();
+
         if (dados.erro) return;
 
         campoRua.value = (dados.logradouro || "").toUpperCase();
@@ -897,57 +900,39 @@
         return;
       }
 
-      const partes = [
-        campoNumero.value.trim(),
-        campoRua.value.trim(),
-        campoBairro.value.trim(),
-        campoCidade.value.trim(),
-        campoEstado.value.trim(),
-        campoCep.value.trim()
-      ].filter(Boolean);
-
-      if (partes.length < 4) {
-        mostrarMensagem("Preencha o endereço corretamente para gerar a geolocalização.");
-        return;
-      }
-
       const geoAnterior = campoGeolocalizacao.value.trim();
 
       try {
         mostrarMensagem("Gerando geolocalização...", "#2563eb");
 
-        const endereco = encodeURIComponent(partes.join(", "));
-        const resposta = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${endereco}`);
-        const dados = await resposta.json();
+        const resposta = await fetch(API_GEO, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            cep: campoCep.value.trim(),
+            rua: campoRua.value.trim(),
+            numero: campoNumero.value.trim(),
+            bairro: campoBairro.value.trim(),
+            cidade: campoCidade.value.trim(),
+            estado: campoEstado.value.trim()
+          })
+        });
 
-        if (Array.isArray(dados) && dados.length > 0) {
-          const lat = Number(dados[0].lat).toFixed(6);
-          const lon = Number(dados[0].lon).toFixed(6);
-          campoGeolocalizacao.value = `${lat}, ${lon}`;
-          mostrarMensagem("Geolocalização atualizada com sucesso.", "#16a34a");
-          return;
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok || !dados.ok) {
+          campoGeolocalizacao.value = geoAnterior;
+          throw new Error(dados.erro || "Não foi possível gerar a geolocalização.");
         }
 
-        const cep = String(campoCep.value || "").replace(/\D/g, "");
-        if (cep.length === 8) {
-          const fallback = await fetch(`https://nominatim.openstreetmap.org/search?format=json&country=Brazil&postalcode=${cep}`);
-          const dadosFallback = await fallback.json();
-
-          if (Array.isArray(dadosFallback) && dadosFallback.length > 0) {
-            const lat = Number(dadosFallback[0].lat).toFixed(6);
-            const lon = Number(dadosFallback[0].lon).toFixed(6);
-            campoGeolocalizacao.value = `${lat}, ${lon}`;
-            mostrarMensagem("Geolocalização atualizada com sucesso pelo CEP.", "#16a34a");
-            return;
-          }
-        }
-
-        campoGeolocalizacao.value = geoAnterior;
-        mostrarMensagem("Não foi possível gerar a geolocalização. A coordenada anterior foi mantida.");
+        campoGeolocalizacao.value = dados.geolocalizacao || geoAnterior;
+        mostrarMensagem("Geolocalização atualizada com sucesso.", "#16a34a");
       } catch (erro) {
-        console.error("Erro ao gerar geolocalização:", erro);
+        console.error(erro);
         campoGeolocalizacao.value = geoAnterior;
-        mostrarMensagem("Não foi possível gerar a geolocalização. A coordenada anterior foi mantida.");
+        mostrarMensagem(erro.message || "Não foi possível gerar a geolocalização.");
       }
     }
 
@@ -980,18 +965,15 @@
     }
 
     async function salvarEdicao() {
+      const id = campoCelulaId.value.trim();
+
       if (!modoEdicao) {
         mostrarMensagem("Clique em Editar célula antes de salvar.");
         return;
       }
 
-      const id = campoCelulaId.value.trim();
-      if (!id) {
-        mostrarMensagem("Selecione uma célula para editar.");
-        return;
-      }
-
       const nomeCelula = campoNomeCelula.value.trim();
+
       if (!nomeCelula) {
         mostrarMensagem("Informe o nome da célula.");
         return;
@@ -1015,10 +997,13 @@
       };
 
       try {
-        mostrarMensagem("Salvando edição...", "#2563eb");
+        mostrarMensagem("Salvando...", "#2563eb");
 
-        const resposta = await fetch(`${API_CELULAS}/${id}`, {
-          method: "PUT",
+        const url = id ? `${API_CELULAS}/${id}` : API_CELULAS;
+        const metodo = id ? "PUT" : "POST";
+
+        const resposta = await fetch(url, {
+          method: metodo,
           headers: {
             "Content-Type": "application/json"
           },
@@ -1031,16 +1016,18 @@
           throw new Error(dados.erro || "Erro ao salvar célula.");
         }
 
-        mostrarMensagem("Célula atualizada com sucesso.", "#16a34a");
-
         await carregarDados();
 
+        const idFinal = dados.celulaId || id || "";
         const lista = deduplicarCelulas(celulas);
-        const celulaRecarregada = lista.find((item) => String(item.id) === String(id));
+        const celulaRecarregada = lista.find((item) => String(item.id) === String(idFinal));
+
         if (celulaRecarregada) {
           campoSeletorCelula.value = String(celulaRecarregada.id);
           carregarFormularioCelula(celulaRecarregada);
         }
+
+        mostrarMensagem(id ? "Célula atualizada com sucesso." : "Célula criada com sucesso.", "#16a34a");
       } catch (erro) {
         console.error(erro);
         mostrarMensagem(erro.message || "Erro ao salvar célula.");
@@ -1063,10 +1050,21 @@
 
     document.getElementById("btnGeo").addEventListener("click", atualizarGeolocalizacao);
 
+    document.getElementById("btnCancelar").addEventListener("click", () => {
+      if (celulaAtual) {
+        carregarFormularioCelula(celulaAtual);
+        mostrarMensagem("Edição cancelada. Dados atuais restaurados.", "#64748b");
+      } else {
+        limparFormulario();
+        mostrarMensagem("Edição cancelada.", "#64748b");
+      }
+    });
+
     document.getElementById("btnNova").addEventListener("click", () => {
+      campoSeletorCelula.value = "";
       limparFormulario();
       setCamposEditaveis(true);
-      mostrarMensagem("Modo nova célula liberado. Preencha os dados.", "#2563eb");
+      mostrarMensagem("Modo nova célula liberado. Preencha os dados e salve.", "#2563eb");
     });
 
     campoSeletorCelula.addEventListener("change", () => {

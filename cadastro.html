@@ -2,440 +2,681 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>+Células | Membros</title>
-
   <style>
     * { box-sizing: border-box; }
 
-    :root{
-      --bg:#eef2f7;
-      --card:#ffffff;
-      --text:#1f2937;
-      --muted:#6b7280;
-      --line:#dbe3ee;
-      --blue:#2563eb;
-      --blue-dark:#1d4ed8;
-      --green:#16a34a;
-      --amber:#f59e0b;
-      --red:#dc2626;
-      --shadow:0 10px 25px rgba(0,0,0,0.05);
-      --radius:16px;
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ee;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --amber: #f59e0b;
+      --red: #dc2626;
+      --gray: #64748b;
+      --gray-dark: #475569;
+      --shadow: 0 10px 25px rgba(0,0,0,0.05);
+      --radius: 16px;
     }
 
-    body{
-      margin:0;
-      font-family:Arial,sans-serif;
-      background:var(--bg);
-      color:var(--text);
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
     }
 
-    .layout{display:flex;min-height:100vh;}
-
-    .sidebar{
-      width:250px;
-      background:linear-gradient(180deg,var(--blue-dark),var(--green));
-      color:#fff;
-      padding:24px 18px;
-      position:fixed;
-      top:0;
-      left:0;
-      height:100%;
+    .layout {
+      display: flex;
+      min-height: 100vh;
     }
 
-    .logo{font-size:30px;font-weight:bold;margin:0;}
-    .logo-sub{margin:6px 0 28px;font-size:13px;opacity:.9;}
-
-    .menu a{
-      display:block;
-      color:#fff;
-      padding:12px;
-      text-decoration:none;
-      border-radius:10px;
-      margin-bottom:6px;
-      font-weight:bold;
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, var(--blue-dark), var(--green));
+      color: white;
+      padding: 24px 18px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
     }
 
-    .menu a:hover,.menu a.ativo{
-      background:rgba(255,255,255,.16);
+    .logo {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 0;
     }
 
-    .btn-sair{
-      margin-top:20px;
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:12px;
-      background:var(--red);
-      color:#fff;
-      font-weight:bold;
-      cursor:pointer;
+    .logo-sub {
+      margin: 6px 0 28px;
+      font-size: 13px;
+      opacity: 0.9;
     }
 
-    .content{
-      margin-left:250px;
-      padding:30px;
-      width:calc(100% - 250px);
+    .menu a {
+      display: block;
+      color: white;
+      padding: 12px;
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-weight: bold;
     }
 
-    .header,.card{
-      background:var(--card);
-      padding:22px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
+    .menu a:hover,
+    .menu a.ativo {
+      background: rgba(255,255,255,0.16);
     }
 
-    .header{margin-bottom:20px;}
-    .header h1{margin:0 0 8px;font-size:30px;}
-    .header p{margin:0;color:var(--muted);}
-
-    .grid-2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+    .btn-sair {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: var(--red);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
     }
 
-    label{
-      display:block;
-      margin-top:12px;
-      margin-bottom:6px;
-      font-weight:bold;
+    .content {
+      margin-left: 250px;
+      padding: 30px;
+      width: calc(100% - 250px);
     }
 
-    input,textarea,select{
-      width:100%;
-      padding:12px;
-      border-radius:10px;
-      border:1px solid var(--line);
+    .header {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
     }
 
-    .acoes{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:16px;
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
     }
 
-    button{
-      padding:12px 14px;
-      border-radius:10px;
-      border:none;
-      font-weight:bold;
-      cursor:pointer;
+    .header p {
+      margin: 0;
+      color: var(--muted);
     }
 
-    .btn-primario{background:var(--blue);color:#fff;}
-    .btn-aviso{background:var(--amber);color:#fff;}
-    .btn-perigo{background:var(--red);color:#fff;}
-
-    .item{
-      border:1px solid var(--line);
-      border-radius:12px;
-      padding:14px;
-      margin-bottom:10px;
-      background:#fafbfd;
+    .usuario-logado {
+      margin-top: 10px !important;
+      font-size: 14px;
     }
 
-    .badge{
-      display:inline-block;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:bold;
-      background:#e8f0ff;
-      color:var(--blue-dark);
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 20px;
+      align-items: start;
     }
 
-    .msg{
-      margin-top:14px;
-      font-weight:bold;
-      min-height:20px;
+    .card {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
 
-    .vazio{
-      color:var(--muted);
-      text-align:center;
-      padding:20px;
-      border:2px dashed var(--line);
-      border-radius:12px;
-      background:#fcfdff;
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
     }
 
-    @media(max-width:900px){
-      .layout{flex-direction:column;}
-      .sidebar{position:relative;width:100%;height:auto;}
-      .content{margin-left:0;width:100%;padding:20px;}
-      .grid-2{grid-template-columns:1fr;}
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    input[type="text"],
+    textarea {
+      text-transform: uppercase;
+    }
+
+    input[readonly] {
+      background: #f8fafc;
+      color: #475569;
+      cursor: not-allowed;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    button {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-dark);
+    }
+
+    .msg {
+      margin-top: 14px;
+      font-weight: bold;
+      min-height: 20px;
+      font-size: 14px;
+    }
+
+    .membro-item {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      background: #fafbfd;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .membro-item:hover,
+    .membro-item.ativo {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+
+    .membro-item h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .membro-item p {
+      margin: 0 0 4px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .vazio {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      background: #fcfdff;
+    }
+
+    @media (max-width: 1100px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+
+      .content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-<div class="layout">
-  <aside class="sidebar">
-    <h2 class="logo">+Células</h2>
-    <div class="logo-sub">Gestão de células</div>
+  <div class="layout">
+    <aside class="sidebar">
+      <h2 class="logo">+Células</h2>
+      <div class="logo-sub">Cadastro de membros</div>
 
-    <div class="menu">
-      <a href="painel.html">Painel</a>
-      <a href="cadastro.html" class="ativo">Membros</a>
-      <a href="presenca.html">Presença</a>
-      <a href="celulas.html">Células</a>
-      <a href="relatorios.html">Relatórios</a>
-      <a href="usuarios.html">Usuários</a>
-    </div>
-
-    <button class="btn-sair" id="btnSair">Sair</button>
-  </aside>
-
-  <main class="content">
-    <div class="header">
-      <h1>Membros</h1>
-      <p>Cadastre e edite membros</p>
-      <p id="usuarioLogado"></p>
-    </div>
-
-    <div class="grid-2">
-      <div class="card">
-        <input id="membroId" type="hidden">
-
-        <label>Nome</label>
-        <input id="nome" type="text">
-
-        <div class="grid-2">
-          <div>
-            <label>Telefone</label>
-            <input id="telefone" type="text">
-          </div>
-          <div>
-            <label>Célula</label>
-            <input id="celula" type="text">
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div>
-            <label>Nascimento</label>
-            <input id="nascimento" type="date">
-          </div>
-          <div>
-            <label>Status</label>
-            <select id="status">
-              <option value="ATIVO">ATIVO</option>
-              <option value="INATIVO">INATIVO</option>
-            </select>
-          </div>
-        </div>
-
-        <label>CEP</label>
-        <input id="cep" type="text">
-
-        <label>Rua</label>
-        <input id="rua" type="text">
-
-        <div class="grid-2">
-          <div>
-            <label>Número</label>
-            <input id="numero" type="text">
-          </div>
-          <div>
-            <label>Complemento</label>
-            <input id="complemento" type="text">
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <div>
-            <label>Bairro</label>
-            <input id="bairro" type="text">
-          </div>
-          <div>
-            <label>Cidade</label>
-            <input id="cidade" type="text">
-          </div>
-        </div>
-
-        <label>Estado</label>
-        <input id="estado" type="text">
-
-        <label>Observações</label>
-        <textarea id="observacoes" rows="4"></textarea>
-
-        <div class="acoes">
-          <button id="btnSalvar" class="btn-primario">Salvar membro</button>
-          <button id="btnNovo" class="btn-aviso">Novo</button>
-        </div>
-
-        <div id="msg" class="msg"></div>
+      <div class="menu">
+        <a href="painel.html">Painel</a>
+        <a href="cadastro.html" class="ativo">Membros</a>
+        <a href="presenca.html">Presença</a>
+        <a href="celulas.html">Células</a>
+        <a href="relatorios.html">Relatórios</a>
+        <a href="usuarios.html">Usuários</a>
       </div>
 
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-          <h2 style="margin:0;">Lista de membros</h2>
-          <span class="badge" id="contador">0 membro(s)</span>
+      <button class="btn-sair" id="btnSair" type="button">Sair</button>
+    </aside>
+
+    <main class="content">
+      <div class="header">
+        <h1>Cadastro de membros</h1>
+        <p>O campo célula é apenas consulta e deve ser gerenciado somente pela tela de Células</p>
+        <p id="usuarioLogado" class="usuario-logado"></p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Membros cadastrados</h2>
+          <div id="listaMembros"></div>
         </div>
 
-        <div id="listaMembros"></div>
+        <div class="card">
+          <h2>Dados do membro</h2>
+
+          <input id="membroId" type="hidden" />
+
+          <label for="nome">Nome completo</label>
+          <input id="nome" type="text" placeholder="Nome completo" />
+
+          <div class="grid-2">
+            <div>
+              <label for="telefone">Telefone</label>
+              <input id="telefone" type="text" placeholder="Telefone" />
+            </div>
+
+            <div>
+              <label for="nascimento">Data de nascimento</label>
+              <input id="nascimento" type="date" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="status">Status</label>
+              <select id="status">
+                <option value="">Selecione</option>
+                <option value="ATIVO">ATIVO</option>
+                <option value="VISITANTE">VISITANTE</option>
+                <option value="AFASTADO">AFASTADO</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="celula">Célula</label>
+              <input id="celula" type="text" readonly />
+            </div>
+          </div>
+
+          <label for="cep">CEP</label>
+          <input id="cep" type="text" placeholder="00000-000" />
+
+          <label for="rua">Rua</label>
+          <input id="rua" type="text" placeholder="Rua" />
+
+          <div class="grid-2">
+            <div>
+              <label for="numero">Número</label>
+              <input id="numero" type="text" placeholder="Número" />
+            </div>
+
+            <div>
+              <label for="complemento">Complemento</label>
+              <input id="complemento" type="text" placeholder="Complemento" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="bairro">Bairro</label>
+              <input id="bairro" type="text" placeholder="Bairro" />
+            </div>
+
+            <div>
+              <label for="cidade">Cidade</label>
+              <input id="cidade" type="text" placeholder="Cidade" />
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div>
+              <label for="estado">Estado</label>
+              <input id="estado" type="text" placeholder="UF" />
+            </div>
+
+            <div>
+              <label for="observacoes">Observações</label>
+              <input id="observacoes" type="text" placeholder="Observações" />
+            </div>
+          </div>
+
+          <div class="acoes">
+            <button class="btn-success" id="btnSalvar" type="button">Salvar membro</button>
+            <button class="btn-primary" id="btnAtualizar" type="button">Atualizar membro</button>
+            <button class="btn-danger" id="btnExcluir" type="button">Excluir membro</button>
+            <button class="btn-secondary" id="btnNovo" type="button">Novo cadastro</button>
+          </div>
+
+          <div id="msg" class="msg"></div>
+        </div>
       </div>
-    </div>
-  </main>
-</div>
+    </main>
+  </div>
 
-<script>
-const API = "https://celulas-backend.onrender.com";
-let membros = [];
+  <script>
+    const API_BASE = "https://celulas-backend.onrender.com";
+    const API_MEMBROS = API_BASE + "/membros";
 
-if(localStorage.getItem("logado") !== "sim"){
-  window.location.href = "login.html";
-}
+    let membros = [];
+    let membroSelecionadoId = "";
 
-document.getElementById("usuarioLogado").textContent =
-  `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
+    const campoId = document.getElementById("membroId");
+    const campoNome = document.getElementById("nome");
+    const campoTelefone = document.getElementById("telefone");
+    const campoNascimento = document.getElementById("nascimento");
+    const campoStatus = document.getElementById("status");
+    const campoCelula = document.getElementById("celula");
+    const campoCep = document.getElementById("cep");
+    const campoRua = document.getElementById("rua");
+    const campoNumero = document.getElementById("numero");
+    const campoComplemento = document.getElementById("complemento");
+    const campoBairro = document.getElementById("bairro");
+    const campoCidade = document.getElementById("cidade");
+    const campoEstado = document.getElementById("estado");
+    const campoObservacoes = document.getElementById("observacoes");
+    const campoLista = document.getElementById("listaMembros");
+    const campoMsg = document.getElementById("msg");
+    const campoUsuario = document.getElementById("usuarioLogado");
 
-document.getElementById("btnSair").onclick = function(){
-  localStorage.clear();
-  window.location.href = "login.html";
-};
-
-function v(id){ return document.getElementById(id).value; }
-function setv(id,val){ document.getElementById(id).value = val || ""; }
-
-function limpar(){
-  [
-    "membroId","nome","telefone","celula","nascimento",
-    "cep","rua","numero","complemento","bairro",
-    "cidade","estado","observacoes"
-  ].forEach(id => setv(id,""));
-
-  setv("status","ATIVO");
-  document.getElementById("btnSalvar").textContent = "Salvar membro";
-}
-
-async function buscarCep(){
-  const cep = v("cep").replace(/\D/g,"");
-  if(cep.length !== 8) return;
-
-  try{
-    const resp = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-    const d = await resp.json();
-
-    if(d.erro) return;
-
-    setv("rua", d.logradouro);
-    setv("bairro", d.bairro);
-    setv("cidade", d.localidade);
-    setv("estado", d.uf);
-
-  }catch{}
-}
-
-async function carregarMembros(){
-  const lista = document.getElementById("listaMembros");
-
-  try{
-    const resp = await fetch(API + "/membros",{cache:"no-store"});
-    membros = await resp.json();
-
-    document.getElementById("contador").textContent =
-      `${membros.length} membro(s)`;
-
-    if(!membros.length){
-      lista.innerHTML = '<div class="vazio">Nenhum membro cadastrado.</div>';
-      return;
+    function protegerPagina() {
+      if (localStorage.getItem("logado") !== "sim") {
+        window.location.href = "login.html";
+        return false;
+      }
+      return true;
     }
 
-    lista.innerHTML = membros.map(m => `
-      <div class="item">
-        <h3>${m.nome}</h3>
-        <p><strong>Célula:</strong> ${m.celula || "-"}</p>
-        <p><strong>Status:</strong> ${m.status || "-"}</p>
+    function preencherUsuario() {
+      campoUsuario.textContent =
+        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
+    }
 
-        <div class="acoes">
-          <button class="btn-primario" onclick="editar(${m.id})">Editar</button>
-          <button class="btn-perigo" onclick="excluir(${m.id})">Excluir</button>
+    function sair() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    function mostrarMensagem(texto, cor = "#dc2626") {
+      campoMsg.textContent = texto;
+      campoMsg.style.color = cor;
+    }
+
+    function formatarCep(valor) {
+      const numeros = String(valor || "").replace(/\D/g, "").slice(0, 8);
+      if (numeros.length > 5) return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
+      return numeros;
+    }
+
+    function limparFormulario() {
+      campoId.value = "";
+      campoNome.value = "";
+      campoTelefone.value = "";
+      campoNascimento.value = "";
+      campoStatus.value = "";
+      campoCelula.value = "";
+      campoCep.value = "";
+      campoRua.value = "";
+      campoNumero.value = "";
+      campoComplemento.value = "";
+      campoBairro.value = "";
+      campoCidade.value = "";
+      campoEstado.value = "";
+      campoObservacoes.value = "";
+      membroSelecionadoId = "";
+      mostrarMensagem("", "#dc2626");
+      renderLista();
+    }
+
+    function preencherFormulario(membro) {
+      campoId.value = membro.id || "";
+      campoNome.value = membro.nome || "";
+      campoTelefone.value = membro.telefone || "";
+      campoNascimento.value = membro.nascimento || "";
+      campoStatus.value = membro.status || "";
+      campoCelula.value = membro.celula || "";
+      campoCep.value = membro.cep || "";
+      campoRua.value = membro.rua || "";
+      campoNumero.value = membro.numero || "";
+      campoComplemento.value = membro.complemento || "";
+      campoBairro.value = membro.bairro || "";
+      campoCidade.value = membro.cidade || "";
+      campoEstado.value = membro.estado || "";
+      campoObservacoes.value = membro.observacoes || "";
+      membroSelecionadoId = String(membro.id || "");
+      renderLista();
+    }
+
+    function renderLista() {
+      if (!membros.length) {
+        campoLista.innerHTML = '<div class="vazio">Nenhum membro cadastrado.</div>';
+        return;
+      }
+
+      campoLista.innerHTML = membros.map((membro) => `
+        <div class="membro-item ${String(membro.id) === membroSelecionadoId ? "ativo" : ""}" data-id="${membro.id}">
+          <h3>${membro.nome || ""}</h3>
+          <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+          <p><strong>Status:</strong> ${membro.status || "-"}</p>
+          <p><strong>Célula:</strong> ${membro.celula || "SEM CÉLULA"}</p>
         </div>
-      </div>
-    `).join("");
+      `).join("");
+    }
 
-  }catch{
-    lista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
-  }
-}
+    async function buscarCep() {
+      const cep = String(campoCep.value || "").replace(/\D/g, "");
+      if (cep.length !== 8) return;
 
-window.editar = function(id){
-  const m = membros.find(x => Number(x.id) === Number(id));
-  if(!m) return;
+      try {
+        const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const dados = await resposta.json();
 
-  Object.keys(m).forEach(k => {
-    const el = document.getElementById(k);
-    if(el) el.value = m[k] || "";
-  });
+        if (dados.erro) return;
 
-  setv("membroId",m.id);
-  document.getElementById("btnSalvar").textContent = "Atualizar membro";
-  window.scrollTo({top:0,behavior:"smooth"});
-};
+        campoRua.value = (dados.logradouro || "").toUpperCase();
+        campoBairro.value = (dados.bairro || "").toUpperCase();
+        campoCidade.value = (dados.localidade || "").toUpperCase();
+        campoEstado.value = (dados.uf || "").toUpperCase();
+      } catch (erro) {
+        console.error("Erro ao buscar CEP:", erro);
+      }
+    }
 
-window.excluir = async function(id){
-  if(!confirm("Excluir membro?")) return;
+    function payloadMembro() {
+      return {
+        nome: campoNome.value.trim(),
+        telefone: campoTelefone.value.trim(),
+        nascimento: campoNascimento.value,
+        status: campoStatus.value,
+        cep: campoCep.value.trim(),
+        rua: campoRua.value.trim(),
+        numero: campoNumero.value.trim(),
+        complemento: campoComplemento.value.trim(),
+        bairro: campoBairro.value.trim(),
+        cidade: campoCidade.value.trim(),
+        estado: campoEstado.value.trim(),
+        observacoes: campoObservacoes.value.trim()
+      };
+    }
 
-  await fetch(API + "/membros/" + id,{method:"DELETE"});
-  carregarMembros();
-};
+    async function carregarMembros() {
+      try {
+        const resposta = await fetch(API_MEMBROS, { cache: "no-store" });
+        if (!resposta.ok) throw new Error("Erro ao carregar membros.");
+        membros = await resposta.json();
+        renderLista();
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem("Erro ao carregar membros.");
+      }
+    }
 
-document.getElementById("cep").addEventListener("blur", buscarCep);
-document.getElementById("btnNovo").onclick = limpar;
+    async function salvarMembro() {
+      try {
+        const resposta = await fetch(API_MEMBROS, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadMembro())
+        });
 
-document.getElementById("btnSalvar").onclick = async function(){
-  const msg = document.getElementById("msg");
-  const id = v("membroId");
+        const dados = await resposta.json().catch(() => ({}));
+        if (!resposta.ok) throw new Error(dados.erro || "Erro ao salvar membro.");
 
-  const dados = {
-    nome:v("nome"),
-    telefone:v("telefone"),
-    celula:v("celula"),
-    nascimento:v("nascimento"),
-    status:v("status"),
-    cep:v("cep"),
-    rua:v("rua"),
-    numero:v("numero"),
-    complemento:v("complemento"),
-    bairro:v("bairro"),
-    cidade:v("cidade"),
-    estado:v("estado"),
-    observacoes:v("observacoes")
-  };
+        mostrarMensagem("Membro salvo com sucesso.", "#16a34a");
+        limparFormulario();
+        await carregarMembros();
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem(erro.message || "Erro ao salvar membro.");
+      }
+    }
 
-  if(!dados.nome){
-    msg.textContent = "Informe o nome.";
-    msg.style.color = "#dc2626";
-    return;
-  }
+    async function atualizarMembro() {
+      const id = campoId.value.trim();
+      if (!id) {
+        mostrarMensagem("Selecione um membro para atualizar.");
+        return;
+      }
 
-  try{
-    const resp = await fetch(API + (id ? "/membros/" + id : "/membros"),{
-      method:id ? "PUT" : "POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(dados)
+      try {
+        const resposta = await fetch(`${API_MEMBROS}/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadMembro())
+        });
+
+        const dados = await resposta.json().catch(() => ({}));
+        if (!resposta.ok) throw new Error(dados.erro || "Erro ao atualizar membro.");
+
+        mostrarMensagem("Membro atualizado com sucesso.", "#16a34a");
+        await carregarMembros();
+
+        const atualizado = membros.find((m) => String(m.id) === String(id));
+        if (atualizado) preencherFormulario(atualizado);
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem(erro.message || "Erro ao atualizar membro.");
+      }
+    }
+
+    async function excluirMembro() {
+      const id = campoId.value.trim();
+      if (!id) {
+        mostrarMensagem("Selecione um membro para excluir.");
+        return;
+      }
+
+      try {
+        const resposta = await fetch(`${API_MEMBROS}/${id}`, {
+          method: "DELETE"
+        });
+
+        const dados = await resposta.json().catch(() => ({}));
+        if (!resposta.ok) throw new Error(dados.erro || "Erro ao excluir membro.");
+
+        mostrarMensagem("Membro excluído com sucesso.", "#16a34a");
+        limparFormulario();
+        await carregarMembros();
+      } catch (erro) {
+        console.error(erro);
+        mostrarMensagem(erro.message || "Erro ao excluir membro.");
+      }
+    }
+
+    document.getElementById("btnSair").addEventListener("click", sair);
+    document.getElementById("btnSalvar").addEventListener("click", salvarMembro);
+    document.getElementById("btnAtualizar").addEventListener("click", atualizarMembro);
+    document.getElementById("btnExcluir").addEventListener("click", excluirMembro);
+    document.getElementById("btnNovo").addEventListener("click", limparFormulario);
+
+    campoCep.addEventListener("input", () => {
+      campoCep.value = formatarCep(campoCep.value);
     });
 
-    if(!resp.ok) throw new Error();
+    campoCep.addEventListener("blur", buscarCep);
 
-    msg.textContent = id
-      ? "Membro atualizado com sucesso!"
-      : "Membro salvo com sucesso!";
+    campoLista.addEventListener("click", (evento) => {
+      const item = evento.target.closest(".membro-item");
+      if (!item) return;
 
-    msg.style.color = "#16a34a";
+      const id = item.dataset.id;
+      const membro = membros.find((m) => String(m.id) === String(id));
+      if (membro) preencherFormulario(membro);
+    });
 
-    limpar();
-    carregarMembros();
-
-  }catch{
-    msg.textContent = "Erro ao salvar membro.";
-    msg.style.color = "#dc2626";
-  }
-};
-
-carregarMembros();
-</script>
+    if (protegerPagina()) {
+      preencherUsuario();
+      carregarMembros();
+    }
+  </script>
 </body>
 </html>
