@@ -32,7 +32,10 @@
       color: var(--text);
     }
 
-    .layout { display: flex; min-height: 100vh; }
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
 
     .sidebar {
       width: 250px;
@@ -45,8 +48,17 @@
       height: 100%;
     }
 
-    .logo { font-size: 30px; font-weight: bold; margin: 0; }
-    .logo-sub { margin: 6px 0 28px; font-size: 13px; opacity: 0.9; }
+    .logo {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .logo-sub {
+      margin: 6px 0 28px;
+      font-size: 13px;
+      opacity: 0.9;
+    }
 
     .menu a {
       display: block;
@@ -59,7 +71,9 @@
     }
 
     .menu a:hover,
-    .menu a.ativo { background: rgba(255,255,255,0.16); }
+    .menu a.ativo {
+      background: rgba(255,255,255,0.16);
+    }
 
     .btn-sair {
       margin-top: 20px;
@@ -73,7 +87,11 @@
       cursor: pointer;
     }
 
-    .content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
+    .content {
+      margin-left: 250px;
+      padding: 30px;
+      width: calc(100% - 250px);
+    }
 
     .header {
       background: var(--card);
@@ -83,9 +101,20 @@
       box-shadow: var(--shadow);
     }
 
-    .header h1 { margin: 0 0 8px; font-size: 30px; }
-    .header p { margin: 0; color: var(--muted); }
-    .usuario-logado { margin-top: 10px !important; font-size: 14px; }
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .usuario-logado {
+      margin-top: 10px !important;
+      font-size: 14px;
+    }
 
     .grid {
       display: grid;
@@ -101,7 +130,10 @@
       box-shadow: var(--shadow);
     }
 
-    .card h2 { margin: 0 0 16px; font-size: 22px; }
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
 
     label {
       display: block;
@@ -111,7 +143,8 @@
       font-size: 14px;
     }
 
-    input, select {
+    input,
+    select {
       width: 100%;
       padding: 12px;
       border-radius: 10px;
@@ -121,19 +154,35 @@
       background: #fff;
     }
 
-    input:focus, select:focus {
+    input:focus,
+    select:focus {
       outline: none;
       border-color: var(--blue);
       box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
-    input[type="text"] { text-transform: uppercase; }
-    input[readonly] { background: #f8fafc; color: #475569; cursor: not-allowed; }
+    input[type="text"] {
+      text-transform: uppercase;
+    }
 
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
-    .cep-wrap { display: flex; gap: 10px; align-items: center; }
-    .cep-wrap input { flex: 1; }
+    input[readonly] {
+      background: #f8fafc;
+      color: #475569;
+      cursor: not-allowed;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .acoes {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
 
     button {
       padding: 12px 14px;
@@ -144,15 +193,42 @@
       font-size: 14px;
     }
 
-    .btn-primary { background: var(--blue); color: white; }
-    .btn-primary:hover { background: var(--blue-dark); }
-    .btn-success { background: var(--green); color: white; }
-    .btn-success:hover { background: var(--green-dark); }
-    .btn-danger { background: var(--red); color: white; }
-    .btn-secondary { background: var(--gray); color: white; }
-    .btn-secondary:hover { background: var(--gray-dark); }
-    .btn-cep { background: #0f766e; color: white; white-space: nowrap; }
-    button:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-dark);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
 
     .status-edicao {
       margin-top: 14px;
@@ -164,8 +240,19 @@
       color: #1d4ed8;
     }
 
-    .msg { margin-top: 14px; font-weight: bold; min-height: 20px; font-size: 14px; }
-    .filtros { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .msg {
+      margin-top: 14px;
+      font-weight: bold;
+      min-height: 20px;
+      font-size: 14px;
+    }
+
+    .filtros {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
 
     .membro-item {
       border: 1px solid var(--line);
@@ -177,14 +264,43 @@
     }
 
     .membro-item:hover,
-    .membro-item.ativo { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37,99,235,0.10); }
-    .membro-item.locked { opacity: 0.65; cursor: not-allowed; }
-    .membro-item h3 { margin: 0 0 8px; font-size: 16px; }
-    .membro-item p { margin: 0 0 4px; font-size: 13px; color: #4b5563; }
+    .membro-item.ativo {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
 
-    .membro-topo { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-    .telefone-wrap { display: flex; align-items: center; gap: 10px; }
-    .telefone-wrap input { flex: 1; }
+    .membro-item.locked {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .membro-item h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+
+    .membro-item p {
+      margin: 0 0 4px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .membro-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .telefone-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .telefone-wrap input {
+      flex: 1;
+    }
 
     .btn-whatsapp {
       display: inline-flex;
@@ -200,8 +316,19 @@
       box-shadow: 0 4px 10px rgba(37, 211, 102, 0.25);
     }
 
-    .btn-whatsapp svg { width: 22px; height: 22px; fill: #ffffff; }
-    .btn-whatsapp.disabled { background: #cbd5e1; pointer-events: none; opacity: 0.65; cursor: not-allowed; box-shadow: none; }
+    .btn-whatsapp svg {
+      width: 22px;
+      height: 22px;
+      fill: #ffffff;
+    }
+
+    .btn-whatsapp.disabled {
+      background: #cbd5e1;
+      pointer-events: none;
+      opacity: 0.65;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
 
     .vazio {
       color: var(--muted);
@@ -214,15 +341,38 @@
     }
 
     @media (max-width: 1150px) {
-      .grid { grid-template-columns: 1fr; }
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 900px) {
-      .layout { flex-direction: column; }
-      .sidebar { position: relative; width: 100%; height: auto; }
-      .content { margin-left: 0; width: 100%; padding: 20px; }
-      .grid-2, .filtros { grid-template-columns: 1fr; }
-      .membro-topo, .telefone-wrap, .cep-wrap { flex-direction: column; align-items: flex-start; }
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+
+      .content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+
+      .grid-2,
+      .filtros {
+        grid-template-columns: 1fr;
+      }
+
+      .membro-topo,
+      .telefone-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -231,6 +381,7 @@
     <aside class="sidebar">
       <h2 class="logo">+Células</h2>
       <div class="logo-sub">Cadastro de membros</div>
+
       <div class="menu">
         <a href="painel.html">Painel</a>
         <a href="cadastro.html" class="ativo">Membros</a>
@@ -239,6 +390,7 @@
         <a href="relatorios.html">Relatórios</a>
         <a href="usuarios.html">Usuários</a>
       </div>
+
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
     </aside>
 
@@ -252,11 +404,13 @@
       <div class="grid">
         <div class="card">
           <h2>Membros cadastrados</h2>
+
           <div class="filtros">
             <div>
               <label for="filtroNome">Pesquisar por nome</label>
               <input id="filtroNome" type="text" placeholder="Digite o nome" />
             </div>
+
             <div>
               <label for="filtroStatus">Filtrar por status</label>
               <select id="filtroStatus">
@@ -266,6 +420,7 @@
                 <option value="AFASTADO">AFASTADO</option>
               </select>
             </div>
+
             <div>
               <label for="filtroCelula">Filtrar por célula</label>
               <select id="filtroCelula">
@@ -273,13 +428,18 @@
               </select>
             </div>
           </div>
+
           <div id="listaMembros"></div>
         </div>
 
         <div class="card">
           <h2>Dados do membro</h2>
+
           <input id="membroId" type="hidden" />
-          <div class="status-edicao" id="statusEdicao">Modo atual: Visualização. Selecione um membro e clique em Editar Membro.</div>
+
+          <div class="status-edicao" id="statusEdicao">
+            Modo Atual: Visualização. Selecione um membro e clique em Editar Membro.
+          </div>
 
           <label for="nome">Nome completo</label>
           <input id="nome" type="text" placeholder="Nome completo" readonly />
@@ -292,6 +452,7 @@
                 <span id="whatsappCampoTelefone"></span>
               </div>
             </div>
+
             <div>
               <label for="nascimento">Data de nascimento</label>
               <input id="nascimento" type="date" max="9999-12-31" readonly />
@@ -308,6 +469,7 @@
                 <option value="AFASTADO">AFASTADO</option>
               </select>
             </div>
+
             <div>
               <label for="celula">Célula</label>
               <input id="celula" type="text" readonly />
@@ -315,10 +477,7 @@
           </div>
 
           <label for="cep">CEP</label>
-          <div class="cep-wrap">
-            <input id="cep" type="text" placeholder="00000-000" readonly />
-            <button class="btn-cep" id="btnBuscarCep" type="button" disabled>Buscar CEP</button>
-          </div>
+          <input id="cep" type="text" placeholder="00000-000" readonly />
 
           <label for="rua">Rua</label>
           <input id="rua" type="text" placeholder="Rua" readonly />
@@ -328,6 +487,7 @@
               <label for="numero">Número</label>
               <input id="numero" type="text" placeholder="Número" readonly />
             </div>
+
             <div>
               <label for="complemento">Complemento</label>
               <input id="complemento" type="text" placeholder="Complemento" readonly />
@@ -339,6 +499,7 @@
               <label for="bairro">Bairro</label>
               <input id="bairro" type="text" placeholder="Bairro" readonly />
             </div>
+
             <div>
               <label for="cidade">Cidade</label>
               <input id="cidade" type="text" placeholder="Cidade" readonly />
@@ -350,6 +511,7 @@
               <label for="estado">Estado</label>
               <input id="estado" type="text" placeholder="UF" readonly />
             </div>
+
             <div>
               <label for="observacoes">Observações</label>
               <input id="observacoes" type="text" placeholder="Observações" readonly />
@@ -378,7 +540,6 @@
     let membroSelecionadoId = "";
     let modoEdicao = false;
     let membroAtual = null;
-    let buscandoCep = false;
 
     const campoId = document.getElementById("membroId");
     const campoNome = document.getElementById("nome");
@@ -402,7 +563,6 @@
     const campoFiltroStatus = document.getElementById("filtroStatus");
     const campoFiltroCelula = document.getElementById("filtroCelula");
     const campoWhatsappTelefone = document.getElementById("whatsappCampoTelefone");
-    const btnBuscarCep = document.getElementById("btnBuscarCep");
 
     const btnEditar = document.getElementById("btnEditar");
     const btnSalvar = document.getElementById("btnSalvar");
@@ -433,7 +593,9 @@
       campoMsg.style.color = cor;
     }
 
-    function limparMensagem() { campoMsg.textContent = ""; }
+    function limparMensagem() {
+      campoMsg.textContent = "";
+    }
 
     function normalizarTexto(valor) {
       return String(valor || "")
@@ -450,13 +612,6 @@
       return numeros;
     }
 
-    function limparEndereco() {
-      campoRua.value = "";
-      campoBairro.value = "";
-      campoCidade.value = "";
-      campoEstado.value = "";
-    }
-
     function formatarWhatsapp(telefone) {
       const numero = String(telefone || "").replace(/\D/g, "");
       if (!numero) return "";
@@ -465,9 +620,22 @@
 
     function whatsappIcon(link) {
       if (!link) {
-        return `<span class="btn-whatsapp disabled" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989z"/></svg></span>`;
+        return `
+          <span class="btn-whatsapp disabled" aria-hidden="true">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989z"/>
+            </svg>
+          </span>
+        `;
       }
-      return `<a class="btn-whatsapp" target="_blank" href="https://wa.me/${link}" aria-label="WhatsApp"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/></svg></a>`;
+
+      return `
+        <a class="btn-whatsapp" target="_blank" href="https://wa.me/${link}" aria-label="WhatsApp">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
+          </svg>
+        </a>
+      `;
     }
 
     function atualizarWhatsappCampoTelefone() {
@@ -477,13 +645,13 @@
 
     function atualizarEstadoBotoes() {
       const temMembroSelecionado = !!campoId.value;
+
       if (modoEdicao) {
         btnEditar.disabled = true;
         btnSalvar.disabled = false;
         btnCancelar.disabled = false;
         btnNovo.disabled = true;
         btnExcluir.disabled = true;
-        btnBuscarCep.disabled = false;
         campoFiltroNome.disabled = true;
         campoFiltroStatus.disabled = true;
         campoFiltroCelula.disabled = true;
@@ -493,7 +661,6 @@
         btnCancelar.disabled = true;
         btnNovo.disabled = false;
         btnExcluir.disabled = !temMembroSelecionado;
-        btnBuscarCep.disabled = true;
         campoFiltroNome.disabled = false;
         campoFiltroStatus.disabled = false;
         campoFiltroCelula.disabled = false;
@@ -502,6 +669,7 @@
 
     function setCamposEditaveis(liberado) {
       modoEdicao = liberado;
+
       campoNome.readOnly = !liberado;
       campoTelefone.readOnly = !liberado;
       campoNascimento.readOnly = !liberado;
@@ -531,11 +699,14 @@
     }
 
     function ordenarMembros(lista) {
-      return [...lista].sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+      return [...lista].sort((a, b) =>
+        String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+      );
     }
 
     function preencherFiltroCelula() {
       const mapa = new Map();
+
       membros.forEach((membro) => {
         const celula = String(membro.celula || "").trim();
         if (!celula) return;
@@ -543,16 +714,26 @@
         if (!mapa.has(chave)) mapa.set(chave, celula);
       });
 
-      const atuais = Array.from(mapa.values()).sort((a, b) => String(a).localeCompare(String(b), "pt-BR"));
+      const atuais = Array.from(mapa.values()).sort((a, b) =>
+        String(a).localeCompare(String(b), "pt-BR")
+      );
+
       const valorAtual = campoFiltroCelula.value;
-      campoFiltroCelula.innerHTML = '<option value="">Todas</option>' + atuais.map((celula) => `<option value="${celula}">${celula}</option>`).join("");
-      if (atuais.includes(valorAtual)) campoFiltroCelula.value = valorAtual;
+
+      campoFiltroCelula.innerHTML =
+        '<option value="">Todas</option>' +
+        atuais.map((celula) => `<option value="${celula}">${celula}</option>`).join("");
+
+      if (atuais.includes(valorAtual)) {
+        campoFiltroCelula.value = valorAtual;
+      }
     }
 
     function membrosFiltrados() {
       const nome = normalizarTexto(campoFiltroNome.value);
       const status = normalizarTexto(campoFiltroStatus.value);
       const celula = normalizarTexto(campoFiltroCelula.value);
+
       return ordenarMembros(membros).filter((membro) => {
         const nomeOk = !nome || normalizarTexto(membro.nome).includes(nome);
         const statusOk = !status || normalizarTexto(membro.status) === status;
@@ -569,9 +750,12 @@
       campoStatus.value = "";
       campoCelula.value = "";
       campoCep.value = "";
-      limparEndereco();
+      campoRua.value = "";
       campoNumero.value = "";
       campoComplemento.value = "";
+      campoBairro.value = "";
+      campoCidade.value = "";
+      campoEstado.value = "";
       campoObservacoes.value = "";
       membroSelecionadoId = "";
       membroAtual = null;
@@ -605,14 +789,17 @@
 
     function renderLista() {
       const lista = membrosFiltrados();
+
       if (!lista.length) {
         campoLista.innerHTML = '<div class="vazio">Nenhum Membro Encontrado.</div>';
         return;
       }
+
       campoLista.innerHTML = lista.map((membro) => {
         const linkZap = formatarWhatsapp(membro.telefone);
         const ativo = String(membro.id) === membroSelecionadoId;
         const travado = modoEdicao && !ativo;
+
         return `
           <div class="membro-item ${ativo ? "ativo" : ""} ${travado ? "locked" : ""}" data-id="${membro.id}">
             <div class="membro-topo">
@@ -624,90 +811,27 @@
               </div>
               ${whatsappIcon(linkZap)}
             </div>
-          </div>`;
+          </div>
+        `;
       }).join("");
-    }
-
-    function validarTelefone() {
-      const numero = String(campoTelefone.value || "").replace(/\D/g, "");
-      if (numero.length < 10 || numero.length > 11) {
-        mostrarMensagem("Informe um telefone completo com DDD.", "#dc2626");
-        return false;
-      }
-      return true;
-    }
-
-    function validarNascimento() {
-      const valor = String(campoNascimento.value || "").trim();
-      if (!valor) {
-        mostrarMensagem("Informe a Data de Nascimento completa.", "#dc2626");
-        return false;
-      }
-      const partes = valor.split("-");
-      if (partes.length !== 3 || partes[0].length !== 4 || partes[1].length !== 2 || partes[2].length !== 2) {
-        mostrarMensagem("Informe a Data de Nascimento completa.", "#dc2626");
-        return false;
-      }
-      const data = new Date(`${valor}T00:00:00`);
-      if (Number.isNaN(data.getTime())) {
-        mostrarMensagem("Informe uma Data de Nascimento válida.", "#dc2626");
-        return false;
-      }
-      return true;
     }
 
     async function buscarCep() {
       const cep = String(campoCep.value || "").replace(/\D/g, "");
-      if (cep.length !== 8) {
-        mostrarMensagem("Digite um CEP com 8 números.", "#dc2626");
-        return;
-      }
-      if (buscandoCep) return;
-      buscandoCep = true;
+      if (cep.length !== 8) return;
+
       try {
-        btnBuscarCep.disabled = true;
-        mostrarMensagem("Buscando CEP...", "#2563eb");
-        let dados = null;
+        const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const dados = await resposta.json();
 
-        try {
-          const respostaViaCep = await fetch(`https://viacep.com.br/ws/${cep}/json/`, { headers: { "Accept": "application/json" }, cache: "no-store" });
-          if (respostaViaCep.ok) {
-            const json = await respostaViaCep.json();
-            if (!json.erro) dados = json;
-          }
-        } catch (_) {}
+        if (dados.erro) return;
 
-        if (!dados) {
-          try {
-            const respostaBrasilApi = await fetch(`https://brasilapi.com.br/api/cep/v1/${cep}`, { headers: { "Accept": "application/json" }, cache: "no-store" });
-            if (respostaBrasilApi.ok) {
-              const json = await respostaBrasilApi.json();
-              dados = {
-                logradouro: json.street || "",
-                bairro: json.neighborhood || "",
-                localidade: json.city || "",
-                uf: json.state || ""
-              };
-            }
-          } catch (_) {}
-        }
-
-        if (!dados) {
-          limparEndereco();
-          throw new Error("CEP não encontrado.");
-        }
-
-        campoRua.value = String(dados.logradouro || "").toUpperCase();
-        campoBairro.value = String(dados.bairro || "").toUpperCase();
-        campoCidade.value = String(dados.localidade || "").toUpperCase();
-        campoEstado.value = String(dados.uf || "").toUpperCase();
-        mostrarMensagem("Endereço carregado pelo CEP com sucesso.", "#16a34a");
+        campoRua.value = (dados.logradouro || "").toUpperCase();
+        campoBairro.value = (dados.bairro || "").toUpperCase();
+        campoCidade.value = (dados.localidade || "").toUpperCase();
+        campoEstado.value = (dados.uf || "").toUpperCase();
       } catch (erro) {
         console.error("Erro ao buscar CEP:", erro);
-        mostrarMensagem(erro.message || "Erro ao buscar CEP.", "#dc2626");
-      } finally {
-        buscandoCep = false;
-        atualizarEstadoBotoes();
       }
     }
 
@@ -720,9 +844,34 @@
       campoNascimento.value = `${partes[0]}-${partes[1]}-${partes[2]}`;
     }
 
+    function validarTelefone() {
+      const numero = String(campoTelefone.value || "").replace(/\D/g, "");
+      if (numero.length < 10 || numero.length > 11) {
+        mostrarMensagem("Informe um telefone completo com DDD.");
+        return false;
+      }
+      return true;
+    }
+
+    function validarNascimento() {
+      const valor = String(campoNascimento.value || "").trim();
+      if (!valor) {
+        mostrarMensagem("Informe a Data de Nascimento completa.");
+        return false;
+      }
+
+      const partes = valor.split("-");
+      if (partes.length !== 3 || partes[0].length !== 4 || partes[1].length !== 2 || partes[2].length !== 2) {
+        mostrarMensagem("Informe a Data de Nascimento completa.");
+        return false;
+      }
+
+      return true;
+    }
+
     function validarFormulario() {
       if (!String(campoNome.value || "").trim()) {
-        mostrarMensagem("Informe o Nome Completo.", "#dc2626");
+        mostrarMensagem("Informe o Nome Completo.");
         return false;
       }
       if (!validarTelefone()) return false;
@@ -732,6 +881,7 @@
 
     function payloadMembro() {
       corrigirNascimento();
+
       return {
         nome: campoNome.value.trim(),
         telefone: campoTelefone.value.trim(),
@@ -752,6 +902,7 @@
       try {
         const resposta = await fetch(API_MEMBROS, { cache: "no-store" });
         if (!resposta.ok) throw new Error("Erro ao carregar membros.");
+
         membros = await resposta.json();
         preencherFiltroCelula();
         renderLista();
@@ -764,14 +915,17 @@
 
     async function salvarNovoMembro() {
       if (!validarFormulario()) return;
+
       try {
         const resposta = await fetch(API_MEMBROS, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payloadMembro())
         });
+
         const dados = await resposta.json().catch(() => ({}));
         if (!resposta.ok) throw new Error(dados.erro || "Erro ao salvar membro.");
+
         mostrarMensagem("Membro salvo com sucesso.", "#16a34a");
         limparFormulario();
         await carregarMembros();
@@ -787,17 +941,22 @@
         mostrarMensagem("Selecione um membro para atualizar.");
         return;
       }
+
       if (!validarFormulario()) return;
+
       try {
         const resposta = await fetch(`${API_MEMBROS}/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payloadMembro())
         });
+
         const dados = await resposta.json().catch(() => ({}));
         if (!resposta.ok) throw new Error(dados.erro || "Erro ao atualizar membro.");
+
         mostrarMensagem("Membro atualizado com sucesso.", "#16a34a");
         await carregarMembros();
+
         const atualizado = membros.find((m) => String(m.id) === String(id));
         if (atualizado) preencherFormulario(atualizado);
       } catch (erro) {
@@ -812,12 +971,18 @@
         mostrarMensagem("Selecione um membro para excluir.");
         return;
       }
+
       const confirmou = window.confirm("Deseja realmente excluir este membro?");
       if (!confirmou) return;
+
       try {
-        const resposta = await fetch(`${API_MEMBROS}/${id}`, { method: "DELETE" });
+        const resposta = await fetch(`${API_MEMBROS}/${id}`, {
+          method: "DELETE"
+        });
+
         const dados = await resposta.json().catch(() => ({}));
         if (!resposta.ok) throw new Error(dados.erro || "Erro ao excluir membro.");
+
         mostrarMensagem("Membro excluído com sucesso.", "#16a34a");
         limparFormulario();
         await carregarMembros();
@@ -834,13 +999,17 @@
         mostrarMensagem("Selecione um membro antes de editar.");
         return;
       }
+
       setCamposEditaveis(true);
       mostrarMensagem("Edição liberada. Revise os dados e clique em Salvar Membro.", "#2563eb");
     });
 
     btnSalvar.addEventListener("click", () => {
-      if (campoId.value) atualizarMembro();
-      else salvarNovoMembro();
+      if (campoId.value) {
+        atualizarMembro();
+      } else {
+        salvarNovoMembro();
+      }
     });
 
     btnCancelar.addEventListener("click", () => {
@@ -860,12 +1029,9 @@
     });
 
     btnExcluir.addEventListener("click", excluirMembro);
-    btnBuscarCep.addEventListener("click", buscarCep);
 
     campoCep.addEventListener("input", () => {
       campoCep.value = formatarCep(campoCep.value);
-      const cepLimpo = String(campoCep.value || "").replace(/\D/g, "");
-      if (modoEdicao && cepLimpo.length === 8) buscarCep();
     });
 
     campoCep.addEventListener("blur", () => {
@@ -874,15 +1040,23 @@
 
     campoNascimento.addEventListener("change", corrigirNascimento);
     campoNascimento.addEventListener("blur", corrigirNascimento);
+
     campoTelefone.addEventListener("input", atualizarWhatsappCampoTelefone);
 
-    campoFiltroNome.addEventListener("input", () => { if (!modoEdicao) renderLista(); });
-    campoFiltroStatus.addEventListener("change", () => { if (!modoEdicao) renderLista(); });
-    campoFiltroCelula.addEventListener("change", () => { if (!modoEdicao) renderLista(); });
+    campoFiltroNome.addEventListener("input", () => {
+      if (!modoEdicao) renderLista();
+    });
+    campoFiltroStatus.addEventListener("change", () => {
+      if (!modoEdicao) renderLista();
+    });
+    campoFiltroCelula.addEventListener("change", () => {
+      if (!modoEdicao) renderLista();
+    });
 
     campoLista.addEventListener("click", (evento) => {
       const item = evento.target.closest(".membro-item");
       if (!item) return;
+
       if (modoEdicao) {
         const idAtual = String(campoId.value || "");
         if (String(item.dataset.id) !== idAtual) {
@@ -890,6 +1064,7 @@
           return;
         }
       }
+
       const id = item.dataset.id;
       const membro = membros.find((m) => String(m.id) === String(id));
       if (membro) preencherFormulario(membro);
