@@ -226,6 +226,11 @@
       background: var(--gray-dark);
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .status-edicao {
       margin-top: 14px;
       padding: 12px;
@@ -316,6 +321,7 @@
       background: #25D366;
       text-decoration: none;
       flex: 0 0 auto;
+      border: none;
     }
 
     .btn-whatsapp svg {
@@ -324,10 +330,18 @@
       fill: #ffffff;
     }
 
+    .btn-whatsapp.disabled {
+      background: #cbd5e1;
+      pointer-events: none;
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
     .check-wrap {
       display: flex;
       align-items: flex-start;
       gap: 12px;
+      flex: 1;
     }
 
     .check-wrap input[type="checkbox"] {
@@ -589,6 +603,7 @@
     const campoListaDisponiveis = document.getElementById("listaDisponiveis");
     const contadorMembrosVinculados = document.getElementById("contadorMembrosVinculados");
     const contadorDisponiveis = document.getElementById("contadorDisponiveis");
+    const btnGeo = document.getElementById("btnGeo");
 
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
@@ -645,6 +660,36 @@
       return numero.startsWith("55") ? numero : `55${numero}`;
     }
 
+    function whatsappIcon(link, habilitado = true) {
+      if (!link) {
+        return `
+          <span class="btn-whatsapp disabled" aria-hidden="true">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+            </svg>
+          </span>
+        `;
+      }
+
+      if (!habilitado) {
+        return `
+          <span class="btn-whatsapp disabled" aria-hidden="true">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+            </svg>
+          </span>
+        `;
+      }
+
+      return `
+        <a class="btn-whatsapp" target="_blank" href="https://wa.me/${link}" aria-label="WhatsApp">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+          </svg>
+        </a>
+      `;
+    }
+
     function atualizarStatusEdicao() {
       if (modoEdicao) {
         campoStatusEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA. Revise os dados e clique em Salvar edição.";
@@ -655,6 +700,10 @@
         campoStatusEdicao.style.background = "#eff6ff";
         campoStatusEdicao.style.color = "#1d4ed8";
       }
+    }
+
+    function atualizarEstadoAcoes() {
+      btnGeo.disabled = !modoEdicao;
     }
 
     function setCamposEditaveis(liberado) {
@@ -679,6 +728,8 @@
       });
 
       atualizarStatusEdicao();
+      atualizarEstadoAcoes();
+      renderMembrosDisponiveis();
     }
 
     function deduplicarCelulas(lista) {
@@ -808,13 +859,7 @@
                 <h3>${membro.nome || ""}</h3>
                 <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
               </div>
-              ${linkZap ? `
-                <a class="btn-whatsapp" target="_blank" href="https://wa.me/${linkZap}" aria-label="WhatsApp">
-                  <svg viewBox="0 0 32 32" aria-hidden="true">
-                    <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03.64.28 1.14.45 1.53.58.64.2 1.22.17 1.67.1.51-.08 1.58-.64 1.8-1.25.22-.61.22-1.13.15-1.25-.07-.11-.25-.18-.52-.32zM16.27 27.2h-.01a11.07 11.07 0 0 1-5.64-1.54l-.4-.24-4.19 1.1 1.12-4.09-.26-.42a11.03 11.03 0 0 1-1.69-5.86c0-6.08 4.95-11.02 11.04-11.02 2.95 0 5.71 1.15 7.79 3.23a10.94 10.94 0 0 1 3.23 7.78c0 6.08-4.95 11.03-11.01 11.03zm9.36-20.39A13.16 13.16 0 0 0 16.27 3C8.94 3 3 8.92 3 16.22c0 2.34.61 4.63 1.77 6.65L3 29l6.3-1.65a13.27 13.27 0 0 0 6.96 1.99h.01c7.32 0 13.27-5.92 13.27-13.22 0-3.53-1.38-6.85-3.91-9.31z"/>
-                  </svg>
-                </a>
-              ` : ""}
+              ${whatsappIcon(linkZap, true)}
             </div>
           </div>
         `;
@@ -830,22 +875,30 @@
         return;
       }
 
-      campoListaDisponiveis.innerHTML = lista.map((membro) => `
-        <label class="membro-box">
-          <div class="check-wrap">
-            <input
-              type="checkbox"
-              class="membro-disponivel-checkbox"
-              value="${membro.id}"
-              disabled
-            />
-            <div>
-              <h3>${membro.nome || ""}</h3>
-              <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+      campoListaDisponiveis.innerHTML = lista.map((membro) => {
+        const linkZap = formatarWhatsapp(membro.telefone);
+
+        return `
+          <label class="membro-box">
+            <div class="membro-topo">
+              <div class="check-wrap">
+                <input
+                  type="checkbox"
+                  class="membro-disponivel-checkbox"
+                  value="${membro.id}"
+                  ${modoEdicao ? "" : "disabled"}
+                />
+                <div>
+                  <h3>${membro.nome || ""}</h3>
+                  <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+                </div>
+              </div>
+
+              ${whatsappIcon(linkZap, modoEdicao)}
             </div>
-          </div>
-        </label>
-      `).join("");
+          </label>
+        `;
+      }).join("");
     }
 
     function limparFormulario() {
@@ -867,7 +920,6 @@
       campoResumoCelula.innerHTML = '<div class="vazio">Selecione uma célula para ver o resumo.</div>';
       campoListaVinculados.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
       contadorMembrosVinculados.textContent = "0 membro(s)";
-      renderMembrosDisponiveis();
       setCamposEditaveis(false);
       mostrarMensagem("", "#dc2626");
     }
@@ -894,7 +946,6 @@
 
       renderResumoCelula(celula);
       renderMembrosVinculados(celula.nome);
-      renderMembrosDisponiveis();
       setCamposEditaveis(false);
       mostrarMensagem("", "#dc2626");
     }
@@ -977,6 +1028,7 @@
         preencherSelectCelulas();
         preencherSelectMembrosEspeciais();
         renderMembrosDisponiveis();
+        atualizarEstadoAcoes();
       } catch (erro) {
         console.error(erro);
         mostrarMensagem("Erro ao carregar dados da tela de células.");

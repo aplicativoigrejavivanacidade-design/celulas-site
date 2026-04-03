@@ -275,6 +275,49 @@
       color: #4b5563;
     }
 
+    .membro-topo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .telefone-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .telefone-wrap input {
+      flex: 1;
+    }
+
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      background: #25D366;
+      text-decoration: none;
+      flex: 0 0 auto;
+      border: none;
+    }
+
+    .btn-whatsapp svg {
+      width: 22px;
+      height: 22px;
+      fill: #ffffff;
+    }
+
+    .btn-whatsapp.disabled {
+      background: #cbd5e1;
+      pointer-events: none;
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
     .vazio {
       color: var(--muted);
       font-style: italic;
@@ -311,6 +354,12 @@
       .grid-2,
       .filtros {
         grid-template-columns: 1fr;
+      }
+
+      .membro-topo,
+      .telefone-wrap {
+        flex-direction: column;
+        align-items: flex-start;
       }
     }
   </style>
@@ -386,7 +435,10 @@
           <div class="grid-2">
             <div>
               <label for="telefone">Telefone</label>
-              <input id="telefone" type="text" placeholder="Telefone" readonly />
+              <div class="telefone-wrap">
+                <input id="telefone" type="text" placeholder="Telefone" readonly />
+                <span id="whatsappCampoTelefone"></span>
+              </div>
             </div>
 
             <div>
@@ -498,6 +550,7 @@
     const campoFiltroNome = document.getElementById("filtroNome");
     const campoFiltroStatus = document.getElementById("filtroStatus");
     const campoFiltroCelula = document.getElementById("filtroCelula");
+    const campoWhatsappTelefone = document.getElementById("whatsappCampoTelefone");
 
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
@@ -537,6 +590,47 @@
       return numeros;
     }
 
+    function formatarWhatsapp(telefone) {
+      const numero = String(telefone || "").replace(/\D/g, "");
+      if (!numero) return "";
+      return numero.startsWith("55") ? numero : `55${numero}`;
+    }
+
+    function whatsappIcon(link, habilitado = true) {
+      if (!link) {
+        return `
+          <span class="btn-whatsapp disabled" aria-hidden="true">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+            </svg>
+          </span>
+        `;
+      }
+
+      if (!habilitado) {
+        return `
+          <span class="btn-whatsapp disabled" aria-hidden="true">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+            </svg>
+          </span>
+        `;
+      }
+
+      return `
+        <a class="btn-whatsapp" target="_blank" href="https://wa.me/${link}" aria-label="WhatsApp">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+          </svg>
+        </a>
+      `;
+    }
+
+    function atualizarWhatsappCampoTelefone() {
+      const linkZap = formatarWhatsapp(campoTelefone.value);
+      campoWhatsappTelefone.innerHTML = whatsappIcon(linkZap, modoEdicao);
+    }
+
     function setCamposEditaveis(liberado) {
       modoEdicao = liberado;
 
@@ -562,6 +656,9 @@
         campoStatusEdicao.style.background = "#eff6ff";
         campoStatusEdicao.style.color = "#1d4ed8";
       }
+
+      atualizarWhatsappCampoTelefone();
+      renderLista();
     }
 
     function ordenarMembros(lista) {
@@ -648,6 +745,7 @@
       membroSelecionadoId = String(membro.id || "");
       membroAtual = { ...membro };
       setCamposEditaveis(false);
+      atualizarWhatsappCampoTelefone();
       renderLista();
     }
 
@@ -659,14 +757,23 @@
         return;
       }
 
-      campoLista.innerHTML = lista.map((membro) => `
-        <div class="membro-item ${String(membro.id) === membroSelecionadoId ? "ativo" : ""}" data-id="${membro.id}">
-          <h3>${membro.nome || ""}</h3>
-          <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
-          <p><strong>Status:</strong> ${membro.status || "-"}</p>
-          <p><strong>Célula:</strong> ${membro.celula || "SEM CÉLULA"}</p>
-        </div>
-      `).join("");
+      campoLista.innerHTML = lista.map((membro) => {
+        const linkZap = formatarWhatsapp(membro.telefone);
+
+        return `
+          <div class="membro-item ${String(membro.id) === membroSelecionadoId ? "ativo" : ""}" data-id="${membro.id}">
+            <div class="membro-topo">
+              <div>
+                <h3>${membro.nome || ""}</h3>
+                <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+                <p><strong>Status:</strong> ${membro.status || "-"}</p>
+                <p><strong>Célula:</strong> ${membro.celula || "SEM CÉLULA"}</p>
+              </div>
+              ${whatsappIcon(linkZap, modoEdicao)}
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     async function buscarCep() {
@@ -851,6 +958,8 @@
     campoNascimento.addEventListener("change", corrigirNascimento);
     campoNascimento.addEventListener("blur", corrigirNascimento);
 
+    campoTelefone.addEventListener("input", atualizarWhatsappCampoTelefone);
+
     campoFiltroNome.addEventListener("input", renderLista);
     campoFiltroStatus.addEventListener("change", renderLista);
     campoFiltroCelula.addEventListener("change", renderLista);
@@ -867,6 +976,7 @@
     if (protegerPagina()) {
       preencherUsuario();
       setCamposEditaveis(false);
+      atualizarWhatsappCampoTelefone();
       carregarMembros();
     }
   </script>
