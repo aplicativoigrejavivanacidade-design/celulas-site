@@ -184,6 +184,16 @@
       margin-top: 18px;
     }
 
+    .cep-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .cep-wrap input {
+      flex: 1;
+    }
+
     button {
       padding: 12px 14px;
       border-radius: 10px;
@@ -223,6 +233,12 @@
 
     .btn-secondary:hover {
       background: var(--gray-dark);
+    }
+
+    .btn-cep {
+      background: #0f766e;
+      color: white;
+      white-space: nowrap;
     }
 
     button:disabled {
@@ -369,7 +385,8 @@
       }
 
       .membro-topo,
-      .telefone-wrap {
+      .telefone-wrap,
+      .cep-wrap {
         flex-direction: column;
         align-items: flex-start;
       }
@@ -477,7 +494,10 @@
           </div>
 
           <label for="cep">CEP</label>
-          <input id="cep" type="text" placeholder="00000-000" readonly />
+          <div class="cep-wrap">
+            <input id="cep" type="text" placeholder="00000-000" readonly />
+            <button class="btn-cep" id="btnBuscarCep" type="button" disabled>Buscar CEP</button>
+          </div>
 
           <label for="rua">Rua</label>
           <input id="rua" type="text" placeholder="Rua" readonly />
@@ -563,6 +583,7 @@
     const campoFiltroStatus = document.getElementById("filtroStatus");
     const campoFiltroCelula = document.getElementById("filtroCelula");
     const campoWhatsappTelefone = document.getElementById("whatsappCampoTelefone");
+    const btnBuscarCep = document.getElementById("btnBuscarCep");
 
     const btnEditar = document.getElementById("btnEditar");
     const btnSalvar = document.getElementById("btnSalvar");
@@ -652,6 +673,7 @@
         btnCancelar.disabled = false;
         btnNovo.disabled = true;
         btnExcluir.disabled = true;
+        btnBuscarCep.disabled = false;
         campoFiltroNome.disabled = true;
         campoFiltroStatus.disabled = true;
         campoFiltroCelula.disabled = true;
@@ -661,6 +683,7 @@
         btnCancelar.disabled = true;
         btnNovo.disabled = false;
         btnExcluir.disabled = !temMembroSelecionado;
+        btnBuscarCep.disabled = true;
         campoFiltroNome.disabled = false;
         campoFiltroStatus.disabled = false;
         campoFiltroCelula.disabled = false;
@@ -818,20 +841,44 @@
 
     async function buscarCep() {
       const cep = String(campoCep.value || "").replace(/\D/g, "");
-      if (cep.length !== 8) return;
+
+      if (cep.length !== 8) {
+        if (modoEdicao && campoCep.value.trim()) {
+          mostrarMensagem("Digite um CEP com 8 números.", "#dc2626");
+        }
+        return;
+      }
 
       try {
-        const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        mostrarMensagem("Buscando CEP...", "#2563eb");
+
+        const resposta = await fetch(`https://viacep.com.br/ws/${cep}/json/`, {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          },
+          cache: "no-store"
+        });
+
+        if (!resposta.ok) {
+          throw new Error("Não foi possível consultar o CEP.");
+        }
+
         const dados = await resposta.json();
 
-        if (dados.erro) return;
+        if (dados.erro) {
+          throw new Error("CEP não encontrado.");
+        }
 
         campoRua.value = (dados.logradouro || "").toUpperCase();
         campoBairro.value = (dados.bairro || "").toUpperCase();
         campoCidade.value = (dados.localidade || "").toUpperCase();
         campoEstado.value = (dados.uf || "").toUpperCase();
+
+        mostrarMensagem("Endereço carregado pelo CEP com sucesso.", "#16a34a");
       } catch (erro) {
         console.error("Erro ao buscar CEP:", erro);
+        mostrarMensagem(erro.message || "Erro ao buscar CEP.");
       }
     }
 
@@ -990,9 +1037,15 @@
     });
 
     btnExcluir.addEventListener("click", excluirMembro);
+    btnBuscarCep.addEventListener("click", buscarCep);
 
     campoCep.addEventListener("input", () => {
       campoCep.value = formatarCep(campoCep.value);
+
+      const cepLimpo = String(campoCep.value || "").replace(/\D/g, "");
+      if (modoEdicao && cepLimpo.length === 8) {
+        buscarCep();
+      }
     });
 
     campoCep.addEventListener("blur", () => {
