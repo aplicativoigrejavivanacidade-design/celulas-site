@@ -269,6 +269,11 @@
       box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
     }
 
+    .membro-item.locked {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
     .membro-item h3 {
       margin: 0 0 8px;
       font-size: 16px;
@@ -514,11 +519,11 @@
           </div>
 
           <div class="acoes">
-            <button class="btn-primary" id="btnEditar" type="button" disabled>Editar membro</button>
-            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar membro</button>
-            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar edição</button>
-            <button class="btn-secondary" id="btnNovo" type="button">Novo cadastro</button>
-            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir membro</button>
+            <button class="btn-primary" id="btnEditar" type="button" disabled>Editar Membro</button>
+            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar Membro</button>
+            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar Edição</button>
+            <button class="btn-secondary" id="btnNovo" type="button">Novo Cadastro</button>
+            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir Membro</button>
           </div>
 
           <div id="msg" class="msg"></div>
@@ -618,7 +623,7 @@
         return `
           <span class="btn-whatsapp disabled" aria-hidden="true">
             <svg viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M19.11 17.23c-.27-.14-1.58-.78-1.82-.87-.24-.09-.42-.14-.6.14-.18.27-.69.87-.85 1.05-.16.18-.31.2-.58.07-.27-.14-1.13-.42-2.15-1.34-.79-.7-1.33-1.57-1.49-1.84-.16-.27-.02-.41.12-.54.12-.12.27-.31.4-.47.13-.16.18-.27.27-.45.09-.18.04-.34-.02-.47-.07-.14-.6-1.45-.82-1.98-.22-.53-.44-.46-.6-.47h-.51c-.18 0-.47.07-.72.34-.25.27-.94.92-.94 2.24s.96 2.6 1.09 2.78c.13.18 1.88 2.87 4.55 4.03z"/>
+              <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989z"/>
             </svg>
           </span>
         `;
@@ -647,12 +652,18 @@
         btnCancelar.disabled = false;
         btnNovo.disabled = true;
         btnExcluir.disabled = true;
+        campoFiltroNome.disabled = true;
+        campoFiltroStatus.disabled = true;
+        campoFiltroCelula.disabled = true;
       } else {
         btnEditar.disabled = !temMembroSelecionado;
         btnSalvar.disabled = true;
         btnCancelar.disabled = true;
         btnNovo.disabled = false;
         btnExcluir.disabled = !temMembroSelecionado;
+        campoFiltroNome.disabled = false;
+        campoFiltroStatus.disabled = false;
+        campoFiltroCelula.disabled = false;
       }
     }
 
@@ -673,11 +684,11 @@
       campoStatus.disabled = !liberado;
 
       if (modoEdicao) {
-        campoStatusEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA. Revise os dados e clique em Salvar membro.";
+        campoStatusEdicao.textContent = "Modo Atual: Edição Liberada. Revise os dados e clique em Salvar Membro.";
         campoStatusEdicao.style.background = "#ecfdf5";
         campoStatusEdicao.style.color = "#166534";
       } else {
-        campoStatusEdicao.textContent = "Modo atual: VISUALIZAÇÃO. Selecione um membro e clique em Editar membro.";
+        campoStatusEdicao.textContent = "Modo Atual: Visualização. Selecione um membro e clique em Editar Membro.";
         campoStatusEdicao.style.background = "#eff6ff";
         campoStatusEdicao.style.color = "#1d4ed8";
       }
@@ -780,21 +791,23 @@
       const lista = membrosFiltrados();
 
       if (!lista.length) {
-        campoLista.innerHTML = '<div class="vazio">Nenhum membro encontrado.</div>';
+        campoLista.innerHTML = '<div class="vazio">Nenhum Membro Encontrado.</div>';
         return;
       }
 
       campoLista.innerHTML = lista.map((membro) => {
         const linkZap = formatarWhatsapp(membro.telefone);
+        const ativo = String(membro.id) === membroSelecionadoId;
+        const travado = modoEdicao && !ativo;
 
         return `
-          <div class="membro-item ${String(membro.id) === membroSelecionadoId ? "ativo" : ""}" data-id="${membro.id}">
+          <div class="membro-item ${ativo ? "ativo" : ""} ${travado ? "locked" : ""}" data-id="${membro.id}">
             <div class="membro-topo">
               <div>
                 <h3>${membro.nome || ""}</h3>
                 <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
                 <p><strong>Status:</strong> ${membro.status || "-"}</p>
-                <p><strong>Célula:</strong> ${membro.celula || "SEM CÉLULA"}</p>
+                <p><strong>Célula:</strong> ${membro.celula || "Sem Célula"}</p>
               </div>
               ${whatsappIcon(linkZap)}
             </div>
@@ -991,13 +1004,27 @@
 
     campoTelefone.addEventListener("input", atualizarWhatsappCampoTelefone);
 
-    campoFiltroNome.addEventListener("input", renderLista);
-    campoFiltroStatus.addEventListener("change", renderLista);
-    campoFiltroCelula.addEventListener("change", renderLista);
+    campoFiltroNome.addEventListener("input", () => {
+      if (!modoEdicao) renderLista();
+    });
+    campoFiltroStatus.addEventListener("change", () => {
+      if (!modoEdicao) renderLista();
+    });
+    campoFiltroCelula.addEventListener("change", () => {
+      if (!modoEdicao) renderLista();
+    });
 
     campoLista.addEventListener("click", (evento) => {
       const item = evento.target.closest(".membro-item");
       if (!item) return;
+
+      if (modoEdicao) {
+        const idAtual = String(campoId.value || "");
+        if (String(item.dataset.id) !== idAtual) {
+          mostrarMensagem("Cancele a edição ou salve as alterações antes de selecionar outro membro.");
+          return;
+        }
+      }
 
       const id = item.dataset.id;
       const membro = membros.find((m) => String(m.id) === String(id));
