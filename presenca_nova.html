@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>+Células | Presença</title>
+
+<style>
+body { font-family: Arial; background:#eef2f7; margin:0 }
+.layout { display:flex }
+.sidebar { width:250px; background:#2563eb; color:#fff; padding:20px }
+.content { margin-left:250px; padding:20px; width:100% }
+.card { background:#fff; padding:20px; border-radius:10px; margin-bottom:20px }
+
+.membro-check { border:1px solid #ddd; padding:12px; border-radius:10px; margin-bottom:10px }
+.membro-check-topo { display:flex; gap:10px }
+</style>
+
+</head>
+
+<body>
+
+<div class="layout">
+
+<div class="sidebar">
+<h2>+Células</h2>
+<a href="painel.html">Painel</a><br>
+<a href="cadastro.html">Membros</a><br>
+<a href="presenca.html">Presença</a><br>
+<a href="celulas.html">Células</a><br>
+</div>
+
+<div class="content">
+
+<div class="card">
+<h2>Presença</h2>
+
+<select id="celulaSelecionada"></select>
+<div id="listaMembros"></div>
+
+<button id="btnSalvar">Salvar</button>
+</div>
+
+</div>
+</div>
+
+<script>
+
+const API = "https://celulas-backend.onrender.com";
+
+let membros = [];
+let filtrados = [];
+let presencas = {};
+
+function formatarWhatsapp(n){
+  if(!n) return "";
+  n = n.replace(/\D/g,"");
+  if(!n.startsWith("55")) n="55"+n;
+  return n;
+}
+
+function render(){
+
+document.getElementById("listaMembros").innerHTML =
+filtrados.sort((a,b)=>a.nome.localeCompare(b.nome))
+.map(m=>{
+
+let tel = formatarWhatsapp(m.telefone);
+
+return `
+<div class="membro-check">
+<input type="checkbox" onchange="marcar(${m.id},this.checked)">
+
+<b>${m.nome}</b><br>
+
+${m.telefone || "-"}
+
+${tel ? `<a href="https://wa.me/${tel}" target="_blank">🟢</a>`:""}
+
+</div>
+`;
+}).join("");
+
+}
+
+function marcar(id,v){
+presencas[id] = v ? "presente":"ausente";
+}
+
+async function carregar(){
+let r = await fetch(API+"/membros");
+membros = await r.json();
+
+let celulas = [...new Set(membros.map(m=>m.celula))];
+
+let select = document.getElementById("celulaSelecionada");
+
+select.innerHTML = celulas.map(c=>`<option>${c}</option>`).join("");
+
+select.onchange = ()=>{
+filtrados = membros.filter(m=>m.celula===select.value);
+render();
+};
+
+select.dispatchEvent(new Event("change"));
+}
+
+document.getElementById("btnSalvar").onclick = async ()=>{
+await fetch(API+"/presencas",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body: JSON.stringify({
+data:new Date().toISOString().slice(0,10),
+registros:Object.keys(presencas).map(id=>({
+membroId:id,
+status:presencas[id]
+}))
+})
+});
+alert("Salvo");
+};
+
+carregar();
+
+</script>
+
+</body>
+</html>
