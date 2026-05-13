@@ -16,8 +16,13 @@
       --line:#dbe3ee;
       --blue:#2563eb;
       --blue-dark:#1d4ed8;
+      --green:#16a34a;
+      --green-dark:#15803d;
       --amber:#f59e0b;
       --red:#dc2626;
+      --red-dark:#b91c1c;
+      --gray:#64748b;
+      --gray-dark:#475569;
       --shadow:0 10px 25px rgba(0,0,0,0.05);
       --radius:16px;
     }
@@ -33,7 +38,7 @@
 
     .sidebar{
       width:250px;
-      background:linear-gradient(180deg,var(--blue-dark),#16a34a);
+      background:linear-gradient(180deg,var(--blue-dark),var(--green));
       color:#fff;
       padding:24px 18px;
       position:fixed;
@@ -55,9 +60,7 @@
       font-weight:bold;
     }
 
-    .menu a:hover,.menu a.ativo{
-      background:rgba(255,255,255,.16);
-    }
+    .menu a:hover,.menu a.ativo{background:rgba(255,255,255,.16);}
 
     .btn-sair{
       margin-top:20px;
@@ -85,10 +88,15 @@
     }
 
     .header{margin-bottom:20px;}
+    .header h1{margin:0 0 8px;font-size:30px;}
+    .header p{margin:0;color:var(--muted);}
+    .usuario-logado{margin-top:10px!important;font-size:14px;}
+
     .grid-2{
       display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
+      grid-template-columns:1fr 1.15fr;
+      gap:20px;
+      align-items:start;
     }
 
     label{
@@ -96,6 +104,7 @@
       margin-top:12px;
       margin-bottom:6px;
       font-weight:bold;
+      font-size:14px;
     }
 
     input,select{
@@ -103,7 +112,17 @@
       padding:12px;
       border-radius:10px;
       border:1px solid var(--line);
+      font-size:15px;
+      background:#fff;
     }
+
+    input:focus,select:focus{
+      outline:none;
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    input[type="text"]{text-transform:uppercase;}
 
     .acoes{
       display:flex;
@@ -118,11 +137,29 @@
       border-radius:10px;
       font-weight:bold;
       cursor:pointer;
+      font-size:14px;
     }
 
+    button:disabled{opacity:.6;cursor:not-allowed;}
     .btn-primario{background:var(--blue);color:#fff;}
+    .btn-primario:hover{background:var(--blue-dark);}
+    .btn-sucesso{background:var(--green);color:#fff;}
+    .btn-sucesso:hover{background:var(--green-dark);}
     .btn-aviso{background:var(--amber);color:#fff;}
+    .btn-secundario{background:var(--gray);color:#fff;}
+    .btn-secundario:hover{background:var(--gray-dark);}
     .btn-perigo{background:var(--red);color:#fff;}
+    .btn-perigo:hover{background:var(--red-dark);}
+
+    .status-edicao{
+      margin-top:14px;
+      padding:12px;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:bold;
+      background:#eff6ff;
+      color:#1d4ed8;
+    }
 
     .item{
       border:1px solid var(--line);
@@ -130,7 +167,16 @@
       padding:14px;
       margin-bottom:10px;
       background:#fafbfd;
+      cursor:pointer;
     }
+
+    .item:hover,.item.ativo{
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(37,99,235,.10);
+    }
+
+    .item h3{margin:0 0 8px;font-size:17px;}
+    .item p{margin:0 0 5px;color:#4b5563;font-size:13px;}
 
     .badge{
       display:inline-block;
@@ -142,13 +188,14 @@
       color:var(--blue-dark);
     }
 
-    .msg{margin-top:14px;font-weight:bold;min-height:20px;}
+    .msg{margin-top:14px;font-weight:bold;min-height:20px;font-size:14px;}
+    .vazio{color:var(--muted);font-style:italic;text-align:center;padding:20px;border:2px dashed var(--line);border-radius:12px;background:#fcfdff;}
 
+    @media(max-width:1000px){.grid-2{grid-template-columns:1fr;}}
     @media(max-width:900px){
       .layout{flex-direction:column;}
       .sidebar{position:relative;width:100%;height:auto;}
       .content{margin-left:0;width:100%;padding:20px;}
-      .grid-2{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -167,51 +214,63 @@
       <a href="usuarios.html" class="ativo">Usuários</a>
     </div>
 
-    <button class="btn-sair" id="btnSair">Sair</button>
+    <button class="btn-sair" id="btnSair" type="button">Sair</button>
   </aside>
 
   <main class="content">
     <div class="header">
       <h1>Usuários</h1>
-      <p>Gestão de usuários do sistema</p>
-      <p id="usuarioLogado"></p>
+      <p>Gestão de usuários, níveis de acesso e vínculo com célula</p>
+      <p id="usuarioLogado" class="usuario-logado"></p>
     </div>
 
     <div class="grid-2">
       <div class="card">
+        <h2>Dados do usuário</h2>
+
         <input id="usuarioId" type="hidden">
 
-        <label>Nome</label>
-        <input id="nome" type="text">
+        <div class="status-edicao" id="statusEdicao">
+          Modo atual: Novo cadastro.
+        </div>
 
-        <label>Usuário</label>
-        <input id="usuario" type="text">
+        <label for="seletorUsuario">Selecionar usuário para editar</label>
+        <select id="seletorUsuario">
+          <option value="">Novo usuário</option>
+        </select>
 
-        <label>Senha</label>
-        <input id="senha" type="text">
+        <label for="nome">Nome</label>
+        <input id="nome" type="text" placeholder="Nome completo">
 
-        <label>Nível</label>
+        <label for="usuario">Usuário</label>
+        <input id="usuario" type="text" placeholder="Login de acesso">
+
+        <label for="senha">Senha</label>
+        <input id="senha" type="text" placeholder="Senha de acesso">
+
+        <label for="nivel">Nível</label>
         <select id="nivel">
           <option value="ADMIN">ADMIN</option>
           <option value="SUPERVISOR">SUPERVISOR</option>
           <option value="LIDER">LÍDER</option>
         </select>
 
-        <label>Célula vinculada</label>
+        <label for="celulaUsuario">Célula vinculada</label>
         <select id="celulaUsuario">
           <option value="">Sem vínculo / acesso geral</option>
         </select>
 
         <div class="acoes">
-          <button id="btnSalvar" class="btn-primario">Salvar usuário</button>
-          <button id="btnNovo" class="btn-aviso">Novo</button>
+          <button id="btnSalvar" class="btn-primario" type="button">Salvar usuário</button>
+          <button id="btnNovo" class="btn-aviso" type="button">Novo usuário</button>
+          <button id="btnCancelar" class="btn-secundario" type="button" disabled>Cancelar edição</button>
         </div>
 
         <div id="msg" class="msg"></div>
       </div>
 
       <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
           <h2 style="margin:0;">Lista de usuários</h2>
           <span class="badge" id="contador">0 usuário(s)</span>
         </div>
@@ -226,6 +285,21 @@
 const API = "https://celulas-backend.onrender.com";
 let usuarios = [];
 let celulas = [];
+let usuarioAtual = null;
+
+const campoUsuarioLogado = document.getElementById("usuarioLogado");
+const seletorUsuario = document.getElementById("seletorUsuario");
+const campoId = document.getElementById("usuarioId");
+const campoNome = document.getElementById("nome");
+const campoUsuario = document.getElementById("usuario");
+const campoSenha = document.getElementById("senha");
+const campoNivel = document.getElementById("nivel");
+const campoCelulaUsuario = document.getElementById("celulaUsuario");
+const campoMsg = document.getElementById("msg");
+const campoStatusEdicao = document.getElementById("statusEdicao");
+const listaUsuarios = document.getElementById("listaUsuarios");
+const contador = document.getElementById("contador");
+const btnCancelar = document.getElementById("btnCancelar");
 
 if(localStorage.getItem("logado") !== "sim"){
   window.location.href = "login.html";
@@ -236,99 +310,184 @@ if(String(localStorage.getItem("nivelUsuario") || "").toLowerCase() !== "admin")
   window.location.href = "painel.html";
 }
 
-document.getElementById("usuarioLogado").textContent =
-  `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
+campoUsuarioLogado.textContent = `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
 
 document.getElementById("btnSair").onclick = function(){
   localStorage.clear();
   window.location.href = "login.html";
 };
 
+function normalizarTexto(valor){
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+function normalizarNomeCelula(valor){
+  return normalizarTexto(valor).replace(/^CELULA\s*/i, "").trim();
+}
+
+function nomeCelulaExibicao(valor){
+  const base = normalizarNomeCelula(valor);
+  return base ? `CÉLULA ${base}` : "";
+}
+
+function mostrarMensagem(texto, cor="#dc2626"){
+  campoMsg.textContent = texto;
+  campoMsg.style.color = cor;
+}
+
+function limparMensagem(){
+  campoMsg.textContent = "";
+}
+
+function atualizarStatusEdicao(){
+  if(campoId.value){
+    campoStatusEdicao.textContent = "Modo atual: Editando usuário selecionado.";
+    campoStatusEdicao.style.background = "#ecfdf5";
+    campoStatusEdicao.style.color = "#166534";
+    btnCancelar.disabled = false;
+  }else{
+    campoStatusEdicao.textContent = "Modo atual: Novo cadastro.";
+    campoStatusEdicao.style.background = "#eff6ff";
+    campoStatusEdicao.style.color = "#1d4ed8";
+    btnCancelar.disabled = true;
+  }
+}
+
 function limpar(){
-  ["usuarioId","nome","usuario","senha"].forEach(id => {
-    document.getElementById(id).value = "";
-  });
-  document.getElementById("nivel").value = "ADMIN";
-  document.getElementById("celulaUsuario").value = "";
+  campoId.value = "";
+  campoNome.value = "";
+  campoUsuario.value = "";
+  campoSenha.value = "";
+  campoNivel.value = "ADMIN";
+  campoCelulaUsuario.value = "";
+  seletorUsuario.value = "";
+  usuarioAtual = null;
+  atualizarRegraCelulaUsuario();
+  atualizarStatusEdicao();
+  limparMensagem();
+  renderizarListaUsuarios();
+}
+
+function preencherFormulario(usuario){
+  usuarioAtual = {...usuario};
+  campoId.value = usuario.id || "";
+  campoNome.value = usuario.nome || "";
+  campoUsuario.value = usuario.usuario || "";
+  campoSenha.value = usuario.senha || "";
+  campoNivel.value = String(usuario.nivel || "ADMIN").toUpperCase();
+  campoCelulaUsuario.value = nomeCelulaExibicao(usuario.celula || "");
+  seletorUsuario.value = String(usuario.id || "");
+  atualizarRegraCelulaUsuario();
+  atualizarStatusEdicao();
+  limparMensagem();
+  renderizarListaUsuarios();
 }
 
 async function carregarCelulas(){
-  const select = document.getElementById("celulaUsuario");
-
   try{
     const resp = await fetch(API + "/celulas",{cache:"no-store"});
+    if(!resp.ok) throw new Error("Erro ao carregar células.");
+
     celulas = await resp.json();
 
-    select.innerHTML = '<option value="">Sem vínculo / acesso geral</option>' +
-      celulas
-        .filter(c => c.ativo !== false)
-        .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
-        .map(c => `<option value="${c.nome}">${c.nome}</option>`)
-        .join("");
-  }catch{
-    select.innerHTML = '<option value="">Erro ao carregar células</option>';
+    const opcoes = celulas
+      .filter(c => c.ativo !== false)
+      .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+      .map(c => `<option value="${c.nome}">${c.nome}</option>`)
+      .join("");
+
+    campoCelulaUsuario.innerHTML = '<option value="">Sem vínculo / acesso geral</option>' + opcoes;
+  }catch(erro){
+    console.error(erro);
+    campoCelulaUsuario.innerHTML = '<option value="">Erro ao carregar células</option>';
+    mostrarMensagem("Erro ao carregar células para vínculo.");
   }
 }
 
 function atualizarRegraCelulaUsuario(){
-  const nivel = String(document.getElementById("nivel").value || "").toUpperCase();
-  const select = document.getElementById("celulaUsuario");
+  const nivel = String(campoNivel.value || "").toUpperCase();
 
   if(nivel === "LIDER"){
-    select.disabled = false;
+    campoCelulaUsuario.disabled = false;
   }else{
-    select.value = "";
-    select.disabled = true;
+    campoCelulaUsuario.value = "";
+    campoCelulaUsuario.disabled = true;
   }
 }
 
-async function carregarUsuarios(){
-  const lista = document.getElementById("listaUsuarios");
+function renderizarSeletorUsuarios(){
+  seletorUsuario.innerHTML = '<option value="">Novo usuário</option>' +
+    [...usuarios]
+      .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+      .map(u => `<option value="${u.id}">${u.nome || u.usuario} - ${String(u.nivel || "").toUpperCase()}</option>`)
+      .join("");
 
-  try{
-    const resp = await fetch(API + "/usuarios",{cache:"no-store"});
-    usuarios = await resp.json();
+  if(campoId.value){
+    seletorUsuario.value = campoId.value;
+  }
+}
 
-    document.getElementById("contador").textContent =
-      `${usuarios.length} usuário(s)`;
+function renderizarListaUsuarios(){
+  contador.textContent = `${usuarios.length} usuário(s)`;
 
-    lista.innerHTML = usuarios.map(u => `
-      <div class="item">
-        <h3>${u.nome}</h3>
-        <p><strong>Usuário:</strong> ${u.usuario}</p>
+  if(!usuarios.length){
+    listaUsuarios.innerHTML = '<div class="vazio">Nenhum usuário cadastrado.</div>';
+    return;
+  }
+
+  listaUsuarios.innerHTML = [...usuarios]
+    .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+    .map(u => `
+      <div class="item ${String(u.id) === String(campoId.value) ? "ativo" : ""}" onclick="editarUsuario(${u.id})">
+        <h3>${u.nome || ""}</h3>
+        <p><strong>Usuário:</strong> ${u.usuario || "-"}</p>
         <p><strong>Nível:</strong> ${String(u.nivel || "").toUpperCase()}</p>
         <p><strong>Célula vinculada:</strong> ${u.celula || "ACESSO GERAL"}</p>
-
         <div class="acoes">
-          <button class="btn-primario" onclick="editar(${u.id})">Editar</button>
-          <button class="btn-perigo" onclick="excluirUsuario(${u.id})">Excluir</button>
+          <button class="btn-primario" type="button" onclick="event.stopPropagation(); editarUsuario(${u.id})">Editar</button>
+          <button class="btn-perigo" type="button" onclick="event.stopPropagation(); excluirUsuario(${u.id})">Excluir</button>
         </div>
       </div>
     `).join("");
+}
 
-  }catch{
-    lista.innerHTML = "Erro ao carregar usuários.";
+async function carregarUsuarios(){
+  try{
+    const resp = await fetch(API + "/usuarios",{cache:"no-store"});
+    if(!resp.ok) throw new Error("Erro ao carregar usuários.");
+
+    usuarios = await resp.json();
+    renderizarSeletorUsuarios();
+    renderizarListaUsuarios();
+  }catch(erro){
+    console.error(erro);
+    listaUsuarios.innerHTML = '<div class="vazio">Erro ao carregar usuários.</div>';
+    mostrarMensagem("Erro ao carregar usuários.");
   }
 }
 
-window.editar = function(id){
-  const u = usuarios.find(x => Number(x.id) === Number(id));
-  if(!u) return;
-
-  document.getElementById("usuarioId").value = u.id;
-  document.getElementById("nome").value = u.nome;
-  document.getElementById("usuario").value = u.usuario;
-  document.getElementById("senha").value = u.senha;
-  document.getElementById("nivel").value = String(u.nivel || "ADMIN").toUpperCase();
-  document.getElementById("celulaUsuario").value = u.celula || "";
-  atualizarRegraCelulaUsuario();
+window.editarUsuario = function(id){
+  const usuario = usuarios.find(x => Number(x.id) === Number(id));
+  if(!usuario) return;
+  preencherFormulario(usuario);
 };
 
 window.excluirUsuario = async function(id){
-  const confirmou = confirm("Deseja realmente excluir este usuário?");
-  if(!confirmou) return;
+  const usuario = usuarios.find(x => Number(x.id) === Number(id));
+  const nome = usuario?.nome || "este usuário";
 
-  const msg = document.getElementById("msg");
+  if(String(usuario?.usuario || "").toLowerCase() === "admin"){
+    mostrarMensagem("O usuário admin não pode ser excluído.");
+    return;
+  }
+
+  const confirmou = confirm(`Deseja realmente excluir ${nome}?`);
+  if(!confirmou) return;
 
   try{
     const resp = await fetch(API + "/usuarios/" + id,{method:"DELETE"});
@@ -338,42 +497,32 @@ window.excluirUsuario = async function(id){
       throw new Error(dados.erro || "Erro ao excluir usuário.");
     }
 
-    msg.textContent = "Usuário excluído com sucesso!";
-    msg.style.color = "#16a34a";
-    carregarCelulas().then(() => {
-  atualizarRegraCelulaUsuario();
-  carregarUsuarios();
-});
+    mostrarMensagem("Usuário excluído com sucesso!", "#16a34a");
+    limpar();
+    await carregarUsuarios();
   }catch(erro){
-    msg.textContent = erro.message || "Erro ao excluir usuário.";
-    msg.style.color = "#dc2626";
+    mostrarMensagem(erro.message || "Erro ao excluir usuário.");
   }
 };
 
-document.getElementById("btnNovo").onclick = limpar;
-document.getElementById("nivel").addEventListener("change", atualizarRegraCelulaUsuario);
-
-document.getElementById("btnSalvar").onclick = async function(){
-  const id = document.getElementById("usuarioId").value;
-  const msg = document.getElementById("msg");
+async function salvarUsuario(){
+  const id = campoId.value;
 
   const dados = {
-    nome: document.getElementById("nome").value,
-    usuario: document.getElementById("usuario").value,
-    senha: document.getElementById("senha").value,
-    nivel: document.getElementById("nivel").value,
-    celula: document.getElementById("celulaUsuario").value
+    nome: campoNome.value.trim(),
+    usuario: campoUsuario.value.trim().toLowerCase(),
+    senha: campoSenha.value.trim(),
+    nivel: campoNivel.value,
+    celula: campoCelulaUsuario.value
   };
 
-  if(!dados.nome.trim() || !dados.usuario.trim() || !dados.senha.trim()){
-    msg.textContent = "Preencha nome, usuário e senha.";
-    msg.style.color = "#dc2626";
+  if(!dados.nome || !dados.usuario || !dados.senha){
+    mostrarMensagem("Preencha nome, usuário e senha.");
     return;
   }
 
   if(dados.nivel === "LIDER" && !dados.celula){
-    msg.textContent = "Selecione a célula vinculada para o líder.";
-    msg.style.color = "#dc2626";
+    mostrarMensagem("Selecione a célula vinculada para o líder.");
     return;
   }
 
@@ -390,20 +539,41 @@ document.getElementById("btnSalvar").onclick = async function(){
       throw new Error(retorno.erro || "Erro ao salvar usuário.");
     }
 
-    msg.textContent = "Usuário salvo com sucesso!";
-    msg.style.color = "#16a34a";
+    mostrarMensagem("Usuário salvo com sucesso!", "#16a34a");
+    await carregarUsuarios();
 
+    const salvo = usuarios.find(u => String(u.usuario || "").toLowerCase() === dados.usuario);
+    if(salvo){
+      preencherFormulario(salvo);
+    }else{
+      limpar();
+    }
+  }catch(erro){
+    mostrarMensagem(erro.message || "Erro ao salvar usuário.");
+  }
+}
+
+seletorUsuario.addEventListener("change", () => {
+  const id = seletorUsuario.value;
+  if(!id){
     limpar();
-    carregarCelulas().then(() => {
-  atualizarRegraCelulaUsuario();
-  carregarUsuarios();
+    return;
+  }
+
+  editarUsuario(id);
 });
 
-  }catch(erro){
-    msg.textContent = erro.message || "Erro ao salvar.";
-    msg.style.color = "#dc2626";
+document.getElementById("btnNovo").onclick = limpar;
+document.getElementById("btnCancelar").onclick = function(){
+  if(usuarioAtual){
+    preencherFormulario(usuarioAtual);
+    mostrarMensagem("Edição cancelada. Dados restaurados.", "#64748b");
+  }else{
+    limpar();
   }
 };
+document.getElementById("btnSalvar").onclick = salvarUsuario;
+campoNivel.addEventListener("change", atualizarRegraCelulaUsuario);
 
 carregarCelulas().then(() => {
   atualizarRegraCelulaUsuario();

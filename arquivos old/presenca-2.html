@@ -529,7 +529,6 @@
       const API_BASE = "https://celulas-backend.onrender.com";
       const apiMembros = `${API_BASE}/membros`;
       const apiPresencas = `${API_BASE}/presencas`;
-      const apiUsuarios = `${API_BASE}/usuarios`;
 
       if (localStorage.getItem("logado") !== "sim") {
         window.location.href = "login.html";
@@ -537,9 +536,9 @@
       }
 
       const nomeUsuario = localStorage.getItem("nomeUsuario") || "Administrador";
+      const usuarioLogin = localStorage.getItem("usuario") || "";
       const nivelUsuario = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
       let celulaUsuario = localStorage.getItem("celulaUsuario") || "";
-      const loginUsuario = localStorage.getItem("usuario") || "";
 
       let todosMembros = [];
       let membrosFiltrados = [];
@@ -591,47 +590,41 @@
         return nomeCelulaExibicao(celulaUsuario);
       }
 
-      async function garantirCelulaDoUsuario() {
-        if (!usuarioEhLider()) return true;
-
-        if (celulaPermitidaParaUsuario()) return true;
+      async function garantirCelulaUsuarioLogado() {
+        if (!usuarioEhLider()) return;
+        if (String(celulaUsuario || "").trim()) return;
 
         try {
-          const resposta = await fetch(apiUsuarios, { cache: "no-store" });
-          if (!resposta.ok) throw new Error("Erro ao consultar usuário.");
-
+          const resposta = await fetch(`${API_BASE}/usuarios`, { cache: "no-store" });
           const lista = await resposta.json();
-          const usuarioAtual = (Array.isArray(lista) ? lista : []).find((item) => {
-            return String(item.usuario || "").toLowerCase() === String(loginUsuario || "").toLowerCase();
+          const atual = (Array.isArray(lista) ? lista : []).find((item) => {
+            return String(item.usuario || "").trim().toLowerCase() === String(usuarioLogin || "").trim().toLowerCase();
           });
 
-          celulaUsuario = usuarioAtual?.celula || "";
-          localStorage.setItem("celulaUsuario", celulaUsuario || "");
-          campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario} | Célula: ${celulaPermitidaParaUsuario() || "não vinculada"}`;
-
-          return !!celulaPermitidaParaUsuario();
+          if (atual && atual.celula) {
+            celulaUsuario = atual.celula;
+            localStorage.setItem("celulaUsuario", atual.celula);
+          }
         } catch (erro) {
-          console.error("Erro ao recuperar célula do líder:", erro);
-          return false;
+          console.error("Erro ao recuperar célula do usuário:", erro);
         }
       }
 
       function aplicarTravaCelulaLider() {
-        if (!usuarioEhLider()) return true;
+        if (!usuarioEhLider()) return;
 
         const celulaPermitida = celulaPermitidaParaUsuario();
 
         if (!celulaPermitida) {
           campoCelula.innerHTML = '<option value="">Líder sem célula vinculada</option>';
           campoCelula.disabled = true;
-          mostrarMensagem("Seu usuário líder não possui célula vinculada. Solicite ajuste ao administrador.");
-          return false;
+          mostrarMensagem("Seu usuário líder não possui célula vinculada. Entre em Usuários como admin e salve novamente a célula deste líder.");
+          return;
         }
 
         campoCelula.innerHTML = `<option value="${celulaPermitida}">${celulaPermitida}</option>`;
         campoCelula.value = celulaPermitida;
         campoCelula.disabled = true;
-        return true;
       }
 
       function definirDataHoje() {
@@ -722,18 +715,7 @@
         const celulas = obterCelulasUnicas();
 
         if (usuarioEhLider()) {
-          const celulaPermitida = celulaPermitidaParaUsuario();
-
-          if (!celulaPermitida) {
-            campoCelula.innerHTML = '<option value="">Líder sem célula vinculada</option>';
-            campoCelula.disabled = true;
-            mostrarMensagem("Seu usuário líder não possui célula vinculada. Solicite ajuste ao administrador.");
-            return;
-          }
-
-          campoCelula.innerHTML = `<option value="${celulaPermitida}">${celulaPermitida}</option>`;
-          campoCelula.value = celulaPermitida;
-          campoCelula.disabled = true;
+          aplicarTravaCelulaLider();
           return;
         }
 
@@ -852,12 +834,8 @@
 
       async function carregarPresencasData() {
         try {
-          if (usuarioEhLider() && !aplicarTravaCelulaLider()) {
-            presencas = {};
-            renderizarMembros();
-            atualizarResumo();
-            renderizarHistorico();
-            return;
+          if (usuarioEhLider()) {
+            aplicarTravaCelulaLider();
           }
 
           presencas = {};
@@ -990,7 +968,7 @@
           }
 
           todosMembros = await resposta.json();
-          await garantirCelulaDoUsuario();
+          await garantirCelulaUsuarioLogado();
           preencherSelectCelulas();
           filtrarMembrosPorCelula();
           await carregarPresencasData();
@@ -1003,6 +981,10 @@
       }
 
       document.getElementById("btnSair").addEventListener("click", sair);
+
+      campoUsuario.textContent = usuarioEhLider()
+        ? `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario} | Célula: ${celulaPermitidaParaUsuario() || "não vinculada"}`
+        : `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
 
       campoData.addEventListener("change", async () => {
         houveSalvamentoInicial = false;
@@ -1082,15 +1064,9 @@
         mostrarMensagem("Todos marcados como ausentes na tela.", "#64748b");
       });
 
-      async function iniciarTela() {
-        await carregarUsuarioLogado();
-
-        definirDataHoje();
-        atualizarModoEdicao();
-        carregarMembros();
-      }
-
-      iniciarTela();
+      definirDataHoje();
+      atualizarModoEdicao();
+      carregarMembros();
     });
   </script>
 </body>

@@ -220,13 +220,14 @@
 
     function salvarSessao(dados) {
       const usuario = dados?.usuario || {};
+      const celulaVinculada = usuario.celula || usuario.celula_usuario || usuario.celulaVinculada || "";
 
       localStorage.setItem("logado", "sim");
       localStorage.setItem("usuario", usuario.usuario || campoUsuario.value.trim());
       localStorage.setItem("nomeUsuario", usuario.nome || usuario.usuario || campoUsuario.value.trim() || "Administrador");
       localStorage.setItem("nivelUsuario", String(usuario.nivel || "ADMIN").toLowerCase());
       localStorage.setItem("usuarioId", usuario.id || "");
-      localStorage.setItem("celulaUsuario", usuario.celula || usuario.celula_usuario || usuario.celulaVinculada || "");
+      localStorage.setItem("celulaUsuario", celulaVinculada || "");
     }
 
     async function fazerLogin() {
