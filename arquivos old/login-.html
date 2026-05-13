@@ -215,7 +215,6 @@
       localStorage.removeItem("nomeUsuario");
       localStorage.removeItem("nivelUsuario");
       localStorage.removeItem("usuarioId");
-      localStorage.removeItem("celulaUsuario");
     }
 
     function salvarSessao(dados) {
@@ -226,7 +225,6 @@
       localStorage.setItem("nomeUsuario", usuario.nome || usuario.usuario || campoUsuario.value.trim() || "Administrador");
       localStorage.setItem("nivelUsuario", String(usuario.nivel || "ADMIN").toLowerCase());
       localStorage.setItem("usuarioId", usuario.id || "");
-      localStorage.setItem("celulaUsuario", usuario.celula || usuario.celula_usuario || usuario.celulaVinculada || "");
     }
 
     async function fazerLogin() {
