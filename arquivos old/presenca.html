@@ -536,8 +536,7 @@
       }
 
       const nomeUsuario = localStorage.getItem("nomeUsuario") || "Administrador";
-      const nivelUsuario = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
-      const celulaUsuario = localStorage.getItem("celulaUsuario") || "";
+      const nivelUsuario = localStorage.getItem("nivelUsuario") || "admin";
 
       let todosMembros = [];
       let membrosFiltrados = [];
@@ -558,7 +557,6 @@
         localStorage.removeItem("usuario");
         localStorage.removeItem("nomeUsuario");
         localStorage.removeItem("nivelUsuario");
-        localStorage.removeItem("celulaUsuario");
         window.location.href = "login.html";
       }
 
@@ -578,31 +576,6 @@
       function nomeCelulaExibicao(valor) {
         const base = normalizarNomeCelula(valor);
         return base ? `CÉLULA ${base}` : "";
-      }
-
-      function usuarioEhLider() {
-        return nivelUsuario === "lider" || nivelUsuario === "líder";
-      }
-
-      function celulaPermitidaParaUsuario() {
-        if (!usuarioEhLider()) return "";
-        return nomeCelulaExibicao(celulaUsuario);
-      }
-
-      function aplicarTravaCelulaLider() {
-        if (!usuarioEhLider()) return;
-
-        const celulaPermitida = celulaPermitidaParaUsuario();
-
-        if (!celulaPermitida) {
-          campoCelula.innerHTML = '<option value="">Líder sem célula vinculada</option>';
-          campoCelula.disabled = true;
-          mostrarMensagem("Seu usuário líder não possui célula vinculada. Solicite ajuste ao administrador.");
-          return;
-        }
-
-        campoCelula.value = celulaPermitida;
-        campoCelula.disabled = true;
       }
 
       function definirDataHoje() {
@@ -692,31 +665,6 @@
       function preencherSelectCelulas() {
         const celulas = obterCelulasUnicas();
 
-        if (usuarioEhLider()) {
-          const celulaPermitida = celulaPermitidaParaUsuario();
-
-          if (!celulaPermitida) {
-            campoCelula.innerHTML = '<option value="">Líder sem célula vinculada</option>';
-            campoCelula.disabled = true;
-            mostrarMensagem("Seu usuário líder não possui célula vinculada. Solicite ajuste ao administrador.");
-            return;
-          }
-
-          const existeCelula = celulas.some((celula) => normalizarNomeCelula(celula) === normalizarNomeCelula(celulaPermitida));
-
-          campoCelula.innerHTML = `<option value="${celulaPermitida}">${celulaPermitida}</option>`;
-          campoCelula.value = celulaPermitida;
-          campoCelula.disabled = true;
-
-          if (!existeCelula) {
-            mostrarMensagem(`A ${celulaPermitida} ainda não possui membros vinculados ou não foi encontrada.`);
-          }
-
-          return;
-        }
-
-        campoCelula.disabled = false;
-
         if (celulas.length === 0) {
           campoCelula.innerHTML = '<option value="">Nenhuma célula cadastrada</option>';
           return;
@@ -733,11 +681,7 @@
       }
 
       function filtrarMembrosPorCelula() {
-        if (usuarioEhLider()) {
-          aplicarTravaCelulaLider();
-        }
-
-        const celulaSelecionada = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
+        const celulaSelecionada = campoCelula.value;
         const alvo = normalizarNomeCelula(celulaSelecionada);
 
         if (!alvo) {
@@ -830,10 +774,6 @@
 
       async function carregarPresencasData() {
         try {
-          if (usuarioEhLider()) {
-            aplicarTravaCelulaLider();
-          }
-
           presencas = {};
 
           if (!campoData.value) {
@@ -977,9 +917,7 @@
 
       document.getElementById("btnSair").addEventListener("click", sair);
 
-      campoUsuario.textContent = usuarioEhLider()
-        ? `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario} | Célula: ${celulaPermitidaParaUsuario() || "não vinculada"}`
-        : `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
+      campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
 
       campoData.addEventListener("change", async () => {
         houveSalvamentoInicial = false;
@@ -989,11 +927,6 @@
       });
 
       campoCelula.addEventListener("change", async () => {
-        if (usuarioEhLider()) {
-          aplicarTravaCelulaLider();
-          mostrarMensagem("Seu acesso está limitado à célula vinculada ao seu usuário.", "#2563eb");
-        }
-
         houveSalvamentoInicial = false;
         edicaoLiberada = true;
         atualizarModoEdicao();
