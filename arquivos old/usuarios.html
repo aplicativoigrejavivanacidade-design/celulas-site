@@ -193,13 +193,7 @@
         <label>Nível</label>
         <select id="nivel">
           <option value="ADMIN">ADMIN</option>
-          <option value="SUPERVISOR">SUPERVISOR</option>
           <option value="LIDER">LÍDER</option>
-        </select>
-
-        <label>Célula vinculada</label>
-        <select id="celulaUsuario">
-          <option value="">Sem vínculo / acesso geral</option>
         </select>
 
         <div class="acoes">
@@ -225,15 +219,9 @@
 <script>
 const API = "https://celulas-backend.onrender.com";
 let usuarios = [];
-let celulas = [];
 
 if(localStorage.getItem("logado") !== "sim"){
   window.location.href = "login.html";
-}
-
-if(String(localStorage.getItem("nivelUsuario") || "").toLowerCase() !== "admin"){
-  alert("Apenas administradores podem acessar a gestão de usuários.");
-  window.location.href = "painel.html";
 }
 
 document.getElementById("usuarioLogado").textContent =
@@ -249,37 +237,6 @@ function limpar(){
     document.getElementById(id).value = "";
   });
   document.getElementById("nivel").value = "ADMIN";
-  document.getElementById("celulaUsuario").value = "";
-}
-
-async function carregarCelulas(){
-  const select = document.getElementById("celulaUsuario");
-
-  try{
-    const resp = await fetch(API + "/celulas",{cache:"no-store"});
-    celulas = await resp.json();
-
-    select.innerHTML = '<option value="">Sem vínculo / acesso geral</option>' +
-      celulas
-        .filter(c => c.ativo !== false)
-        .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
-        .map(c => `<option value="${c.nome}">${c.nome}</option>`)
-        .join("");
-  }catch{
-    select.innerHTML = '<option value="">Erro ao carregar células</option>';
-  }
-}
-
-function atualizarRegraCelulaUsuario(){
-  const nivel = String(document.getElementById("nivel").value || "").toUpperCase();
-  const select = document.getElementById("celulaUsuario");
-
-  if(nivel === "LIDER"){
-    select.disabled = false;
-  }else{
-    select.value = "";
-    select.disabled = true;
-  }
 }
 
 async function carregarUsuarios(){
@@ -296,8 +253,7 @@ async function carregarUsuarios(){
       <div class="item">
         <h3>${u.nome}</h3>
         <p><strong>Usuário:</strong> ${u.usuario}</p>
-        <p><strong>Nível:</strong> ${String(u.nivel || "").toUpperCase()}</p>
-        <p><strong>Célula vinculada:</strong> ${u.celula || "ACESSO GERAL"}</p>
+        <p><strong>Nível:</strong> ${u.nivel}</p>
 
         <div class="acoes">
           <button class="btn-primario" onclick="editar(${u.id})">Editar</button>
@@ -319,39 +275,15 @@ window.editar = function(id){
   document.getElementById("nome").value = u.nome;
   document.getElementById("usuario").value = u.usuario;
   document.getElementById("senha").value = u.senha;
-  document.getElementById("nivel").value = String(u.nivel || "ADMIN").toUpperCase();
-  document.getElementById("celulaUsuario").value = u.celula || "";
-  atualizarRegraCelulaUsuario();
+  document.getElementById("nivel").value = u.nivel;
 };
 
 window.excluirUsuario = async function(id){
-  const confirmou = confirm("Deseja realmente excluir este usuário?");
-  if(!confirmou) return;
-
-  const msg = document.getElementById("msg");
-
-  try{
-    const resp = await fetch(API + "/usuarios/" + id,{method:"DELETE"});
-    const dados = await resp.json().catch(() => ({}));
-
-    if(!resp.ok){
-      throw new Error(dados.erro || "Erro ao excluir usuário.");
-    }
-
-    msg.textContent = "Usuário excluído com sucesso!";
-    msg.style.color = "#16a34a";
-    carregarCelulas().then(() => {
-  atualizarRegraCelulaUsuario();
+  await fetch(API + "/usuarios/" + id,{method:"DELETE"});
   carregarUsuarios();
-});
-  }catch(erro){
-    msg.textContent = erro.message || "Erro ao excluir usuário.";
-    msg.style.color = "#dc2626";
-  }
 };
 
 document.getElementById("btnNovo").onclick = limpar;
-document.getElementById("nivel").addEventListener("change", atualizarRegraCelulaUsuario);
 
 document.getElementById("btnSalvar").onclick = async function(){
   const id = document.getElementById("usuarioId").value;
@@ -361,54 +293,29 @@ document.getElementById("btnSalvar").onclick = async function(){
     nome: document.getElementById("nome").value,
     usuario: document.getElementById("usuario").value,
     senha: document.getElementById("senha").value,
-    nivel: document.getElementById("nivel").value,
-    celula: document.getElementById("celulaUsuario").value
+    nivel: document.getElementById("nivel").value
   };
 
-  if(!dados.nome.trim() || !dados.usuario.trim() || !dados.senha.trim()){
-    msg.textContent = "Preencha nome, usuário e senha.";
-    msg.style.color = "#dc2626";
-    return;
-  }
-
-  if(dados.nivel === "LIDER" && !dados.celula){
-    msg.textContent = "Selecione a célula vinculada para o líder.";
-    msg.style.color = "#dc2626";
-    return;
-  }
-
   try{
-    const resp = await fetch(API + (id ? "/usuarios/" + id : "/usuarios"),{
+    await fetch(API + (id ? "/usuarios/" + id : "/usuarios"),{
       method:id ? "PUT" : "POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify(dados)
     });
 
-    const retorno = await resp.json().catch(() => ({}));
-
-    if(!resp.ok){
-      throw new Error(retorno.erro || "Erro ao salvar usuário.");
-    }
-
     msg.textContent = "Usuário salvo com sucesso!";
     msg.style.color = "#16a34a";
 
     limpar();
-    carregarCelulas().then(() => {
-  atualizarRegraCelulaUsuario();
-  carregarUsuarios();
-});
+    carregarUsuarios();
 
-  }catch(erro){
-    msg.textContent = erro.message || "Erro ao salvar.";
+  }catch{
+    msg.textContent = "Erro ao salvar.";
     msg.style.color = "#dc2626";
   }
 };
 
-carregarCelulas().then(() => {
-  atualizarRegraCelulaUsuario();
-  carregarUsuarios();
-});
+carregarUsuarios();
 </script>
 </body>
 </html>
