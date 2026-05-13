@@ -320,6 +320,26 @@
       font-size: 13px;
     }
 
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      margin-left: 8px;
+      border-radius: 999px;
+      background: #25D366;
+      text-decoration: none;
+      vertical-align: middle;
+      box-shadow: 0 4px 10px rgba(37, 211, 102, 0.25);
+    }
+
+    .btn-whatsapp svg {
+      width: 18px;
+      height: 18px;
+      fill: #ffffff;
+    }
+
     .tag-status {
       display: inline-block;
       margin-top: 8px;
@@ -583,6 +603,25 @@
         campoMensagem.style.color = cor;
       }
 
+      function formatarWhatsapp(numero) {
+        const limpo = String(numero || "").replace(/\D/g, "");
+        if (!limpo) return "";
+        return limpo.startsWith("55") ? limpo : `55${limpo}`;
+      }
+
+      function iconeWhatsapp(numero) {
+        const telefone = formatarWhatsapp(numero);
+        if (!telefone) return "";
+
+        return `
+          <a class="btn-whatsapp" target="_blank" href="https://wa.me/${telefone}" aria-label="Abrir WhatsApp">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
+            </svg>
+          </a>
+        `;
+      }
+
       function atualizarModoEdicao() {
         if (edicaoLiberada) {
           campoInfoEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA";
@@ -669,7 +708,11 @@
           return;
         }
 
-        campoLista.innerHTML = membrosFiltrados.map((membro) => {
+        const membrosOrdenados = [...membrosFiltrados].sort((a, b) =>
+          String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+        );
+
+        campoLista.innerHTML = membrosOrdenados.map((membro) => {
           const status = presencas[membro.id] || "";
           const marcado = status === "presente" ? "checked" : "";
           const bloqueado = !edicaoLiberada ? "disabled" : "";
@@ -688,7 +731,7 @@
                 >
                 <div class="membro-info">
                   <h3>${membro.nome || ""}</h3>
-                  <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+                  <p><strong>Telefone:</strong> ${membro.telefone || "-"} ${iconeWhatsapp(membro.telefone)}</p>
                   <p><strong>Status do cadastro:</strong> ${(membro.status || "-").toUpperCase()}</p>
                   <p><strong>Célula:</strong> ${membro.celula || "-"}</p>
                   <span class="${classeStatus(status)}">${textoStatus(status)}</span>
