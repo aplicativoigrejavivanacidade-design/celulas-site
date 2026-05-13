@@ -1004,6 +1004,10 @@
 
       document.getElementById("btnSair").addEventListener("click", sair);
 
+      campoUsuario.textContent = usuarioEhLider()
+        ? `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario} | Célula: ${celulaPermitidaParaUsuario() || "não vinculada"}`
+        : `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
+
       campoData.addEventListener("change", async () => {
         houveSalvamentoInicial = false;
         edicaoLiberada = true;
@@ -1082,15 +1086,9 @@
         mostrarMensagem("Todos marcados como ausentes na tela.", "#64748b");
       });
 
-      async function iniciarTela() {
-        await carregarUsuarioLogado();
-
-        definirDataHoje();
-        atualizarModoEdicao();
-        carregarMembros();
-      }
-
-      iniciarTela();
+      definirDataHoje();
+      atualizarModoEdicao();
+      carregarMembros();
     });
   </script>
 </body>

@@ -20,6 +20,7 @@
       --green-dark:#15803d;
       --amber:#f59e0b;
       --red:#dc2626;
+      --red-dark:#b91c1c;
       --gray:#64748b;
       --gray-dark:#475569;
       --shadow:0 10px 25px rgba(0,0,0,0.05);
@@ -59,9 +60,7 @@
       font-weight:bold;
     }
 
-    .menu a:hover,.menu a.ativo{
-      background:rgba(255,255,255,.16);
-    }
+    .menu a:hover,.menu a.ativo{background:rgba(255,255,255,.16);}
 
     .btn-sair{
       margin-top:20px;
@@ -89,23 +88,11 @@
     }
 
     .header{margin-bottom:20px;}
+    .header h1{margin:0 0 8px;font-size:30px;}
+    .header p{margin:0;color:var(--muted);}
+    .usuario-logado{margin-top:10px!important;font-size:14px;}
 
-    .header h1{
-      margin:0 0 8px;
-      font-size:30px;
-    }
-
-    .header p{
-      margin:0;
-      color:var(--muted);
-    }
-
-    .usuario-logado{
-      margin-top:10px!important;
-      font-size:14px;
-    }
-
-    .grid{
+    .grid-2{
       display:grid;
       grid-template-columns:1fr 1.15fr;
       gap:20px;
@@ -126,7 +113,6 @@
       border-radius:10px;
       border:1px solid var(--line);
       font-size:15px;
-      font-family:inherit;
       background:#fff;
     }
 
@@ -136,15 +122,7 @@
       box-shadow:0 0 0 3px rgba(37,99,235,.12);
     }
 
-    input[type="text"]{
-      text-transform:uppercase;
-    }
-
-    .grid-2{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
+    input[type="text"]{text-transform:uppercase;}
 
     .acoes{
       display:flex;
@@ -162,19 +140,16 @@
       font-size:14px;
     }
 
-    button:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
-
+    button:disabled{opacity:.6;cursor:not-allowed;}
     .btn-primario{background:var(--blue);color:#fff;}
     .btn-primario:hover{background:var(--blue-dark);}
     .btn-sucesso{background:var(--green);color:#fff;}
     .btn-sucesso:hover{background:var(--green-dark);}
     .btn-aviso{background:var(--amber);color:#fff;}
-    .btn-perigo{background:var(--red);color:#fff;}
     .btn-secundario{background:var(--gray);color:#fff;}
     .btn-secundario:hover{background:var(--gray-dark);}
+    .btn-perigo{background:var(--red);color:#fff;}
+    .btn-perigo:hover{background:var(--red-dark);}
 
     .status-edicao{
       margin-top:14px;
@@ -186,33 +161,22 @@
       color:#1d4ed8;
     }
 
-    .painel-selecao{
-      background:#f8fafc;
+    .item{
       border:1px solid var(--line);
-      border-radius:14px;
-      padding:16px;
-      margin-bottom:18px;
-    }
-
-    .detalhe-usuario{
-      margin-top:14px;
+      border-radius:12px;
       padding:14px;
-      border-radius:14px;
+      margin-bottom:10px;
       background:#fafbfd;
-      border:1px solid var(--line);
-      min-height:112px;
+      cursor:pointer;
     }
 
-    .detalhe-usuario h3{
-      margin:0 0 8px;
-      font-size:18px;
+    .item:hover,.item.ativo{
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(37,99,235,.10);
     }
 
-    .detalhe-usuario p{
-      margin:0 0 5px;
-      color:#4b5563;
-      font-size:14px;
-    }
+    .item h3{margin:0 0 8px;font-size:17px;}
+    .item p{margin:0 0 5px;color:#4b5563;font-size:13px;}
 
     .badge{
       display:inline-block;
@@ -224,27 +188,14 @@
       color:var(--blue-dark);
     }
 
-    .msg{margin-top:14px;font-weight:bold;min-height:20px;}
+    .msg{margin-top:14px;font-weight:bold;min-height:20px;font-size:14px;}
+    .vazio{color:var(--muted);font-style:italic;text-align:center;padding:20px;border:2px dashed var(--line);border-radius:12px;background:#fcfdff;}
 
-    .vazio{
-      color:var(--muted);
-      font-style:italic;
-      padding:18px;
-      border:2px dashed var(--line);
-      border-radius:12px;
-      background:#fcfdff;
-      text-align:center;
-    }
-
-    @media(max-width:1000px){
-      .grid{grid-template-columns:1fr;}
-    }
-
+    @media(max-width:1000px){.grid-2{grid-template-columns:1fr;}}
     @media(max-width:900px){
       .layout{flex-direction:column;}
       .sidebar{position:relative;width:100%;height:auto;}
       .content{margin-left:0;width:100%;padding:20px;}
-      .grid-2{grid-template-columns:1fr;}
     }
   </style>
 </head>
@@ -269,36 +220,11 @@
   <main class="content">
     <div class="header">
       <h1>Usuários</h1>
-      <p>Gestão de acessos, níveis e vínculo por célula</p>
+      <p>Gestão de usuários, níveis de acesso e vínculo com célula</p>
       <p id="usuarioLogado" class="usuario-logado"></p>
     </div>
 
-    <div class="grid">
-      <div class="card">
-        <h2>Selecionar usuário</h2>
-
-        <div class="painel-selecao">
-          <label for="seletorUsuario">Lista de usuários</label>
-          <select id="seletorUsuario">
-            <option value="">Novo usuário</option>
-          </select>
-
-          <div class="acoes">
-            <button id="btnNovoTopo" class="btn-aviso" type="button">Novo usuário</button>
-            <button id="btnRecarregar" class="btn-secundario" type="button">Recarregar lista</button>
-          </div>
-        </div>
-
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px;">
-          <h2 style="margin:0;">Resumo</h2>
-          <span class="badge" id="contador">0 usuário(s)</span>
-        </div>
-
-        <div id="detalheUsuario" class="detalhe-usuario">
-          <div class="vazio">Selecione um usuário na lista ou clique em Novo usuário.</div>
-        </div>
-      </div>
-
+    <div class="grid-2">
       <div class="card">
         <h2>Dados do usuário</h2>
 
@@ -308,33 +234,26 @@
           Modo atual: Novo cadastro.
         </div>
 
-        <div class="grid-2">
-          <div>
-            <label for="nome">Nome</label>
-            <input id="nome" type="text" placeholder="Nome completo">
-          </div>
+        <label for="seletorUsuario">Selecionar usuário para editar</label>
+        <select id="seletorUsuario">
+          <option value="">Novo usuário</option>
+        </select>
 
-          <div>
-            <label for="usuario">Usuário</label>
-            <input id="usuario" type="text" placeholder="Login de acesso">
-          </div>
-        </div>
+        <label for="nome">Nome</label>
+        <input id="nome" type="text" placeholder="Nome completo">
 
-        <div class="grid-2">
-          <div>
-            <label for="senha">Senha</label>
-            <input id="senha" type="text" placeholder="Senha de acesso">
-          </div>
+        <label for="usuario">Usuário</label>
+        <input id="usuario" type="text" placeholder="Login de acesso">
 
-          <div>
-            <label for="nivel">Nível</label>
-            <select id="nivel">
-              <option value="ADMIN">ADMIN</option>
-              <option value="SUPERVISOR">SUPERVISOR</option>
-              <option value="LIDER">LÍDER</option>
-            </select>
-          </div>
-        </div>
+        <label for="senha">Senha</label>
+        <input id="senha" type="text" placeholder="Senha de acesso">
+
+        <label for="nivel">Nível</label>
+        <select id="nivel">
+          <option value="ADMIN">ADMIN</option>
+          <option value="SUPERVISOR">SUPERVISOR</option>
+          <option value="LIDER">LÍDER</option>
+        </select>
 
         <label for="celulaUsuario">Célula vinculada</label>
         <select id="celulaUsuario">
@@ -345,10 +264,18 @@
           <button id="btnSalvar" class="btn-primario" type="button">Salvar usuário</button>
           <button id="btnNovo" class="btn-aviso" type="button">Novo usuário</button>
           <button id="btnCancelar" class="btn-secundario" type="button" disabled>Cancelar edição</button>
-          <button id="btnExcluir" class="btn-perigo" type="button" disabled>Excluir usuário</button>
         </div>
 
         <div id="msg" class="msg"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
+          <h2 style="margin:0;">Lista de usuários</h2>
+          <span class="badge" id="contador">0 usuário(s)</span>
+        </div>
+
+        <div id="listaUsuarios"></div>
       </div>
     </div>
   </main>
@@ -356,7 +283,6 @@
 
 <script>
 const API = "https://celulas-backend.onrender.com";
-
 let usuarios = [];
 let celulas = [];
 let usuarioAtual = null;
@@ -371,10 +297,9 @@ const campoNivel = document.getElementById("nivel");
 const campoCelulaUsuario = document.getElementById("celulaUsuario");
 const campoMsg = document.getElementById("msg");
 const campoStatusEdicao = document.getElementById("statusEdicao");
-const detalheUsuario = document.getElementById("detalheUsuario");
+const listaUsuarios = document.getElementById("listaUsuarios");
 const contador = document.getElementById("contador");
 const btnCancelar = document.getElementById("btnCancelar");
-const btnExcluir = document.getElementById("btnExcluir");
 
 if(localStorage.getItem("logado") !== "sim"){
   window.location.href = "login.html";
@@ -385,7 +310,7 @@ if(String(localStorage.getItem("nivelUsuario") || "").toLowerCase() !== "admin")
   window.location.href = "painel.html";
 }
 
-campoUsuarioLogado.textContent = `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
+campoUsuarioLogado.textContent = `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"}`;
 
 document.getElementById("btnSair").onclick = function(){
   localStorage.clear();
@@ -420,45 +345,17 @@ function limparMensagem(){
 }
 
 function atualizarStatusEdicao(){
-  const editando = !!campoId.value;
-
-  if(editando){
+  if(campoId.value){
     campoStatusEdicao.textContent = "Modo atual: Editando usuário selecionado.";
     campoStatusEdicao.style.background = "#ecfdf5";
     campoStatusEdicao.style.color = "#166534";
+    btnCancelar.disabled = false;
   }else{
     campoStatusEdicao.textContent = "Modo atual: Novo cadastro.";
     campoStatusEdicao.style.background = "#eff6ff";
     campoStatusEdicao.style.color = "#1d4ed8";
+    btnCancelar.disabled = true;
   }
-
-  btnCancelar.disabled = !editando;
-  btnExcluir.disabled = !editando;
-}
-
-function atualizarRegraCelulaUsuario(){
-  const nivel = String(campoNivel.value || "").toUpperCase();
-
-  if(nivel === "LIDER"){
-    campoCelulaUsuario.disabled = false;
-  }else{
-    campoCelulaUsuario.value = "";
-    campoCelulaUsuario.disabled = true;
-  }
-}
-
-function renderizarDetalheUsuario(usuario){
-  if(!usuario){
-    detalheUsuario.innerHTML = '<div class="vazio">Selecione um usuário na lista ou clique em Novo usuário.</div>';
-    return;
-  }
-
-  detalheUsuario.innerHTML = `
-    <h3>${usuario.nome || ""}</h3>
-    <p><strong>Usuário:</strong> ${usuario.usuario || "-"}</p>
-    <p><strong>Nível:</strong> ${String(usuario.nivel || "").toUpperCase()}</p>
-    <p><strong>Célula vinculada:</strong> ${usuario.celula || "ACESSO GERAL"}</p>
-  `;
 }
 
 function limpar(){
@@ -472,8 +369,8 @@ function limpar(){
   usuarioAtual = null;
   atualizarRegraCelulaUsuario();
   atualizarStatusEdicao();
-  renderizarDetalheUsuario(null);
   limparMensagem();
+  renderizarListaUsuarios();
 }
 
 function preencherFormulario(usuario){
@@ -487,8 +384,8 @@ function preencherFormulario(usuario){
   seletorUsuario.value = String(usuario.id || "");
   atualizarRegraCelulaUsuario();
   atualizarStatusEdicao();
-  renderizarDetalheUsuario(usuario);
   limparMensagem();
+  renderizarListaUsuarios();
 }
 
 async function carregarCelulas(){
@@ -512,21 +409,51 @@ async function carregarCelulas(){
   }
 }
 
-function renderizarSeletorUsuarios(){
-  contador.textContent = `${usuarios.length} usuário(s)`;
+function atualizarRegraCelulaUsuario(){
+  const nivel = String(campoNivel.value || "").toUpperCase();
 
+  if(nivel === "LIDER"){
+    campoCelulaUsuario.disabled = false;
+  }else{
+    campoCelulaUsuario.value = "";
+    campoCelulaUsuario.disabled = true;
+  }
+}
+
+function renderizarSeletorUsuarios(){
   seletorUsuario.innerHTML = '<option value="">Novo usuário</option>' +
     [...usuarios]
       .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
-      .map(u => {
-        const celula = u.celula ? ` | ${u.celula}` : "";
-        return `<option value="${u.id}">${u.nome || u.usuario} - ${String(u.nivel || "").toUpperCase()}${celula}</option>`;
-      })
+      .map(u => `<option value="${u.id}">${u.nome || u.usuario} - ${String(u.nivel || "").toUpperCase()}</option>`)
       .join("");
 
   if(campoId.value){
     seletorUsuario.value = campoId.value;
   }
+}
+
+function renderizarListaUsuarios(){
+  contador.textContent = `${usuarios.length} usuário(s)`;
+
+  if(!usuarios.length){
+    listaUsuarios.innerHTML = '<div class="vazio">Nenhum usuário cadastrado.</div>';
+    return;
+  }
+
+  listaUsuarios.innerHTML = [...usuarios]
+    .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+    .map(u => `
+      <div class="item ${String(u.id) === String(campoId.value) ? "ativo" : ""}" onclick="editarUsuario(${u.id})">
+        <h3>${u.nome || ""}</h3>
+        <p><strong>Usuário:</strong> ${u.usuario || "-"}</p>
+        <p><strong>Nível:</strong> ${String(u.nivel || "").toUpperCase()}</p>
+        <p><strong>Célula vinculada:</strong> ${u.celula || "ACESSO GERAL"}</p>
+        <div class="acoes">
+          <button class="btn-primario" type="button" onclick="event.stopPropagation(); editarUsuario(${u.id})">Editar</button>
+          <button class="btn-perigo" type="button" onclick="event.stopPropagation(); excluirUsuario(${u.id})">Excluir</button>
+        </div>
+      </div>
+    `).join("");
 }
 
 async function carregarUsuarios(){
@@ -536,40 +463,30 @@ async function carregarUsuarios(){
 
     usuarios = await resp.json();
     renderizarSeletorUsuarios();
-
-    if(campoId.value){
-      const atualizado = usuarios.find(u => String(u.id) === String(campoId.value));
-      if(atualizado){
-        preencherFormulario(atualizado);
-      }
-    }
+    renderizarListaUsuarios();
   }catch(erro){
     console.error(erro);
+    listaUsuarios.innerHTML = '<div class="vazio">Erro ao carregar usuários.</div>';
     mostrarMensagem("Erro ao carregar usuários.");
   }
 }
 
-function editarUsuario(id){
+window.editarUsuario = function(id){
   const usuario = usuarios.find(x => Number(x.id) === Number(id));
   if(!usuario) return;
   preencherFormulario(usuario);
-}
+};
 
-async function excluirUsuarioAtual(){
-  const id = campoId.value;
-  if(!id){
-    mostrarMensagem("Selecione um usuário para excluir.");
-    return;
-  }
-
-  const usuario = usuarios.find(x => String(x.id) === String(id));
+window.excluirUsuario = async function(id){
+  const usuario = usuarios.find(x => Number(x.id) === Number(id));
+  const nome = usuario?.nome || "este usuário";
 
   if(String(usuario?.usuario || "").toLowerCase() === "admin"){
     mostrarMensagem("O usuário admin não pode ser excluído.");
     return;
   }
 
-  const confirmou = confirm(`Deseja realmente excluir ${usuario?.nome || "este usuário"}?`);
+  const confirmou = confirm(`Deseja realmente excluir ${nome}?`);
   if(!confirmou) return;
 
   try{
@@ -586,7 +503,7 @@ async function excluirUsuarioAtual(){
   }catch(erro){
     mostrarMensagem(erro.message || "Erro ao excluir usuário.");
   }
-}
+};
 
 async function salvarUsuario(){
   const id = campoId.value;
@@ -596,9 +513,7 @@ async function salvarUsuario(){
     usuario: campoUsuario.value.trim().toLowerCase(),
     senha: campoSenha.value.trim(),
     nivel: campoNivel.value,
-    celula: campoCelulaUsuario.value,
-    celulaUsuario: campoCelulaUsuario.value,
-    celulaVinculada: campoCelulaUsuario.value
+    celula: campoCelulaUsuario.value
   };
 
   if(!dados.nome || !dados.usuario || !dados.senha){
@@ -625,18 +540,11 @@ async function salvarUsuario(){
     }
 
     mostrarMensagem("Usuário salvo com sucesso!", "#16a34a");
-
     await carregarUsuarios();
 
-    const usuarioSalvo = retorno.usuario || usuarios.find(u => String(u.usuario || "").toLowerCase() === dados.usuario);
-
-    if(usuarioSalvo){
-      const normalizado = {
-        ...usuarioSalvo,
-        celula: nomeCelulaExibicao(usuarioSalvo.celula || dados.celula)
-      };
-      preencherFormulario(normalizado);
-      await carregarUsuarios();
+    const salvo = usuarios.find(u => String(u.usuario || "").toLowerCase() === dados.usuario);
+    if(salvo){
+      preencherFormulario(salvo);
     }else{
       limpar();
     }
@@ -656,13 +564,6 @@ seletorUsuario.addEventListener("change", () => {
 });
 
 document.getElementById("btnNovo").onclick = limpar;
-document.getElementById("btnNovoTopo").onclick = limpar;
-document.getElementById("btnRecarregar").onclick = async function(){
-  await carregarCelulas();
-  await carregarUsuarios();
-  mostrarMensagem("Lista recarregada.", "#64748b");
-};
-
 document.getElementById("btnCancelar").onclick = function(){
   if(usuarioAtual){
     preencherFormulario(usuarioAtual);
@@ -671,9 +572,7 @@ document.getElementById("btnCancelar").onclick = function(){
     limpar();
   }
 };
-
 document.getElementById("btnSalvar").onclick = salvarUsuario;
-document.getElementById("btnExcluir").onclick = excluirUsuarioAtual;
 campoNivel.addEventListener("change", atualizarRegraCelulaUsuario);
 
 carregarCelulas().then(() => {

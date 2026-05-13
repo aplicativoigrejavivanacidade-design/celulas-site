@@ -90,20 +90,9 @@
 
     .header{margin-bottom:20px;}
 
-    .header h1{
-      margin:0 0 8px;
-      font-size:30px;
-    }
-
-    .header p{
-      margin:0;
-      color:var(--muted);
-    }
-
-    .usuario-logado{
-      margin-top:10px!important;
-      font-size:14px;
-    }
+    .header h1{margin:0 0 8px;font-size:30px;}
+    .header p{margin:0;color:var(--muted);}
+    .usuario-logado{margin-top:10px!important;font-size:14px;}
 
     .grid{
       display:grid;
@@ -136,8 +125,12 @@
       box-shadow:0 0 0 3px rgba(37,99,235,.12);
     }
 
-    input[type="text"]{
-      text-transform:uppercase;
+    input[type="text"]{text-transform:uppercase;}
+
+    input:disabled,select:disabled{
+      background:#f8fafc;
+      color:#475569;
+      cursor:not-allowed;
     }
 
     .grid-2{
@@ -162,19 +155,13 @@
       font-size:14px;
     }
 
-    button:disabled{
-      opacity:.6;
-      cursor:not-allowed;
-    }
+    button:disabled{opacity:.6;cursor:not-allowed;}
 
     .btn-primario{background:var(--blue);color:#fff;}
-    .btn-primario:hover{background:var(--blue-dark);}
     .btn-sucesso{background:var(--green);color:#fff;}
-    .btn-sucesso:hover{background:var(--green-dark);}
     .btn-aviso{background:var(--amber);color:#fff;}
     .btn-perigo{background:var(--red);color:#fff;}
     .btn-secundario{background:var(--gray);color:#fff;}
-    .btn-secundario:hover{background:var(--gray-dark);}
 
     .status-edicao{
       margin-top:14px;
@@ -182,8 +169,8 @@
       border-radius:12px;
       font-size:13px;
       font-weight:bold;
-      background:#eff6ff;
-      color:#1d4ed8;
+      background:#fef3c7;
+      color:#92400e;
     }
 
     .painel-selecao{
@@ -203,16 +190,8 @@
       min-height:112px;
     }
 
-    .detalhe-usuario h3{
-      margin:0 0 8px;
-      font-size:18px;
-    }
-
-    .detalhe-usuario p{
-      margin:0 0 5px;
-      color:#4b5563;
-      font-size:14px;
-    }
+    .detalhe-usuario h3{margin:0 0 8px;font-size:18px;}
+    .detalhe-usuario p{margin:0 0 5px;color:#4b5563;font-size:14px;}
 
     .badge{
       display:inline-block;
@@ -236,10 +215,7 @@
       text-align:center;
     }
 
-    @media(max-width:1000px){
-      .grid{grid-template-columns:1fr;}
-    }
-
+    @media(max-width:1000px){.grid{grid-template-columns:1fr;}}
     @media(max-width:900px){
       .layout{flex-direction:column;}
       .sidebar{position:relative;width:100%;height:auto;}
@@ -284,8 +260,8 @@
           </select>
 
           <div class="acoes">
-            <button id="btnNovoTopo" class="btn-aviso" type="button">Novo usuário</button>
-            <button id="btnRecarregar" class="btn-secundario" type="button">Recarregar lista</button>
+            <button id="btnNovoTopo" class="btn-aviso" type="button">Novo</button>
+            <button id="btnRecarregar" class="btn-secundario" type="button">Recarregar</button>
           </div>
         </div>
 
@@ -295,7 +271,7 @@
         </div>
 
         <div id="detalheUsuario" class="detalhe-usuario">
-          <div class="vazio">Selecione um usuário na lista ou clique em Novo usuário.</div>
+          <div class="vazio">Selecione um usuário ou clique em Novo.</div>
         </div>
       </div>
 
@@ -305,7 +281,7 @@
         <input id="usuarioId" type="hidden">
 
         <div class="status-edicao" id="statusEdicao">
-          Modo atual: Novo cadastro.
+          Modo atual: Visualização.
         </div>
 
         <div class="grid-2">
@@ -342,10 +318,11 @@
         </select>
 
         <div class="acoes">
-          <button id="btnSalvar" class="btn-primario" type="button">Salvar usuário</button>
-          <button id="btnNovo" class="btn-aviso" type="button">Novo usuário</button>
-          <button id="btnCancelar" class="btn-secundario" type="button" disabled>Cancelar edição</button>
-          <button id="btnExcluir" class="btn-perigo" type="button" disabled>Excluir usuário</button>
+          <button id="btnSalvar" class="btn-primario" type="button" disabled>Salvar</button>
+          <button id="btnNovo" class="btn-aviso" type="button">Novo</button>
+          <button id="btnCancelar" class="btn-secundario" type="button" disabled>Cancelar</button>
+          <button id="btnExcluir" class="btn-perigo" type="button" disabled>Excluir</button>
+          <button id="btnEditar" class="btn-sucesso" type="button" disabled>Editar</button>
         </div>
 
         <div id="msg" class="msg"></div>
@@ -360,6 +337,8 @@ const API = "https://celulas-backend.onrender.com";
 let usuarios = [];
 let celulas = [];
 let usuarioAtual = null;
+let modoEdicao = false;
+let modoNovo = false;
 
 const campoUsuarioLogado = document.getElementById("usuarioLogado");
 const seletorUsuario = document.getElementById("seletorUsuario");
@@ -373,8 +352,13 @@ const campoMsg = document.getElementById("msg");
 const campoStatusEdicao = document.getElementById("statusEdicao");
 const detalheUsuario = document.getElementById("detalheUsuario");
 const contador = document.getElementById("contador");
+
+const btnEditar = document.getElementById("btnEditar");
+const btnSalvar = document.getElementById("btnSalvar");
 const btnCancelar = document.getElementById("btnCancelar");
 const btnExcluir = document.getElementById("btnExcluir");
+const btnNovo = document.getElementById("btnNovo");
+const btnNovoTopo = document.getElementById("btnNovoTopo");
 
 if(localStorage.getItem("logado") !== "sim"){
   window.location.href = "login.html";
@@ -419,28 +403,67 @@ function limparMensagem(){
   campoMsg.textContent = "";
 }
 
-function atualizarStatusEdicao(){
-  const editando = !!campoId.value;
+function garantirOpcaoCelula(valor){
+  const celula = nomeCelulaExibicao(valor);
+  if(!celula) return;
 
-  if(editando){
-    campoStatusEdicao.textContent = "Modo atual: Editando usuário selecionado.";
-    campoStatusEdicao.style.background = "#ecfdf5";
-    campoStatusEdicao.style.color = "#166534";
-  }else{
-    campoStatusEdicao.textContent = "Modo atual: Novo cadastro.";
+  const existe = Array.from(campoCelulaUsuario.options).some(opt => opt.value === celula);
+  if(!existe){
+    const option = document.createElement("option");
+    option.value = celula;
+    option.textContent = celula;
+    campoCelulaUsuario.appendChild(option);
+  }
+}
+
+function setCamposEditaveis(liberado){
+  modoEdicao = liberado;
+
+  campoNome.disabled = !liberado;
+  campoUsuario.disabled = !liberado;
+  campoSenha.disabled = !liberado;
+  campoNivel.disabled = !liberado;
+
+  const nivel = String(campoNivel.value || "").toUpperCase();
+  campoCelulaUsuario.disabled = !liberado || nivel !== "LIDER";
+
+  seletorUsuario.disabled = liberado;
+
+  btnSalvar.disabled = !liberado;
+  btnCancelar.disabled = !liberado;
+  btnEditar.disabled = liberado || !campoId.value;
+  btnExcluir.disabled = liberado || !campoId.value;
+  btnNovo.disabled = liberado;
+  btnNovoTopo.disabled = liberado;
+
+  atualizarStatusEdicao();
+}
+
+function atualizarStatusEdicao(){
+  if(modoEdicao && modoNovo){
+    campoStatusEdicao.textContent = "Modo atual: Novo cadastro liberado.";
     campoStatusEdicao.style.background = "#eff6ff";
     campoStatusEdicao.style.color = "#1d4ed8";
+    return;
   }
 
-  btnCancelar.disabled = !editando;
-  btnExcluir.disabled = !editando;
+  if(modoEdicao && campoId.value){
+    campoStatusEdicao.textContent = "Modo atual: Edição liberada. Salve ou cancele antes de selecionar outro usuário.";
+    campoStatusEdicao.style.background = "#ecfdf5";
+    campoStatusEdicao.style.color = "#166534";
+    return;
+  }
+
+  campoStatusEdicao.textContent = "Modo atual: Visualização. Selecione um usuário e clique em Editar.";
+  campoStatusEdicao.style.background = "#fef3c7";
+  campoStatusEdicao.style.color = "#92400e";
 }
 
 function atualizarRegraCelulaUsuario(){
   const nivel = String(campoNivel.value || "").toUpperCase();
 
   if(nivel === "LIDER"){
-    campoCelulaUsuario.disabled = false;
+    campoCelulaUsuario.disabled = !modoEdicao;
   }else{
     campoCelulaUsuario.value = "";
     campoCelulaUsuario.disabled = true;
@@ -449,7 +472,7 @@ function atualizarRegraCelulaUsuario(){
 
 function renderizarDetalheUsuario(usuario){
   if(!usuario){
-    detalheUsuario.innerHTML = '<div class="vazio">Selecione um usuário na lista ou clique em Novo usuário.</div>';
+    detalheUsuario.innerHTML = '<div class="vazio">Selecione um usuário ou clique em Novo.</div>';
     return;
   }
 
@@ -461,7 +484,7 @@ function renderizarDetalheUsuario(usuario){
   `;
 }
 
-function limpar(){
+function limparFormularioVisual(){
   campoId.value = "";
   campoNome.value = "";
   campoUsuario.value = "";
@@ -469,26 +492,42 @@ function limpar(){
   campoNivel.value = "ADMIN";
   campoCelulaUsuario.value = "";
   seletorUsuario.value = "";
-  usuarioAtual = null;
-  atualizarRegraCelulaUsuario();
-  atualizarStatusEdicao();
   renderizarDetalheUsuario(null);
-  limparMensagem();
 }
 
-function preencherFormulario(usuario){
+function iniciarNovo(){
+  usuarioAtual = null;
+  modoNovo = true;
+  limparFormularioVisual();
+  limparMensagem();
+  setCamposEditaveis(true);
+  atualizarRegraCelulaUsuario();
+}
+
+function selecionarParaVisualizacao(usuario){
   usuarioAtual = {...usuario};
+  modoNovo = false;
+
   campoId.value = usuario.id || "";
   campoNome.value = usuario.nome || "";
   campoUsuario.value = usuario.usuario || "";
   campoSenha.value = usuario.senha || "";
   campoNivel.value = String(usuario.nivel || "ADMIN").toUpperCase();
-  campoCelulaUsuario.value = nomeCelulaExibicao(usuario.celula || "");
+
+  const celulaTratada = nomeCelulaExibicao(usuario.celula || "");
+  garantirOpcaoCelula(celulaTratada);
+  campoCelulaUsuario.value = celulaTratada;
+
   seletorUsuario.value = String(usuario.id || "");
-  atualizarRegraCelulaUsuario();
-  atualizarStatusEdicao();
-  renderizarDetalheUsuario(usuario);
+
+  renderizarDetalheUsuario({
+    ...usuario,
+    celula: celulaTratada
+  });
+
   limparMensagem();
+  setCamposEditaveis(false);
+  atualizarRegraCelulaUsuario();
 }
 
 async function carregarCelulas(){
@@ -540,19 +579,16 @@ async function carregarUsuarios(){
     if(campoId.value){
       const atualizado = usuarios.find(u => String(u.id) === String(campoId.value));
       if(atualizado){
-        preencherFormulario(atualizado);
+        selecionarParaVisualizacao(atualizado);
       }
+    }else{
+      setCamposEditaveis(false);
+      atualizarRegraCelulaUsuario();
     }
   }catch(erro){
     console.error(erro);
     mostrarMensagem("Erro ao carregar usuários.");
   }
-}
-
-function editarUsuario(id){
-  const usuario = usuarios.find(x => Number(x.id) === Number(id));
-  if(!usuario) return;
-  preencherFormulario(usuario);
 }
 
 async function excluirUsuarioAtual(){
@@ -581,7 +617,10 @@ async function excluirUsuarioAtual(){
     }
 
     mostrarMensagem("Usuário excluído com sucesso!", "#16a34a");
-    limpar();
+    limparFormularioVisual();
+    usuarioAtual = null;
+    modoNovo = false;
+    setCamposEditaveis(false);
     await carregarUsuarios();
   }catch(erro){
     mostrarMensagem(erro.message || "Erro ao excluir usuário.");
@@ -589,6 +628,11 @@ async function excluirUsuarioAtual(){
 }
 
 async function salvarUsuario(){
+  if(!modoEdicao){
+    mostrarMensagem("Clique em Editar ou Novo antes de salvar.");
+    return;
+  }
+
   const id = campoId.value;
 
   const dados = {
@@ -624,8 +668,6 @@ async function salvarUsuario(){
       throw new Error(retorno.erro || "Erro ao salvar usuário.");
     }
 
-    mostrarMensagem("Usuário salvo com sucesso!", "#16a34a");
-
     await carregarUsuarios();
 
     const usuarioSalvo = retorno.usuario || usuarios.find(u => String(u.usuario || "").toLowerCase() === dados.usuario);
@@ -635,10 +677,14 @@ async function salvarUsuario(){
         ...usuarioSalvo,
         celula: nomeCelulaExibicao(usuarioSalvo.celula || dados.celula)
       };
-      preencherFormulario(normalizado);
-      await carregarUsuarios();
+
+      garantirOpcaoCelula(normalizado.celula);
+      selecionarParaVisualizacao(normalizado);
+      mostrarMensagem(`Usuário salvo com sucesso. Célula gravada: ${normalizado.celula || "ACESSO GERAL"}`, "#16a34a");
     }else{
-      limpar();
+      mostrarMensagem("Usuário salvo com sucesso!", "#16a34a");
+      limparFormularioVisual();
+      setCamposEditaveis(false);
     }
   }catch(erro){
     mostrarMensagem(erro.message || "Erro ao salvar usuário.");
@@ -646,38 +692,66 @@ async function salvarUsuario(){
 }
 
 seletorUsuario.addEventListener("change", () => {
-  const id = seletorUsuario.value;
-  if(!id){
-    limpar();
+  if(modoEdicao){
+    mostrarMensagem("Salve ou cancele a edição antes de selecionar outro usuário.");
+    seletorUsuario.value = campoId.value || "";
     return;
   }
 
-  editarUsuario(id);
+  const id = seletorUsuario.value;
+
+  if(!id){
+    iniciarNovo();
+    return;
+  }
+
+  const usuario = usuarios.find(x => Number(x.id) === Number(id));
+  if(usuario){
+    selecionarParaVisualizacao(usuario);
+  }
 });
 
-document.getElementById("btnNovo").onclick = limpar;
-document.getElementById("btnNovoTopo").onclick = limpar;
+btnEditar.onclick = function(){
+  if(!campoId.value){
+    mostrarMensagem("Selecione um usuário para editar.");
+    return;
+  }
+
+  modoNovo = false;
+  setCamposEditaveis(true);
+  atualizarRegraCelulaUsuario();
+  mostrarMensagem("Edição liberada. Ajuste os dados e clique em Salvar.", "#2563eb");
+};
+
+btnNovo.onclick = iniciarNovo;
+btnNovoTopo.onclick = iniciarNovo;
+
 document.getElementById("btnRecarregar").onclick = async function(){
   await carregarCelulas();
   await carregarUsuarios();
   mostrarMensagem("Lista recarregada.", "#64748b");
 };
 
-document.getElementById("btnCancelar").onclick = function(){
+btnCancelar.onclick = function(){
   if(usuarioAtual){
-    preencherFormulario(usuarioAtual);
+    selecionarParaVisualizacao(usuarioAtual);
     mostrarMensagem("Edição cancelada. Dados restaurados.", "#64748b");
   }else{
-    limpar();
+    limparFormularioVisual();
+    modoNovo = false;
+    setCamposEditaveis(false);
   }
 };
 
-document.getElementById("btnSalvar").onclick = salvarUsuario;
-document.getElementById("btnExcluir").onclick = excluirUsuarioAtual;
+btnSalvar.onclick = salvarUsuario;
+btnExcluir.onclick = excluirUsuarioAtual;
+
 campoNivel.addEventListener("change", atualizarRegraCelulaUsuario);
 
 carregarCelulas().then(() => {
-  atualizarRegraCelulaUsuario();
+  limparFormularioVisual();
+  modoNovo = false;
+  setCamposEditaveis(false);
   carregarUsuarios();
 });
 </script>
