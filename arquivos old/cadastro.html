@@ -438,7 +438,7 @@
           <input id="membroId" type="hidden" />
 
           <div class="status-edicao" id="statusEdicao">
-            Modo Atual: Visualização. Selecione um membro e clique em Editar.
+            Modo Atual: Visualização. Selecione um membro e clique em Editar Membro.
           </div>
 
           <label for="nome">Nome completo</label>
@@ -519,11 +519,11 @@
           </div>
 
           <div class="acoes">
-            <button class="btn-primary" id="btnEditar" type="button" disabled>Editar</button>
-            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar</button>
-            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar</button>
-            <button class="btn-secondary" id="btnNovo" type="button">Novo</button>
-            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir</button>
+            <button class="btn-primary" id="btnEditar" type="button" disabled>Editar Membro</button>
+            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar Membro</button>
+            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar Edição</button>
+            <button class="btn-secondary" id="btnNovo" type="button">Novo Cadastro</button>
+            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir Membro</button>
           </div>
 
           <div id="msg" class="msg"></div>
@@ -570,29 +570,6 @@
     const btnNovo = document.getElementById("btnNovo");
     const btnExcluir = document.getElementById("btnExcluir");
 
-    const nivelUsuario = String(localStorage.getItem("nivelUsuario") || "").toLowerCase();
-    const celulaUsuario = String(localStorage.getItem("celulaUsuario") || "").trim();
-
-    function usuarioEhLider() {
-      return nivelUsuario === "lider";
-    }
-
-    function normalizarCelula(valor) {
-      return String(valor || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toUpperCase();
-    }
-
-    function membroPermitidoParaUsuario(membro) {
-      if (!usuarioEhLider()) return true;
-
-      return normalizarCelula(membro.celula) === normalizarCelula(celulaUsuario);
-    }
-
-
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
         window.location.href = "login.html";
@@ -603,7 +580,7 @@
 
     function preencherUsuario() {
       campoUsuario.textContent =
-        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}${usuarioEhLider() ? ` | Célula: ${celulaUsuario}` : ""}`;
+        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
     }
 
     function sair() {
@@ -707,11 +684,11 @@
       campoStatus.disabled = !liberado;
 
       if (modoEdicao) {
-        campoStatusEdicao.textContent = "Modo Atual: Edição Liberada. Revise os dados e clique em Salvar.";
+        campoStatusEdicao.textContent = "Modo Atual: Edição Liberada. Revise os dados e clique em Salvar Membro.";
         campoStatusEdicao.style.background = "#ecfdf5";
         campoStatusEdicao.style.color = "#166534";
       } else {
-        campoStatusEdicao.textContent = "Modo Atual: Visualização. Selecione um membro e clique em Editar.";
+        campoStatusEdicao.textContent = "Modo Atual: Visualização. Selecione um membro e clique em Editar Membro.";
         campoStatusEdicao.style.background = "#eff6ff";
         campoStatusEdicao.style.color = "#1d4ed8";
       }
@@ -761,9 +738,7 @@
         const nomeOk = !nome || normalizarTexto(membro.nome).includes(nome);
         const statusOk = !status || normalizarTexto(membro.status) === status;
         const celulaOk = !celula || normalizarTexto(membro.celula) === celula;
-        const permissaoOk = membroPermitidoParaUsuario(membro);
-
-        return nomeOk && statusOk && celulaOk && permissaoOk;
+        return nomeOk && statusOk && celulaOk;
       });
     }
 
@@ -991,11 +966,6 @@
     }
 
     async function excluirMembro() {
-      if (usuarioEhLider()) {
-        mostrarMensagem("Líder não possui permissão para excluir membros.");
-        return;
-      }
-
       const id = campoId.value.trim();
       if (!id) {
         mostrarMensagem("Selecione um membro para excluir.");
@@ -1031,7 +1001,7 @@
       }
 
       setCamposEditaveis(true);
-      mostrarMensagem("Edição liberada. Revise os dados e clique em Salvar.", "#2563eb");
+      mostrarMensagem("Edição liberada. Revise os dados e clique em Salvar Membro.", "#2563eb");
     });
 
     btnSalvar.addEventListener("click", () => {
