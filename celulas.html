@@ -116,6 +116,43 @@
       font-size: 14px;
     }
 
+    .visao-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: linear-gradient(135deg, #eff6ff, #ecfdf5);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .visao-box h2 {
+      margin: 0 0 6px;
+      font-size: 22px;
+    }
+
+    .visao-box p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .tag-visao {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 13px;
+      background: var(--blue);
+      color: #fff;
+      white-space: nowrap;
+    }
+
     .top-grid {
       display: grid;
       grid-template-columns: 1fr 1.25fr;
@@ -469,6 +506,14 @@
         <p class="usuario-logado" id="usuarioLogado"></p>
       </div>
 
+      <div class="visao-box">
+        <div>
+          <h2 id="tituloVisao">Gestão de células</h2>
+          <p id="descricaoVisao">Carregando permissões...</p>
+        </div>
+        <div class="tag-visao" id="tagVisao">ADMIN</div>
+      </div>
+
       <div class="top-grid">
         <div class="card">
           <h2>Editar</h2>
@@ -643,6 +688,9 @@
     let celulaAtual = null;
     let modoMultiplicacao = false;
 
+    const nivelUsuario = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
+    const celulaUsuario = String(localStorage.getItem("celulaUsuario") || "").trim();
+
     const campoCelulaId = document.getElementById("celulaId");
     const campoSeletorCelula = document.getElementById("seletorCelula");
     const campoNomeCelula = document.getElementById("nomeCelula");
@@ -669,6 +717,9 @@
     const contadorDisponiveis = document.getElementById("contadorDisponiveis");
     const contadorLideresTreinamento = document.getElementById("contadorLideresTreinamento");
     const statusCelulaChip = document.getElementById("statusCelulaChip");
+    const tituloVisao = document.getElementById("tituloVisao");
+    const descricaoVisao = document.getElementById("descricaoVisao");
+    const tagVisao = document.getElementById("tagVisao");
 
     const btnEditar = document.getElementById("btnEditar");
     const btnSalvar = document.getElementById("btnSalvar");
@@ -691,9 +742,37 @@
       return true;
     }
 
+    function usuarioEhLider() {
+      return nivelUsuario === "lider";
+    }
+
+    function celulaPermitidaLider() {
+      return nomeCelulaExibicao(celulaUsuario);
+    }
+
+    function celulaPermitidaParaUsuario(celula) {
+      if (!usuarioEhLider()) return true;
+      return normalizarNomeCelula(celula.nome) === normalizarNomeCelula(celulaUsuario);
+    }
+
+    function atualizarVisaoUsuario() {
+      if (!tituloVisao || !descricaoVisao || !tagVisao) return;
+
+      if (usuarioEhLider()) {
+        tituloVisao.textContent = "Minha célula";
+        descricaoVisao.textContent = `Você está visualizando somente ${celulaPermitidaLider() || "sua célula vinculada"}.`;
+        tagVisao.textContent = celulaPermitidaLider() || "LÍDER";
+      } else {
+        tituloVisao.textContent = "Gestão geral de células";
+        descricaoVisao.textContent = "Administrador visualiza e gerencia todas as células.";
+        tagVisao.textContent = "ADMIN";
+      }
+    }
+
+
     function preencherUsuarioLogado() {
       campoUsuarioLogado.textContent =
-        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
+        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}${usuarioEhLider() ? ` | Célula: ${celulaPermitidaLider() || "não vinculada"}` : ""}`;
     }
 
     function sairSistema() {
@@ -810,7 +889,7 @@
       const temCelulaSelecionada = !!campoCelulaId.value;
       const celulaAtiva = celulaAtual ? celulaAtual.ativo !== false : true;
 
-      campoSeletorCelula.disabled = modoEdicao;
+      campoSeletorCelula.disabled = modoEdicao || usuarioEhLider();
 
       if (modoEdicao) {
         btnEditar.disabled = true;
@@ -827,11 +906,11 @@
         btnSalvar.disabled = true;
         btnGeo.disabled = true;
         btnCancelar.disabled = true;
-        btnNova.disabled = false;
-        btnInativar.disabled = !temCelulaSelecionada || !celulaAtiva;
-        btnAtivar.disabled = !temCelulaSelecionada || celulaAtiva;
-        btnExcluir.disabled = !temCelulaSelecionada;
-        if (btnMultiplicar) btnMultiplicar.disabled = !temCelulaSelecionada || !celulaAtiva;
+        btnNova.disabled = usuarioEhLider();
+        btnInativar.disabled = usuarioEhLider() || !temCelulaSelecionada || !celulaAtiva;
+        btnAtivar.disabled = usuarioEhLider() || !temCelulaSelecionada || celulaAtiva;
+        btnExcluir.disabled = usuarioEhLider() || !temCelulaSelecionada;
+        if (btnMultiplicar) btnMultiplicar.disabled = usuarioEhLider() || !temCelulaSelecionada || !celulaAtiva;
       }
     }
 
@@ -865,6 +944,7 @@
       renderMembrosDisponiveis();
       renderMembrosMultiplicacao();
       renderLideresTreinamento();
+      renderLideresTreinamento();
     }
 
     function deduplicarCelulas(lista) {
@@ -894,8 +974,29 @@
     }
 
     function preencherSelectCelulas() {
-      const lista = deduplicarCelulas(celulas);
+      const listaCompleta = deduplicarCelulas(celulas);
+      const lista = usuarioEhLider()
+        ? listaCompleta.filter(celulaPermitidaParaUsuario)
+        : listaCompleta;
+
       const valorAtual = campoSeletorCelula.value;
+
+      if (usuarioEhLider()) {
+        if (!lista.length) {
+          campoSeletorCelula.innerHTML = '<option value="">Célula vinculada não encontrada</option>';
+          campoSeletorCelula.disabled = true;
+          mostrarMensagem("Sua célula vinculada não foi encontrada. Verifique o vínculo do usuário líder.");
+          return;
+        }
+
+        campoSeletorCelula.innerHTML = lista.map((celula) =>
+          `<option value="${celula.id}">${celula.nomeExibicao}</option>`
+        ).join("");
+
+        campoSeletorCelula.value = String(lista[0].id);
+        campoSeletorCelula.disabled = true;
+        return;
+      }
 
       campoSeletorCelula.innerHTML =
         '<option value="">Selecione a célula</option>' +
@@ -973,6 +1074,73 @@
           <p><strong>Endereço:</strong> ${celula.rua || "-"}, ${celula.numero || "-"} - ${celula.bairro || "-"} - ${celula.cidade || "-"} / ${celula.estado || "-"}</p>
         </div>
       `;
+    }
+
+
+    function lideresTreinamentoDaCelulaAtual() {
+      if (!celulaAtual) return [];
+
+      try {
+        const raw = celulaAtual.lideres_treinamento || celulaAtual.lideresTreinamento || "[]";
+        if (Array.isArray(raw)) return raw.map(String);
+        const parsed = JSON.parse(raw || "[]");
+        return Array.isArray(parsed) ? parsed.map(String) : [];
+      } catch (erro) {
+        return [];
+      }
+    }
+
+    function obterLideresTreinamentoSelecionados() {
+      return Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked"))
+        .map((item) => String(item.value));
+    }
+
+    function renderLideresTreinamento() {
+      if (!listaLideresTreinamento || !contadorLideresTreinamento) return;
+
+      if (!celulaAtual) {
+        contadorLideresTreinamento.textContent = "0 selecionado(s)";
+        listaLideresTreinamento.innerHTML = '<div class="vazio">Selecione uma célula para carregar os líderes em treinamento.</div>';
+        return;
+      }
+
+      const selecionadosSalvos = new Set(lideresTreinamentoDaCelulaAtual());
+      const lista = membrosDaCelula(celulaAtual.nome);
+      const selecionadosTela = obterLideresTreinamentoSelecionados();
+      const totalSelecionado = modoEdicao ? selecionadosTela.length : selecionadosSalvos.size;
+      contadorLideresTreinamento.textContent = `${totalSelecionado} selecionado(s)`;
+
+      if (!lista.length) {
+        listaLideresTreinamento.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula para treinamento.</div>';
+        return;
+      }
+
+      listaLideresTreinamento.innerHTML = lista.map((membro) => {
+        const linkZap = formatarWhatsapp(membro.telefone);
+        const marcado = selecionadosSalvos.has(String(membro.id)) ? "checked" : "";
+
+        return `
+          <label class="membro-box">
+            <div class="membro-topo">
+              <div class="check-wrap">
+                <input
+                  type="checkbox"
+                  class="lider-treinamento-checkbox"
+                  value="${membro.id}"
+                  ${marcado}
+                  ${modoEdicao ? "" : "disabled"}
+                />
+                <div>
+                  <h3>${membro.nome || ""}</h3>
+                  <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
+                  <p><strong>Célula:</strong> ${celulaAtual.nomeExibicao || nomeCelulaExibicao(celulaAtual.nome)}</p>
+                </div>
+              </div>
+              ${whatsappIcon(linkZap)}
+            </div>
+          </label>
+        `;
+      }).join("");
     }
 
     function renderMembrosVinculados(nomeCelula) {
@@ -1181,6 +1349,7 @@
       renderResumoCelula(celula);
       renderMembrosVinculados(celula.nome);
       renderLideresTreinamento();
+      renderLideresTreinamento();
       atualizarStatusCelula(celula);
       setCamposEditaveis(false);
       mostrarMensagem("", "#dc2626");
@@ -1318,7 +1487,8 @@
         cidade: campoCidade.value.trim(),
         estado: campoEstado.value.trim(),
         geolocalizacao: campoGeolocalizacao.value.trim(),
-        membrosSelecionados: modoMultiplicacao ? obterIdsMultiplicacaoMarcados() : obterIdsDisponiveisMarcados()
+        membrosSelecionados: modoMultiplicacao ? obterIdsMultiplicacaoMarcados() : obterIdsDisponiveisMarcados(),
+        lideresTreinamento: obterLideresTreinamentoSelecionados()
       };
 
       try {
@@ -1506,6 +1676,14 @@
     });
 
 
+
+    if (listaLideresTreinamento) {
+      listaLideresTreinamento.addEventListener("change", () => {
+        const total = obterLideresTreinamentoSelecionados().length;
+        contadorLideresTreinamento.textContent = `${total} selecionado(s)`;
+      });
+    }
+
     if (listaMultiplicacao) {
       listaMultiplicacao.addEventListener("change", () => {
         renderMembrosMultiplicacao();
@@ -1513,6 +1691,11 @@
     }
 
     campoSeletorCelula.addEventListener("change", () => {
+      if (usuarioEhLider()) {
+        campoSeletorCelula.value = campoCelulaId.value || campoSeletorCelula.value || "";
+        return;
+      }
+
       if (modoEdicao) {
         campoSeletorCelula.value = campoCelulaId.value || "";
         return;
