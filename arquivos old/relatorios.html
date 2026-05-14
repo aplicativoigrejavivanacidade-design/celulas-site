@@ -251,85 +251,6 @@
       margin-bottom: 16px;
     }
 
-    .visao-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      background: linear-gradient(135deg, #eff6ff, #ecfdf5);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 20px;
-    }
-
-    .visao-box h2 {
-      margin: 0 0 6px;
-      font-size: 22px;
-    }
-
-    .visao-box p {
-      margin: 0;
-      color: #4b5563;
-      font-size: 14px;
-    }
-
-    .tag-visao {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: bold;
-      font-size: 13px;
-      background: var(--blue);
-      color: #fff;
-      white-space: nowrap;
-    }
-
-    .tabela-relatorio {
-      width: 100%;
-      border-collapse: collapse;
-      overflow: hidden;
-      border-radius: 12px;
-    }
-
-    .tabela-relatorio th,
-    .tabela-relatorio td {
-      border: 1px solid var(--line);
-      padding: 10px;
-      text-align: left;
-      font-size: 13px;
-      vertical-align: top;
-    }
-
-    .tabela-relatorio th {
-      background: #eff6ff;
-      color: #1d4ed8;
-      font-weight: bold;
-    }
-
-    .tabela-relatorio td {
-      background: #ffffff;
-    }
-
-    .nota-relatorio {
-      margin-top: 12px;
-      padding: 12px;
-      border-radius: 12px;
-      background: #fff7ed;
-      color: #92400e;
-      font-size: 13px;
-      font-weight: bold;
-      border: 1px solid #fed7aa;
-    }
-
-    select:disabled {
-      background: #f8fafc;
-      color: #475569;
-      cursor: not-allowed;
-    }
-
     @media (max-width: 1400px) {
       .grid-kpis { grid-template-columns: repeat(3, 1fr); }
       .filtros { grid-template-columns: 1fr 1fr 1fr 1fr; }
@@ -373,14 +294,6 @@
         <p id="usuarioLogado" class="usuario-logado"></p>
       </div>
 
-      <div class="visao-box">
-        <div>
-          <h2 id="tituloVisao">Relatórios operacionais</h2>
-          <p id="descricaoVisao">Carregando permissões e dados do relatório...</p>
-        </div>
-        <div class="tag-visao" id="tagVisao">ADMIN</div>
-      </div>
-
       <div class="card" style="margin-bottom:20px;">
         <div class="filtros">
           <div>
@@ -411,7 +324,7 @@
           <div><button class="btn-amber" id="btn30dias" type="button">30 dias</button></div>
         </div>
         <div class="periodo-info" id="periodoInfo">Período analisado: carregando...</div>
-        <button class="btn-purple" id="btnAplicar" type="button" style="max-width:220px;">Aplicar</button>
+        <button class="btn-purple" id="btnAplicar" type="button" style="max-width:220px;">Aplicar filtros</button>
       </div>
 
       <div class="grid-kpis">
@@ -470,12 +383,6 @@
           <div id="resumoPorDia"></div>
         </div>
       </div>
-
-      <div class="card" style="margin-top:20px;">
-        <h2>📋 Relatório de Supervisão</h2>
-        <p class="periodo-info">Estrutura preparada com base no modelo em Excel. Campos ainda não existentes no sistema ficam como pendentes para futura automação.</p>
-        <div id="relatorioSupervisao"></div>
-      </div>
     </main>
   </div>
 
@@ -489,9 +396,6 @@
     let presencas = [];
     let celulas = [];
 
-    const nivelUsuario = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
-    const celulaUsuario = String(localStorage.getItem("celulaUsuario") || "").trim();
-
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
         window.location.href = "login.html";
@@ -500,13 +404,9 @@
       return true;
     }
 
-    function usuarioEhLider() {
-      return nivelUsuario === "lider";
-    }
-
     function preencherUsuario() {
       document.getElementById("usuarioLogado").textContent =
-        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${nivelUsuario}${usuarioEhLider() ? ` | Célula: ${celulaUsuario || "não vinculada"}` : ""}`;
+        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
     }
 
     function sair() {
@@ -533,11 +433,6 @@
       return base ? `CÉLULA ${base}` : "SEM CÉLULA";
     }
 
-    function membroPermitido(membro) {
-      if (!usuarioEhLider()) return true;
-      return nomeCelula(membro.celula) === nomeCelula(celulaUsuario);
-    }
-
     function percentual(valor) {
       return `${Math.round(valor || 0)}%`;
     }
@@ -552,13 +447,6 @@
       return d.toISOString().slice(0, 10);
     }
 
-    function dataBR(dataIso) {
-      if (!dataIso) return "-";
-      const partes = String(dataIso).slice(0,10).split("-");
-      if (partes.length !== 3) return dataIso;
-      return `${partes[2]}/${partes[1]}/${partes[0]}`;
-    }
-
     function preencherPeriodo(dias) {
       const fim = hojeISO();
       const inicio = deslocarDias(fim, -(dias - 1));
@@ -567,33 +455,8 @@
       aplicarFiltros();
     }
 
-    function atualizarVisao() {
-      const titulo = document.getElementById("tituloVisao");
-      const descricao = document.getElementById("descricaoVisao");
-      const tag = document.getElementById("tagVisao");
-
-      if (usuarioEhLider()) {
-        titulo.textContent = "Relatórios da minha célula";
-        descricao.textContent = `A visão está limitada à ${celulaUsuario || "célula vinculada ao líder"}.`;
-        tag.textContent = celulaUsuario || "LÍDER";
-      } else {
-        titulo.textContent = "Relatórios gerais";
-        descricao.textContent = "Visão consolidada de todas as células e presença ministerial.";
-        tag.textContent = "ADMIN";
-      }
-    }
-
     function preencherFiltroCelula() {
       const select = document.getElementById("filtroCelula");
-
-      if (usuarioEhLider()) {
-        const celula = nomeCelulaExibicao(celulaUsuario);
-        select.innerHTML = `<option value="${celula}">${celula}</option>`;
-        select.value = celula;
-        select.disabled = true;
-        return;
-      }
-
       const atual = select.value;
 
       const nomes = Array.from(new Set(
@@ -615,10 +478,9 @@
       const filtroStatus = normalizarTexto(document.getElementById("filtroStatus").value);
 
       return membros.filter(m => {
-        const permissaoOk = membroPermitido(m);
         const celulaOk = !filtroCelula || nomeCelulaExibicao(m.celula) === filtroCelula;
         const statusOk = !filtroStatus || normalizarTexto(m.status) === filtroStatus;
-        return permissaoOk && celulaOk && statusOk;
+        return celulaOk && statusOk;
       });
     }
 
@@ -639,7 +501,7 @@
 
     function atualizarPeriodoInfo(inicio, fim) {
       document.getElementById("periodoInfo").textContent =
-        `Período analisado: ${dataBR(inicio) || "-"} até ${dataBR(fim) || "-"}`;
+        `Período analisado: ${inicio || "-"} até ${fim || "-"}`;
     }
 
     function atualizarKpis(baseMembros, basePresencas) {
@@ -687,7 +549,7 @@
 
       el.innerHTML = ranking.map((item, index) => `
         <div class="item">
-          <h3>${usuarioEhLider() ? item.nome : `${index + 1}. ${item.nome}`}</h3>
+          <h3>${index + 1}. ${item.nome}</h3>
           <p><strong>Frequência:</strong> ${percentual(item.perc)}</p>
           <p><strong>Registros:</strong> ${item.total}</p>
           <div class="barra">
@@ -807,7 +669,9 @@
         if (normalizarTexto(p.status) === "AUSENTE") item.ausentes += 1;
       });
 
-      const lista = Array.from(mapa.entries()).sort((a, b) => b[0].localeCompare(a[0])).slice(0, 10);
+      const lista = Array.from(mapa.entries())
+        .sort((a, b) => b[0].localeCompare(a[0]))
+        .slice(0, 10);
 
       if (!lista.length) {
         el.innerHTML = '<div class="msg-vazio">Sem registros no período.</div>';
@@ -818,7 +682,7 @@
         const perc = item.total > 0 ? (item.presentes / item.total) * 100 : 0;
         return `
           <div class="item">
-            <h3>${dataBR(data)}</h3>
+            <h3>${data}</h3>
             <p><strong>Presentes:</strong> ${item.presentes}</p>
             <p><strong>Ausentes:</strong> ${item.ausentes}</p>
             <div class="barra">
@@ -827,57 +691,6 @@
           </div>
         `;
       }).join("");
-    }
-
-    function renderRelatorioSupervisao(baseMembros, basePresencas) {
-      const el = document.getElementById("relatorioSupervisao");
-
-      const presentes = basePresencas.filter(p => normalizarTexto(p.status) === "PRESENTE").length;
-      const totalRegistros = basePresencas.length;
-      const freq = totalRegistros > 0 ? (presentes / totalRegistros) * 100 : 0;
-      const celulasUnicas = new Set(baseMembros.map(m => nomeCelulaExibicao(m.celula)).filter(c => c !== "SEM CÉLULA"));
-      const visitantes = baseMembros.filter(m => normalizarTexto(m.status) === "VISITANTE").length;
-      const ativos = baseMembros.filter(m => normalizarTexto(m.status) === "ATIVO").length;
-      const afastados = baseMembros.filter(m => normalizarTexto(m.status) === "AFASTADO").length;
-
-      const igreja = "VINHA PARANÁ";
-      const pastor = "A DEFINIR";
-      const supervisor = usuarioEhLider() ? (localStorage.getItem("nomeUsuario") || "LÍDER") : "A DEFINIR";
-
-      el.innerHTML = `
-        <table class="tabela-relatorio">
-          <thead>
-            <tr>
-              <th>Igreja</th>
-              <th>Pastor</th>
-              <th>Supervisor</th>
-              <th>Nº Células</th>
-              <th>Nº Participantes</th>
-              <th>Presença Média</th>
-              <th>Ativos</th>
-              <th>Visitantes</th>
-              <th>Afastados</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>${igreja}</td>
-              <td>${pastor}</td>
-              <td>${supervisor}</td>
-              <td>${usuarioEhLider() ? 1 : celulasUnicas.size}</td>
-              <td>${baseMembros.length}</td>
-              <td>${percentual(freq)}</td>
-              <td>${ativos}</td>
-              <td>${visitantes}</td>
-              <td>${afastados}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="nota-relatorio">
-          Campos do modelo Excel ainda pendentes para automação futura: Dízimo, MI + FA, CME, CTL, Dizimistas, Arrecadação, Alvos de células e Alvos de membros.
-        </div>
-      `;
     }
 
     function aplicarFiltros() {
@@ -895,7 +708,6 @@
       renderAusentesRecorrentes(baseMembros, basePresencas);
       renderDistribuicaoStatus(baseMembros);
       renderResumoPorDia(basePresencas);
-      renderRelatorioSupervisao(baseMembros, basePresencas);
     }
 
     async function carregarDados() {
@@ -913,7 +725,6 @@
       presencas = await resPresencas.json();
       celulas = await resCelulas.json();
 
-      atualizarVisao();
       preencherFiltroCelula();
       preencherPeriodo(30);
     }
