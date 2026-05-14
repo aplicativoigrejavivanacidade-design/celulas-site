@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>+Células | Usuários</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    :root{
+      --bg:#eef2f7;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --line:#dbe3ee;
+      --blue:#2563eb;
+      --blue-dark:#1d4ed8;
+      --green:#16a34a;
+      --green-dark:#15803d;
+      --amber:#f59e0b;
+      --red:#dc2626;
+      --gray:#64748b;
+      --gray-dark:#475569;
+      --shadow:0 10px 25px rgba(0,0,0,0.05);
+      --radius:16px;
+    }
+
+    body{
+      margin:0;
+      font-family:Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    .layout{display:flex;min-height:100vh;}
+
+    .sidebar{
+      width:250px;
+      background:linear-gradient(180deg,var(--blue-dark),var(--green));
+      color:#fff;
+      padding:24px 18px;
+      position:fixed;
+      top:0;
+      left:0;
+      height:100%;
+    }
+
+    .logo{font-size:30px;font-weight:bold;margin:0;}
+    .logo-sub{margin:6px 0 28px;font-size:13px;opacity:.9;}
+
+    .menu a{
+      display:block;
+      color:#fff;
+      padding:12px;
+      text-decoration:none;
+      border-radius:10px;
+      margin-bottom:6px;
+      font-weight:bold;
+    }
+
+    .menu a:hover,.menu a.ativo{
+      background:rgba(255,255,255,.16);
+    }
+
+    .btn-sair{
+      margin-top:20px;
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:var(--red);
+      color:#fff;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    .content{
+      margin-left:250px;
+      padding:30px;
+      width:calc(100% - 250px);
+    }
+
+    .header,.card{
+      background:var(--card);
+      padding:22px;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+
+    .header{margin-bottom:20px;}
+
+    .header h1{margin:0 0 8px;font-size:30px;}
+    .header p{margin:0;color:var(--muted);}
+    .usuario-logado{margin-top:10px!important;font-size:14px;}
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1.15fr;
+      gap:20px;
+      align-items:start;
+    }
+
+    label{
+      display:block;
+      margin-top:12px;
+      margin-bottom:6px;
+      font-weight:bold;
+      font-size:14px;
+    }
+
+    input,select{
+      width:100%;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      font-size:15px;
+      font-family:inherit;
+      background:#fff;
+    }
+
+    input:focus,select:focus{
+      outline:none;
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    input[type="text"]{text-transform:uppercase;}
+
+    input:disabled,select:disabled{
+      background:#f8fafc;
+      color:#475569;
+      cursor:not-allowed;
+    }
+
+    .grid-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .acoes{
+      display:flex;
+      gap:10px;
+      margin-top:16px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      padding:12px 14px;
+      border:none;
+      border-radius:10px;
+      font-weight:bold;
+      cursor:pointer;
+      font-size:14px;
+    }
+
+    button:disabled{opacity:.6;cursor:not-allowed;}
+
+    .btn-primario{background:var(--blue);color:#fff;}
+    .btn-sucesso{background:var(--green);color:#fff;}
+    .btn-aviso{background:var(--amber);color:#fff;}
+    .btn-perigo{background:var(--red);color:#fff;}
+    .btn-secundario{background:var(--gray);color:#fff;}
+
+    .status-edicao{
+      margin-top:14px;
+      padding:12px;
+      border-radius:12px;
+      font-size:13px;
+      font-weight:bold;
+      background:#fef3c7;
+      color:#92400e;
+    }
+
+    .painel-selecao{
+      background:#f8fafc;
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:16px;
+      margin-bottom:18px;
+    }
+
+    .detalhe-usuario{
+      margin-top:14px;
+      padding:14px;
+      border-radius:14px;
+      background:#fafbfd;
+      border:1px solid var(--line);
+      min-height:112px;
+    }
+
+    .detalhe-usuario h3{margin:0 0 8px;font-size:18px;}
+    .detalhe-usuario p{margin:0 0 5px;color:#4b5563;font-size:14px;}
+
+    .badge{
+      display:inline-block;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:bold;
+      background:#e8f0ff;
+      color:var(--blue-dark);
+    }
+
+    .msg{margin-top:14px;font-weight:bold;min-height:20px;}
+
+    .vazio{
+      color:var(--muted);
+      font-style:italic;
+      padding:18px;
+      border:2px dashed var(--line);
+      border-radius:12px;
+      background:#fcfdff;
+      text-align:center;
+    }
+
+    @media(max-width:1000px){.grid{grid-template-columns:1fr;}}
+    @media(max-width:900px){
+      .layout{flex-direction:column;}
+      .sidebar{position:relative;width:100%;height:auto;}
+      .content{margin-left:0;width:100%;padding:20px;}
+      .grid-2{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <h2 class="logo">+Células</h2>
+    <div class="logo-sub">Gestão de células</div>
+
+    <div class="menu">
+      <a href="painel.html">Painel</a>
+      <a href="cadastro.html">Membros</a>
+      <a href="presenca.html">Presença</a>
+      <a href="celulas.html">Células</a>
+      <a href="relatorios.html">Relatórios</a>
+      <a href="usuarios.html" class="ativo">Usuários</a>
+    </div>
+
+    <button class="btn-sair" id="btnSair" type="button">Sair</button>
+  </aside>
+
+  <main class="content">
+    <div class="header">
+      <h1>Usuários</h1>
+      <p>Gestão de acessos, níveis e vínculo por célula</p>
+      <p id="usuarioLogado" class="usuario-logado"></p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Selecionar usuário</h2>
+
+        <div class="painel-selecao">
+          <label for="seletorUsuario">Lista de usuários</label>
+          <select id="seletorUsuario">
+            <option value="">Novo usuário</option>
+          </select>
+
+          <div class="acoes">
+            <button id="btnNovoTopo" class="btn-aviso" type="button">Novo</button>
+            <button id="btnRecarregar" class="btn-secundario" type="button">Recarregar</button>
+          </div>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:12px;">
+          <h2 style="margin:0;">Resumo</h2>
+          <span class="badge" id="contador">0 usuário(s)</span>
+        </div>
+
+        <div id="detalheUsuario" class="detalhe-usuario">
+          <div class="vazio">Selecione um usuário ou clique em Novo.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Dados do usuário</h2>
+
+        <input id="usuarioId" type="hidden">
+
+        <div class="status-edicao" id="statusEdicao">
+          Modo atual: Visualização.
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label for="nome">Nome</label>
+            <input id="nome" type="text" placeholder="Nome completo">
+          </div>
+
+          <div>
+            <label for="usuario">Usuário</label>
+            <input id="usuario" type="text" placeholder="Login de acesso">
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <label for="senha">Senha</label>
+            <input id="senha" type="text" placeholder="Senha de acesso">
+          </div>
+
+          <div>
+            <label for="nivel">Nível</label>
+            <select id="nivel">
+              <option value="ADMIN">ADMIN</option>
+              <option value="SUPERVISOR">SUPERVISOR</option>
+              <option value="LIDER">LÍDER</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="celulaUsuario">Célula vinculada</label>
+        <select id="celulaUsuario">
+          <option value="">Sem vínculo / acesso geral</option>
+        </select>
+
+        <div class="acoes">
+          <button id="btnSalvar" class="btn-primario" type="button" disabled>Salvar</button>
+          <button id="btnNovo" class="btn-aviso" type="button">Novo</button>
+          <button id="btnCancelar" class="btn-secundario" type="button" disabled>Cancelar</button>
+          <button id="btnExcluir" class="btn-perigo" type="button" disabled>Excluir</button>
+          <button id="btnEditar" class="btn-sucesso" type="button" disabled>Editar</button>
+        </div>
+
+        <div id="msg" class="msg"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const API = "https://celulas-backend.onrender.com";
+
+let usuarios = [];
+let celulas = [];
+let usuarioAtual = null;
+let modoEdicao = false;
+let modoNovo = false;
+
+const campoUsuarioLogado = document.getElementById("usuarioLogado");
+const seletorUsuario = document.getElementById("seletorUsuario");
+const campoId = document.getElementById("usuarioId");
+const campoNome = document.getElementById("nome");
+const campoUsuario = document.getElementById("usuario");
+const campoSenha = document.getElementById("senha");
+const campoNivel = document.getElementById("nivel");
+const campoCelulaUsuario = document.getElementById("celulaUsuario");
+const campoMsg = document.getElementById("msg");
+const campoStatusEdicao = document.getElementById("statusEdicao");
+const detalheUsuario = document.getElementById("detalheUsuario");
+const contador = document.getElementById("contador");
+
+const btnEditar = document.getElementById("btnEditar");
+const btnSalvar = document.getElementById("btnSalvar");
+const btnCancelar = document.getElementById("btnCancelar");
+const btnExcluir = document.getElementById("btnExcluir");
+const btnNovo = document.getElementById("btnNovo");
+const btnNovoTopo = document.getElementById("btnNovoTopo");
+
+if(localStorage.getItem("logado") !== "sim"){
+  window.location.href = "login.html";
+}
+
+if(String(localStorage.getItem("nivelUsuario") || "").toLowerCase() !== "admin"){
+  alert("Apenas administradores podem acessar a gestão de usuários.");
+  window.location.href = "painel.html";
+}
+
+campoUsuarioLogado.textContent = `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
+
+document.getElementById("btnSair").onclick = function(){
+  localStorage.clear();
+  window.location.href = "login.html";
+};
+
+function normalizarTexto(valor){
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toUpperCase();
+}
+
+function normalizarNomeCelula(valor){
+  return normalizarTexto(valor).replace(/^CELULA\s*/i, "").trim();
+}
+
+function nomeCelulaExibicao(valor){
+  const base = normalizarNomeCelula(valor);
+  return base ? `CÉLULA ${base}` : "";
+}
+
+function mostrarMensagem(texto, cor="#dc2626"){
+  campoMsg.textContent = texto;
+  campoMsg.style.color = cor;
+}
+
+function limparMensagem(){
+  campoMsg.textContent = "";
+}
+
+function garantirOpcaoCelula(valor){
+  const celula = nomeCelulaExibicao(valor);
+  if(!celula) return;
+
+  const existe = Array.from(campoCelulaUsuario.options).some(opt => opt.value === celula);
+  if(!existe){
+    const option = document.createElement("option");
+    option.value = celula;
+    option.textContent = celula;
+    campoCelulaUsuario.appendChild(option);
+  }
+}
+
+function setCamposEditaveis(liberado){
+  modoEdicao = liberado;
+
+  campoNome.disabled = !liberado;
+  campoUsuario.disabled = !liberado;
+  campoSenha.disabled = !liberado;
+  campoNivel.disabled = !liberado;
+
+  const nivel = String(campoNivel.value || "").toUpperCase();
+  campoCelulaUsuario.disabled = !liberado || nivel !== "LIDER";
+
+  seletorUsuario.disabled = liberado;
+
+  btnSalvar.disabled = !liberado;
+  btnCancelar.disabled = !liberado;
+  btnEditar.disabled = liberado || !campoId.value;
+  btnExcluir.disabled = liberado || !campoId.value;
+  btnNovo.disabled = liberado;
+  btnNovoTopo.disabled = liberado;
+
+  atualizarStatusEdicao();
+}
+
+function atualizarStatusEdicao(){
+  if(modoEdicao && modoNovo){
+    campoStatusEdicao.textContent = "Modo atual: Novo cadastro liberado.";
+    campoStatusEdicao.style.background = "#eff6ff";
+    campoStatusEdicao.style.color = "#1d4ed8";
+    return;
+  }
+
+  if(modoEdicao && campoId.value){
+    campoStatusEdicao.textContent = "Modo atual: Edição liberada. Salve ou cancele antes de selecionar outro usuário.";
+    campoStatusEdicao.style.background = "#ecfdf5";
+    campoStatusEdicao.style.color = "#166534";
+    return;
+  }
+
+  campoStatusEdicao.textContent = "Modo atual: Visualização. Selecione um usuário e clique em Editar.";
+  campoStatusEdicao.style.background = "#fef3c7";
+  campoStatusEdicao.style.color = "#92400e";
+}
+
+function atualizarRegraCelulaUsuario(){
+  const nivel = String(campoNivel.value || "").toUpperCase();
+
+  if(nivel === "LIDER"){
+    campoCelulaUsuario.disabled = !modoEdicao;
+  }else{
+    campoCelulaUsuario.value = "";
+    campoCelulaUsuario.disabled = true;
+  }
+}
+
+function renderizarDetalheUsuario(usuario){
+  if(!usuario){
+    detalheUsuario.innerHTML = '<div class="vazio">Selecione um usuário ou clique em Novo.</div>';
+    return;
+  }
+
+  detalheUsuario.innerHTML = `
+    <h3>${usuario.nome || ""}</h3>
+    <p><strong>Usuário:</strong> ${usuario.usuario || "-"}</p>
+    <p><strong>Nível:</strong> ${String(usuario.nivel || "").toUpperCase()}</p>
+    <p><strong>Célula vinculada:</strong> ${usuario.celula || "ACESSO GERAL"}</p>
+  `;
+}
+
+function limparFormularioVisual(){
+  campoId.value = "";
+  campoNome.value = "";
+  campoUsuario.value = "";
+  campoSenha.value = "";
+  campoNivel.value = "ADMIN";
+  campoCelulaUsuario.value = "";
+  seletorUsuario.value = "";
+  renderizarDetalheUsuario(null);
+}
+
+function iniciarNovo(){
+  usuarioAtual = null;
+  modoNovo = true;
+  limparFormularioVisual();
+  limparMensagem();
+  setCamposEditaveis(true);
+  atualizarRegraCelulaUsuario();
+}
+
+function selecionarParaVisualizacao(usuario){
+  usuarioAtual = {...usuario};
+  modoNovo = false;
+
+  campoId.value = usuario.id || "";
+  campoNome.value = usuario.nome || "";
+  campoUsuario.value = usuario.usuario || "";
+  campoSenha.value = usuario.senha || "";
+  campoNivel.value = String(usuario.nivel || "ADMIN").toUpperCase();
+
+  const celulaTratada = nomeCelulaExibicao(usuario.celula || "");
+  garantirOpcaoCelula(celulaTratada);
+  campoCelulaUsuario.value = celulaTratada;
+
+  seletorUsuario.value = String(usuario.id || "");
+
+  renderizarDetalheUsuario({
+    ...usuario,
+    celula: celulaTratada
+  });
+
+  limparMensagem();
+  setCamposEditaveis(false);
+  atualizarRegraCelulaUsuario();
+}
+
+async function carregarCelulas(){
+  try{
+    const resp = await fetch(API + "/celulas",{cache:"no-store"});
+    if(!resp.ok) throw new Error("Erro ao carregar células.");
+
+    celulas = await resp.json();
+
+    const opcoes = celulas
+      .filter(c => c.ativo !== false)
+      .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+      .map(c => `<option value="${c.nome}">${c.nome}</option>`)
+      .join("");
+
+    campoCelulaUsuario.innerHTML = '<option value="">Sem vínculo / acesso geral</option>' + opcoes;
+  }catch(erro){
+    console.error(erro);
+    campoCelulaUsuario.innerHTML = '<option value="">Erro ao carregar células</option>';
+    mostrarMensagem("Erro ao carregar células para vínculo.");
+  }
+}
+
+function renderizarSeletorUsuarios(){
+  contador.textContent = `${usuarios.length} usuário(s)`;
+
+  seletorUsuario.innerHTML = '<option value="">Novo usuário</option>' +
+    [...usuarios]
+      .sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+      .map(u => {
+        const celula = u.celula ? ` | ${u.celula}` : "";
+        return `<option value="${u.id}">${u.nome || u.usuario} - ${String(u.nivel || "").toUpperCase()}${celula}</option>`;
+      })
+      .join("");
+
+  if(campoId.value){
+    seletorUsuario.value = campoId.value;
+  }
+}
+
+async function carregarUsuarios(){
+  try{
+    const resp = await fetch(API + "/usuarios",{cache:"no-store"});
+    if(!resp.ok) throw new Error("Erro ao carregar usuários.");
+
+    usuarios = await resp.json();
+    renderizarSeletorUsuarios();
+
+    if(campoId.value){
+      const atualizado = usuarios.find(u => String(u.id) === String(campoId.value));
+      if(atualizado){
+        selecionarParaVisualizacao(atualizado);
+      }
+    }else{
+      setCamposEditaveis(false);
+      atualizarRegraCelulaUsuario();
+    }
+  }catch(erro){
+    console.error(erro);
+    mostrarMensagem("Erro ao carregar usuários.");
+  }
+}
+
+async function excluirUsuarioAtual(){
+  const id = campoId.value;
+  if(!id){
+    mostrarMensagem("Selecione um usuário para excluir.");
+    return;
+  }
+
+  const usuario = usuarios.find(x => String(x.id) === String(id));
+
+  if(String(usuario?.usuario || "").toLowerCase() === "admin"){
+    mostrarMensagem("O usuário admin não pode ser excluído.");
+    return;
+  }
+
+  const confirmou = confirm(`Deseja realmente excluir ${usuario?.nome || "este usuário"}?`);
+  if(!confirmou) return;
+
+  try{
+    const resp = await fetch(API + "/usuarios/" + id,{method:"DELETE"});
+    const dados = await resp.json().catch(() => ({}));
+
+    if(!resp.ok){
+      throw new Error(dados.erro || "Erro ao excluir usuário.");
+    }
+
+    mostrarMensagem("Usuário excluído com sucesso!", "#16a34a");
+    limparFormularioVisual();
+    usuarioAtual = null;
+    modoNovo = false;
+    setCamposEditaveis(false);
+    await carregarUsuarios();
+  }catch(erro){
+    mostrarMensagem(erro.message || "Erro ao excluir usuário.");
+  }
+}
+
+async function salvarUsuario(){
+  if(!modoEdicao){
+    mostrarMensagem("Clique em Editar ou Novo antes de salvar.");
+    return;
+  }
+
+  const id = campoId.value;
+
+  const dados = {
+    nome: campoNome.value.trim(),
+    usuario: campoUsuario.value.trim().toLowerCase(),
+    senha: campoSenha.value.trim(),
+    nivel: campoNivel.value,
+    celula: campoCelulaUsuario.value,
+    celulaUsuario: campoCelulaUsuario.value,
+    celulaVinculada: campoCelulaUsuario.value
+  };
+
+  if(!dados.nome || !dados.usuario || !dados.senha){
+    mostrarMensagem("Preencha nome, usuário e senha.");
+    return;
+  }
+
+  if(dados.nivel === "LIDER" && !dados.celula){
+    mostrarMensagem("Selecione a célula vinculada para o líder.");
+    return;
+  }
+
+  try{
+    const resp = await fetch(API + (id ? "/usuarios/" + id : "/usuarios"),{
+      method:id ? "PUT" : "POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(dados)
+    });
+
+    const retorno = await resp.json().catch(() => ({}));
+
+    if(!resp.ok){
+      throw new Error(retorno.erro || "Erro ao salvar usuário.");
+    }
+
+    await carregarUsuarios();
+
+    const usuarioSalvo = retorno.usuario || usuarios.find(u => String(u.usuario || "").toLowerCase() === dados.usuario);
+
+    if(usuarioSalvo){
+      const normalizado = {
+        ...usuarioSalvo,
+        celula: nomeCelulaExibicao(usuarioSalvo.celula || dados.celula)
+      };
+
+      garantirOpcaoCelula(normalizado.celula);
+      selecionarParaVisualizacao(normalizado);
+      mostrarMensagem(`Usuário salvo com sucesso. Célula gravada: ${normalizado.celula || "ACESSO GERAL"}`, "#16a34a");
+    }else{
+      mostrarMensagem("Usuário salvo com sucesso!", "#16a34a");
+      limparFormularioVisual();
+      setCamposEditaveis(false);
+    }
+  }catch(erro){
+    mostrarMensagem(erro.message || "Erro ao salvar usuário.");
+  }
+}
+
+seletorUsuario.addEventListener("change", () => {
+  if(modoEdicao){
+    mostrarMensagem("Salve ou cancele a edição antes de selecionar outro usuário.");
+    seletorUsuario.value = campoId.value || "";
+    return;
+  }
+
+  const id = seletorUsuario.value;
+
+  if(!id){
+    iniciarNovo();
+    return;
+  }
+
+  const usuario = usuarios.find(x => Number(x.id) === Number(id));
+  if(usuario){
+    selecionarParaVisualizacao(usuario);
+  }
+});
+
+btnEditar.onclick = function(){
+  if(!campoId.value){
+    mostrarMensagem("Selecione um usuário para editar.");
+    return;
+  }
+
+  modoNovo = false;
+  setCamposEditaveis(true);
+  atualizarRegraCelulaUsuario();
+  mostrarMensagem("Edição liberada. Ajuste os dados e clique em Salvar.", "#2563eb");
+};
+
+btnNovo.onclick = iniciarNovo;
+btnNovoTopo.onclick = iniciarNovo;
+
+document.getElementById("btnRecarregar").onclick = async function(){
+  await carregarCelulas();
+  await carregarUsuarios();
+  mostrarMensagem("Lista recarregada.", "#64748b");
+};
+
+btnCancelar.onclick = function(){
+  if(usuarioAtual){
+    selecionarParaVisualizacao(usuarioAtual);
+    mostrarMensagem("Edição cancelada. Dados restaurados.", "#64748b");
+  }else{
+    limparFormularioVisual();
+    modoNovo = false;
+    setCamposEditaveis(false);
+  }
+};
+
+btnSalvar.onclick = salvarUsuario;
+btnExcluir.onclick = excluirUsuarioAtual;
+
+campoNivel.addEventListener("change", atualizarRegraCelulaUsuario);
+
+carregarCelulas().then(() => {
+  limparFormularioVisual();
+  modoNovo = false;
+  setCamposEditaveis(false);
+  carregarUsuarios();
+});
+</script>
+</body>
+</html>
