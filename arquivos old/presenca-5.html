@@ -596,27 +596,14 @@
 
         if (celulaPermitidaParaUsuario()) return true;
 
-        const usuarioId = localStorage.getItem("usuarioId") || "";
-
         try {
-          let usuarioAtual = null;
+          const resposta = await fetch(apiUsuarios, { cache: "no-store" });
+          if (!resposta.ok) throw new Error("Erro ao consultar usuário.");
 
-          if (usuarioId) {
-            const respostaId = await fetch(`${apiUsuarios}/${usuarioId}`, { cache: "no-store" });
-            if (respostaId.ok) {
-              usuarioAtual = await respostaId.json();
-            }
-          }
-
-          if (!usuarioAtual || !usuarioAtual.celula) {
-            const resposta = await fetch(apiUsuarios, { cache: "no-store" });
-            if (!resposta.ok) throw new Error("Erro ao consultar usuário.");
-
-            const lista = await resposta.json();
-            usuarioAtual = (Array.isArray(lista) ? lista : []).find((item) => {
-              return String(item.usuario || "").toLowerCase() === String(loginUsuario || "").toLowerCase();
-            });
-          }
+          const lista = await resposta.json();
+          const usuarioAtual = (Array.isArray(lista) ? lista : []).find((item) => {
+            return String(item.usuario || "").toLowerCase() === String(loginUsuario || "").toLowerCase();
+          });
 
           celulaUsuario = usuarioAtual?.celula || "";
           localStorage.setItem("celulaUsuario", celulaUsuario || "");
@@ -795,8 +782,7 @@
         }
 
         if (membrosFiltrados.length === 0) {
-          const celulaTexto = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
-          campoLista.innerHTML = `<div class="vazio">Nenhum membro encontrado para ${celulaTexto || "esta célula"}. Verifique se existem membros vinculados a esta célula na tela de Células.</div>`;
+          campoLista.innerHTML = '<div class="vazio">Nenhum membro encontrado para esta célula.</div>';
           return;
         }
 
@@ -1004,17 +990,7 @@
           }
 
           todosMembros = await resposta.json();
-
-          const liderComCelula = await garantirCelulaDoUsuario();
-
-          if (usuarioEhLider() && !liderComCelula) {
-            preencherSelectCelulas();
-            campoLista.innerHTML = '<div class="vazio">Seu usuário líder ainda não possui célula vinculada gravada no sistema.</div>';
-            campoHistorico.innerHTML = '<div class="vazio">Sem histórico para exibir.</div>';
-            atualizarResumo();
-            return;
-          }
-
+          await garantirCelulaDoUsuario();
           preencherSelectCelulas();
           filtrarMembrosPorCelula();
           await carregarPresencasData();
@@ -1107,19 +1083,11 @@
       });
 
       async function iniciarTela() {
+        await carregarUsuarioLogado();
+
         definirDataHoje();
-
-        if (usuarioEhLider()) {
-          await garantirCelulaDoUsuario();
-
-          campoUsuario.textContent =
-            `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario} | Célula: ${celulaPermitidaParaUsuario() || "não vinculada"}`;
-        } else {
-          campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
-        }
-
         atualizarModoEdicao();
-        await carregarMembros();
+        carregarMembros();
       }
 
       iniciarTela();
