@@ -471,7 +471,7 @@
 
       <div class="top-grid">
         <div class="card">
-          <h2>Editar</h2>
+          <h2>Editar célula</h2>
 
           <input id="celulaId" type="hidden" />
 
@@ -481,7 +481,7 @@
           </select>
 
           <div class="status-edicao" id="statusEdicao">
-            Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar.
+            Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar célula.
           </div>
 
           <label for="nomeCelula">Nome da célula</label>
@@ -566,19 +566,18 @@
           </div>
 
           <div class="acoes">
-            <button class="btn-secondary" id="btnNova" type="button">Novo</button>
-            <button class="btn-primary" id="btnEditar" type="button">Editar</button>
-            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar</button>
-            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar</button>
-            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir</button>
-            <button class="btn-warning" id="btnMultiplicar" type="button" disabled>Multiplicar</button>
-            <button class="btn-secondary" id="btnInativar" type="button" disabled>Inativar</button>
-            <button class="btn-secondary" id="btnAtivar" type="button" disabled>Ativar</button>
+            <button class="btn-primary" id="btnEditar" type="button">Editar célula</button>
+            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar edição</button>
             <button class="btn-warning" id="btnGeo" type="button" disabled>Atualizar geolocalização</button>
+            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar edição</button>
+            <button class="btn-secondary" id="btnNova" type="button">Nova célula</button>
+            <button class="btn-secondary" id="btnInativar" type="button" disabled>Inativar célula</button>
+            <button class="btn-secondary" id="btnAtivar" type="button" disabled>Ativar célula</button>
+            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir célula</button>
           </div>
 
           <div class="info-ajuda">
-            A seleção da célula apenas carrega os dados. As alterações só são permitidas após clicar em <strong>Editar</strong>.
+            A seleção da célula apenas carrega os dados. As alterações só são permitidas após clicar em <strong>Editar célula</strong>.
           </div>
 
           <div id="msg" class="msg"></div>
@@ -597,26 +596,6 @@
               <h2 style="margin:0;">Membros vinculados à célula</h2>
             </div>
             <div id="listaVinculados"></div>
-          </div>
-
-          <div class="secao" id="secaoMultiplicacao" style="display:none;">
-            <div class="topo-card">
-              <h2 style="margin:0;">Membros para a nova célula</h2>
-              <span class="contador" id="contadorMultiplicacao">0 selecionado(s)</span>
-            </div>
-            <div id="listaMultiplicacao"></div>
-            <div class="info-ajuda">
-              Selecione os membros da célula atual que serão transferidos para a nova célula multiplicada.
-            </div>
-          </div>
-
-          <div class="secao">
-            <div class="topo-card">
-              <h2 style="margin:0;">Líderes em treinamento</h2>
-              <span class="contador" id="contadorLideresTreinamento">0 selecionado(s)</span>
-            </div>
-            <div id="listaLideresTreinamento"></div>
-            <div class="info-ajuda">Selecione membros cadastrados para acompanhar como líderes em treinamento desta célula.</div>
           </div>
 
           <div class="secao">
@@ -641,7 +620,6 @@
     let celulas = [];
     let modoEdicao = false;
     let celulaAtual = null;
-    let modoMultiplicacao = false;
 
     const campoCelulaId = document.getElementById("celulaId");
     const campoSeletorCelula = document.getElementById("seletorCelula");
@@ -664,10 +642,8 @@
     const campoResumoCelula = document.getElementById("resumoCelula");
     const campoListaVinculados = document.getElementById("listaVinculados");
     const campoListaDisponiveis = document.getElementById("listaDisponiveis");
-    const campoListaLideresTreinamento = document.getElementById("listaLideresTreinamento");
     const contadorMembrosVinculados = document.getElementById("contadorMembrosVinculados");
     const contadorDisponiveis = document.getElementById("contadorDisponiveis");
-    const contadorLideresTreinamento = document.getElementById("contadorLideresTreinamento");
     const statusCelulaChip = document.getElementById("statusCelulaChip");
 
     const btnEditar = document.getElementById("btnEditar");
@@ -678,10 +654,6 @@
     const btnInativar = document.getElementById("btnInativar");
     const btnAtivar = document.getElementById("btnAtivar");
     const btnExcluir = document.getElementById("btnExcluir");
-    const btnMultiplicar = document.getElementById("btnMultiplicar");
-    const secaoMultiplicacao = document.getElementById("secaoMultiplicacao");
-    const listaMultiplicacao = document.getElementById("listaMultiplicacao");
-    const contadorMultiplicacao = document.getElementById("contadorMultiplicacao");
 
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
@@ -726,35 +698,6 @@
       return base ? `CÉLULA ${base}` : "";
     }
 
-    function obterLideresTreinamento(celula) {
-      if (!celula) return [];
-
-      const valor = celula.lideres_treinamento || celula.lideresTreinamento || "";
-
-      if (Array.isArray(valor)) {
-        return valor.map((item) => String(item || "").trim()).filter(Boolean);
-      }
-
-      if (typeof valor === "string" && valor.trim()) {
-        try {
-          const parsed = JSON.parse(valor);
-          if (Array.isArray(parsed)) {
-            return parsed.map((item) => String(item || "").trim()).filter(Boolean);
-          }
-        } catch (_) {
-          return valor.split(",").map((item) => String(item || "").trim()).filter(Boolean);
-        }
-      }
-
-      return [];
-    }
-
-    function obterIdsLideresTreinamentoMarcados() {
-      return Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked"))
-        .map((item) => String(item.value || "").trim())
-        .filter(Boolean);
-    }
-
     function formatarCep(valor) {
       const numeros = String(valor || "").replace(/\D/g, "").slice(0, 8);
       if (numeros.length > 5) return `${numeros.slice(0, 5)}-${numeros.slice(5)}`;
@@ -796,11 +739,11 @@
 
     function atualizarStatusEdicao() {
       if (modoEdicao) {
-        campoStatusEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA. Revise os dados e clique em Salvar.";
+        campoStatusEdicao.textContent = "Modo atual: EDIÇÃO LIBERADA. Revise os dados e clique em Salvar edição.";
         campoStatusEdicao.style.background = "#ecfdf5";
         campoStatusEdicao.style.color = "#166534";
       } else {
-        campoStatusEdicao.textContent = "Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar.";
+        campoStatusEdicao.textContent = "Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar célula.";
         campoStatusEdicao.style.background = "#eff6ff";
         campoStatusEdicao.style.color = "#1d4ed8";
       }
@@ -821,7 +764,6 @@
         btnInativar.disabled = true;
         btnAtivar.disabled = true;
         btnExcluir.disabled = true;
-        if (btnMultiplicar) btnMultiplicar.disabled = true;
       } else {
         btnEditar.disabled = !temCelulaSelecionada || !celulaAtiva;
         btnSalvar.disabled = true;
@@ -831,7 +773,6 @@
         btnInativar.disabled = !temCelulaSelecionada || !celulaAtiva;
         btnAtivar.disabled = !temCelulaSelecionada || celulaAtiva;
         btnExcluir.disabled = !temCelulaSelecionada;
-        if (btnMultiplicar) btnMultiplicar.disabled = !temCelulaSelecionada || !celulaAtiva;
       }
     }
 
@@ -856,15 +797,9 @@
         item.disabled = !liberado;
       });
 
-      document.querySelectorAll(".lider-treinamento-checkbox").forEach((item) => {
-        item.disabled = !liberado;
-      });
-
       atualizarStatusEdicao();
       atualizarEstadoBotoes();
       renderMembrosDisponiveis();
-      renderMembrosMultiplicacao();
-      renderLideresTreinamento();
     }
 
     function deduplicarCelulas(lista) {
@@ -1001,99 +936,6 @@
       }).join("");
     }
 
-    function renderLideresTreinamento() {
-      if (!celulaAtual) {
-        campoListaLideresTreinamento.innerHTML = '<div class="vazio">Selecione uma célula para carregar os líderes em treinamento.</div>';
-        contadorLideresTreinamento.textContent = "0 selecionado(s)";
-        return;
-      }
-
-      const selecionados = new Set(obterLideresTreinamento(celulaAtual));
-      const lista = ordenarPorNome(membros);
-      contadorLideresTreinamento.textContent = `${selecionados.size} selecionado(s)`;
-
-      if (!lista.length) {
-        campoListaLideresTreinamento.innerHTML = '<div class="vazio">Nenhum membro cadastrado disponível.</div>';
-        return;
-      }
-
-      campoListaLideresTreinamento.innerHTML = lista.map((membro) => {
-        const id = String(membro.id || "");
-        const linkZap = formatarWhatsapp(membro.telefone);
-        const marcado = selecionados.has(id) ? "checked" : "";
-
-        return `
-          <label class="membro-box">
-            <div class="membro-topo">
-              <div class="check-wrap">
-                <input
-                  type="checkbox"
-                  class="lider-treinamento-checkbox"
-                  value="${id}"
-                  ${marcado}
-                  ${modoEdicao ? "" : "disabled"}
-                />
-                <div>
-                  <h3>${membro.nome || ""}</h3>
-                  <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
-                  <p><strong>Célula atual:</strong> ${membro.celula || "Sem Célula"}</p>
-                </div>
-              </div>
-              ${whatsappIcon(linkZap)}
-            </div>
-          </label>
-        `;
-      }).join("");
-    }
-
-
-    function renderMembrosMultiplicacao() {
-      if (!listaMultiplicacao || !contadorMultiplicacao) return;
-
-      if (!modoMultiplicacao || !celulaAtual) {
-        if (secaoMultiplicacao) secaoMultiplicacao.style.display = "none";
-        contadorMultiplicacao.textContent = "0 selecionado(s)";
-        listaMultiplicacao.innerHTML = "";
-        return;
-      }
-
-      if (secaoMultiplicacao) secaoMultiplicacao.style.display = "block";
-
-      const lista = membrosDaCelula(celulaAtual.nome);
-      const selecionados = Array.from(document.querySelectorAll(".membro-multiplicacao-checkbox:checked")).length;
-      contadorMultiplicacao.textContent = `${selecionados} selecionado(s)`;
-
-      if (!lista.length) {
-        listaMultiplicacao.innerHTML = '<div class="vazio">Nenhum membro vinculado para multiplicação.</div>';
-        return;
-      }
-
-      listaMultiplicacao.innerHTML = lista.map((membro) => {
-        const linkZap = formatarWhatsapp(membro.telefone);
-
-        return `
-          <label class="membro-box">
-            <div class="membro-topo">
-              <div class="check-wrap">
-                <input
-                  type="checkbox"
-                  class="membro-multiplicacao-checkbox"
-                  value="${membro.id}"
-                  ${modoMultiplicacao ? "" : "disabled"}
-                />
-                <div>
-                  <h3>${membro.nome || ""}</h3>
-                  <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
-                  <p><strong>Célula atual:</strong> ${celulaAtual.nomeExibicao || nomeCelulaExibicao(celulaAtual.nome)}</p>
-                </div>
-              </div>
-              ${whatsappIcon(linkZap)}
-            </div>
-          </label>
-        `;
-      }).join("");
-    }
-
     function renderMembrosDisponiveis() {
       const lista = membrosDisponiveis();
       contadorDisponiveis.textContent = `${lista.length} membro(s)`;
@@ -1145,13 +987,9 @@
       campoEstado.value = "";
       campoGeolocalizacao.value = "";
       celulaAtual = null;
-      modoMultiplicacao = false;
-      renderMembrosMultiplicacao();
       campoResumoCelula.innerHTML = '<div class="vazio">Selecione uma célula para ver o resumo.</div>';
       campoListaVinculados.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
-      campoListaLideresTreinamento.innerHTML = '<div class="vazio">Selecione uma célula para carregar os líderes em treinamento.</div>';
       contadorMembrosVinculados.textContent = "0 membro(s)";
-      contadorLideresTreinamento.textContent = "0 selecionado(s)";
       atualizarStatusCelula(null);
       setCamposEditaveis(false);
       mostrarMensagem("", "#dc2626");
@@ -1159,7 +997,6 @@
 
     function carregarFormularioCelula(celula) {
       celulaAtual = { ...celula };
-      modoMultiplicacao = false;
 
       campoCelulaId.value = celula.id || "";
       campoNomeCelula.value = celula.nomeExibicao || nomeCelulaExibicao(celula.nome);
@@ -1180,7 +1017,6 @@
 
       renderResumoCelula(celula);
       renderMembrosVinculados(celula.nome);
-      renderLideresTreinamento();
       atualizarStatusCelula(celula);
       setCamposEditaveis(false);
       mostrarMensagem("", "#dc2626");
@@ -1207,7 +1043,7 @@
 
     async function atualizarGeolocalizacao() {
       if (!modoEdicao) {
-        mostrarMensagem("Clique em Editar antes de atualizar a geolocalização.");
+        mostrarMensagem("Clique em Editar célula antes de atualizar a geolocalização.");
         return;
       }
 
@@ -1264,18 +1100,11 @@
         preencherSelectCelulas();
         preencherSelectMembrosEspeciais();
         renderMembrosDisponiveis();
-        renderLideresTreinamento();
         atualizarEstadoBotoes();
       } catch (erro) {
         console.error(erro);
         mostrarMensagem("Erro ao carregar dados da tela de células.");
       }
-    }
-
-
-    function obterIdsMultiplicacaoMarcados() {
-      return Array.from(document.querySelectorAll(".membro-multiplicacao-checkbox:checked"))
-        .map((item) => Number(item.value));
     }
 
     function obterIdsDisponiveisMarcados() {
@@ -1287,7 +1116,7 @@
       const id = campoCelulaId.value.trim();
 
       if (!modoEdicao) {
-        mostrarMensagem("Clique em Editar antes de salvar.");
+        mostrarMensagem("Clique em Editar célula antes de salvar.");
         return;
       }
 
@@ -1298,18 +1127,12 @@
         return;
       }
 
-      if (modoMultiplicacao && obterIdsMultiplicacaoMarcados().length === 0) {
-        mostrarMensagem("Selecione ao menos um membro para a nova célula.");
-        return;
-      }
-
       const payload = {
         nomeCelula,
         diaSemana: campoDiaSemana.value,
         horaReuniao: campoHoraReuniao.value,
         anfitriao: campoAnfitriao.value,
         liderCelula: campoLiderCelula.value,
-        lideresTreinamento: obterIdsLideresTreinamentoMarcados(),
         cep: campoCep.value.trim(),
         rua: campoRua.value.trim(),
         numero: campoNumero.value.trim(),
@@ -1318,14 +1141,14 @@
         cidade: campoCidade.value.trim(),
         estado: campoEstado.value.trim(),
         geolocalizacao: campoGeolocalizacao.value.trim(),
-        membrosSelecionados: modoMultiplicacao ? obterIdsMultiplicacaoMarcados() : obterIdsDisponiveisMarcados()
+        membrosSelecionados: obterIdsDisponiveisMarcados()
       };
 
       try {
         mostrarMensagem("Salvando...", "#2563eb");
 
-        const url = modoMultiplicacao && id ? `${API_CELULAS}/${id}/multiplicar` : (id ? `${API_CELULAS}/${id}` : API_CELULAS);
-        const metodo = modoMultiplicacao && id ? "POST" : (id ? "PUT" : "POST");
+        const url = id ? `${API_CELULAS}/${id}` : API_CELULAS;
+        const metodo = id ? "PUT" : "POST";
 
         const resposta = await fetch(url, {
           method: metodo,
@@ -1352,9 +1175,7 @@
           carregarFormularioCelula(celulaRecarregada);
         }
 
-        modoMultiplicacao = false;
-        renderMembrosMultiplicacao();
-        mostrarMensagem(metodo === "POST" && id ? "Célula multiplicada com sucesso." : (id ? "Célula atualizada com sucesso." : "Célula criada com sucesso."), "#16a34a");
+        mostrarMensagem(id ? "Célula atualizada com sucesso." : "Célula criada com sucesso.", "#16a34a");
       } catch (erro) {
         console.error(erro);
         mostrarMensagem(erro.message || "Erro ao salvar célula.");
@@ -1375,7 +1196,7 @@
       }
 
       setCamposEditaveis(true);
-      mostrarMensagem("Edição liberada. Faça os ajustes e clique em Salvar.", "#2563eb");
+      mostrarMensagem("Edição liberada. Faça os ajustes e clique em Salvar edição.", "#2563eb");
     });
 
     btnSalvar.addEventListener("click", salvarEdicao);
@@ -1384,7 +1205,6 @@
 
     btnCancelar.addEventListener("click", () => {
       if (celulaAtual) {
-        modoMultiplicacao = false;
         carregarFormularioCelula(celulaAtual);
         mostrarMensagem("Edição cancelada. Dados atuais restaurados.", "#64748b");
       } else {
@@ -1401,35 +1221,6 @@
       campoNomeCelula.value = "CÉLULA ";
       setCamposEditaveis(true);
       mostrarMensagem("Modo nova célula liberado. Preencha os dados e salve.", "#2563eb");
-    });
-
-
-
-    btnMultiplicar.addEventListener("click", () => {
-      if (!campoCelulaId.value || !celulaAtual) {
-        mostrarMensagem("Selecione uma célula antes de multiplicar.");
-        return;
-      }
-
-      if (celulaAtual.ativo === false) {
-        mostrarMensagem("Ative a célula antes de multiplicar.");
-        return;
-      }
-
-      modoMultiplicacao = true;
-
-      const nomeOriginal = celulaAtual.nomeExibicao || nomeCelulaExibicao(celulaAtual.nome);
-      campoNomeCelula.value = `${nomeOriginal} - NOVA`;
-      campoDiaSemana.value = "";
-      campoHoraReuniao.value = "";
-      campoAnfitriao.value = "";
-      campoLiderCelula.value = "";
-      campoGeolocalizacao.value = "";
-
-      setCamposEditaveis(true);
-      campoNomeCelula.readOnly = false;
-      renderMembrosMultiplicacao();
-      mostrarMensagem("Modo multiplicação liberado. Defina a nova célula, escolha os membros e clique em Salvar.", "#2563eb");
     });
 
 
@@ -1497,20 +1288,6 @@
         mostrarMensagem(erro.message || "Erro ao excluir célula.");
       }
     });
-
-
-    campoListaLideresTreinamento.addEventListener("change", (evento) => {
-      const checkbox = evento.target.closest(".lider-treinamento-checkbox");
-      if (!checkbox) return;
-      contadorLideresTreinamento.textContent = `${obterIdsLideresTreinamentoMarcados().length} selecionado(s)`;
-    });
-
-
-    if (listaMultiplicacao) {
-      listaMultiplicacao.addEventListener("change", () => {
-        renderMembrosMultiplicacao();
-      });
-    }
 
     campoSeletorCelula.addEventListener("change", () => {
       if (modoEdicao) {
