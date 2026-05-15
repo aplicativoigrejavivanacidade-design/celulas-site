@@ -427,17 +427,6 @@
       color: var(--muted);
     }
 
-    .campo-obrigatorio::after {
-      content: " *";
-      color: var(--red);
-      font-weight: bold;
-    }
-
-    .campo-alerta {
-      border-color: var(--red) !important;
-      box-shadow: 0 0 0 3px rgba(220,38,38,0.14) !important;
-    }
-
     .status-celula-box {
       margin-top: 12px;
       display: flex;
@@ -557,25 +546,12 @@
             Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar.
           </div>
 
-          <div class="acoes-topo-sistema">
-            <button class="btn-secondary" id="btnNova" type="button">Novo</button>
-            <button class="btn-primary" id="btnEditar" type="button">Editar</button>
-            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar</button>
-            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar</button>
-            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir</button>
-            <button class="btn-warning" id="btnMultiplicar" type="button" disabled>Multiplicar</button>
-            <button class="btn-secondary" id="btnInativar" type="button" disabled>Inativar</button>
-            <button class="btn-secondary" id="btnAtivar" type="button" disabled>Ativar</button>
-            <button class="btn-warning" id="btnGeo" type="button" disabled>Atualizar geolocalização</button>
-          </div>
-
-
-          <label for="nomeCelula" class="campo-obrigatorio">Nome da célula</label>
+          <label for="nomeCelula">Nome da célula</label>
           <input id="nomeCelula" type="text" placeholder="CÉLULA 00" readonly />
 
           <div class="grid-2">
             <div>
-              <label for="diaSemana" class="campo-obrigatorio">Dia da semana</label>
+              <label for="diaSemana">Dia da semana</label>
               <select id="diaSemana" disabled>
                 <option value="">Selecione</option>
                 <option value="SEGUNDA-FEIRA">SEGUNDA-FEIRA</option>
@@ -589,30 +565,30 @@
             </div>
 
             <div>
-              <label for="horaReuniao" class="campo-obrigatorio">Hora</label>
+              <label for="horaReuniao">Hora</label>
               <input id="horaReuniao" type="time" readonly />
             </div>
           </div>
 
-          <label for="anfitriao" class="campo-obrigatorio">Anfitrião</label>
+          <label for="anfitriao">Anfitrião</label>
           <select id="anfitriao" disabled>
             <option value="">Carregando membros...</option>
           </select>
 
-          <label for="liderCelula" class="campo-obrigatorio">LÍDER DA CÉLULA</label>
+          <label for="liderCelula">LÍDER DA CÉLULA</label>
           <select id="liderCelula" disabled>
             <option value="">Carregando membros...</option>
           </select>
 
-          <label for="cep" class="campo-obrigatorio">CEP</label>
+          <label for="cep">CEP</label>
           <input id="cep" type="text" placeholder="00000-000" readonly />
 
-          <label for="rua" class="campo-obrigatorio">Rua</label>
+          <label for="rua">Rua</label>
           <input id="rua" type="text" placeholder="Rua" readonly />
 
           <div class="grid-2">
             <div>
-              <label for="numero" class="campo-obrigatorio">Número</label>
+              <label for="numero">Número</label>
               <input id="numero" type="text" placeholder="Número" readonly />
             </div>
 
@@ -624,24 +600,24 @@
 
           <div class="grid-2">
             <div>
-              <label for="bairro" class="campo-obrigatorio">Bairro</label>
+              <label for="bairro">Bairro</label>
               <input id="bairro" type="text" placeholder="Bairro" readonly />
             </div>
 
             <div>
-              <label for="cidade" class="campo-obrigatorio">Cidade</label>
+              <label for="cidade">Cidade</label>
               <input id="cidade" type="text" placeholder="Cidade" readonly />
             </div>
           </div>
 
           <div class="grid-2">
             <div>
-              <label for="estado" class="campo-obrigatorio">Estado</label>
+              <label for="estado">Estado</label>
               <input id="estado" type="text" placeholder="UF" readonly />
             </div>
 
             <div>
-              <label for="geolocalizacao" class="campo-obrigatorio">Geolocalização</label>
+              <label for="geolocalizacao">Geolocalização</label>
               <input id="geolocalizacao" type="text" placeholder="-23.000000, -51.000000" readonly />
             </div>
           </div>
@@ -650,7 +626,20 @@
             <span class="status-celula-label">Status:</span>
             <span id="statusCelulaChip" class="status-celula-chip ativa">ATIVA</span>
           </div>
-<div class="info-ajuda">
+
+          <div class="acoes">
+            <button class="btn-secondary" id="btnNova" type="button">Novo</button>
+            <button class="btn-primary" id="btnEditar" type="button">Editar</button>
+            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar</button>
+            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar</button>
+            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir</button>
+            <button class="btn-warning" id="btnMultiplicar" type="button" disabled>Multiplicar</button>
+            <button class="btn-secondary" id="btnInativar" type="button" disabled>Inativar</button>
+            <button class="btn-secondary" id="btnAtivar" type="button" disabled>Ativar</button>
+            <button class="btn-warning" id="btnGeo" type="button" disabled>Atualizar geolocalização</button>
+          </div>
+
+          <div class="info-ajuda">
             A seleção da célula apenas carrega os dados. As alterações só são permitidas após clicar em <strong>Editar</strong>.
           </div>
 
@@ -677,9 +666,6 @@
             <div class="topo-card">
               <h2 style="margin:0;">Membros para a nova célula</h2>
               <span class="contador" id="contadorMultiplicacao">0 selecionado(s)</span>
-            </div>
-            <div class="info-ajuda" id="avisoMultiplicacao">
-              Se o líder ou anfitrião da célula original forem para a nova célula, primeiro defina substitutos na célula original.
             </div>
             <div id="listaMultiplicacao"></div>
             <div class="info-ajuda">
@@ -1384,33 +1370,6 @@
       }
     }
 
-
-    function limparAlertasCampos() {
-      [
-        campoNomeCelula, campoDiaSemana, campoHoraReuniao, campoAnfitriao, campoLiderCelula,
-        campoCep, campoRua, campoNumero, campoBairro, campoCidade, campoEstado, campoGeolocalizacao, btnGeo
-      ].forEach((campo) => campo?.classList?.remove("campo-alerta"));
-    }
-
-    function alertarCampo(campo, mensagem, botaoAlternativo = null) {
-      limparAlertasCampos();
-      mostrarMensagem(mensagem);
-
-      const alvo = botaoAlternativo || campo;
-      alvo?.classList?.add("campo-alerta");
-      alvo?.scrollIntoView?.({ behavior: "smooth", block: "center" });
-
-      setTimeout(() => {
-        if (botaoAlternativo) {
-          botaoAlternativo.focus?.();
-        } else {
-          campo?.focus?.();
-        }
-      }, 200);
-
-      return false;
-    }
-
     function validarCamposObrigatorios() {
       const campos = [
         [campoNomeCelula, "Informe o nome da célula."],
@@ -1423,24 +1382,20 @@
         [campoNumero, "Informe o número."],
         [campoBairro, "Informe o bairro."],
         [campoCidade, "Informe a cidade."],
-        [campoEstado, "Informe o estado."]
+        [campoEstado, "Informe o estado."],
+        [campoGeolocalizacao, "Atualize a geolocalização antes de salvar."]
       ];
-
       for (const [campo, mensagem] of campos) {
         if (!String(campo.value || "").trim()) {
-          return alertarCampo(campo, mensagem);
+          mostrarMensagem(mensagem);
+          campo.focus?.();
+          return false;
         }
       }
-
-      if (!String(campoGeolocalizacao.value || "").trim()) {
-        return alertarCampo(campoGeolocalizacao, "Atualize a geolocalização antes de salvar.", btnGeo);
-      }
-
       if (modoMultiplicacao && obterIdsMultiplicacaoMarcados().length === 0) {
-        return alertarCampo(listaMultiplicacao, "Selecione ao menos um membro para a nova célula.");
+        mostrarMensagem("Selecione ao menos um membro para a nova célula.");
+        return false;
       }
-
-      limparAlertasCampos();
       return true;
     }
 
@@ -1461,38 +1416,11 @@
       return true;
     }
 
-
-    function validarMultiplicacaoFuncoesOrigem() {
-      if (!modoMultiplicacao || !celulaAtual) return true;
-
-      const selecionados = obterIdsMultiplicacaoMarcados().map(String);
-      const liderOrigem = String(celulaAtual.lider_celula || "");
-      const anfitriaoOrigem = String(celulaAtual.anfitriao || "");
-
-      const moverLider = liderOrigem && selecionados.includes(liderOrigem);
-      const moverAnfitriao = anfitriaoOrigem && selecionados.includes(anfitriaoOrigem);
-
-      if (moverLider || moverAnfitriao) {
-        const partes = [];
-        if (moverLider) partes.push("líder");
-        if (moverAnfitriao) partes.push("anfitrião");
-
-        mostrarMensagem(
-          `Você selecionou para a nova célula o ${partes.join(" e ")} da célula original. Antes de multiplicar, edite a célula original e defina novo ${partes.join(" e novo ")} para ela. Depois volte em Multiplicar.`,
-          "#dc2626"
-        );
-        return false;
-      }
-
-      return true;
-    }
-
     async function salvarEdicao() {
       const id = campoCelulaId.value.trim();
       if (!modoEdicao) return mostrarMensagem("Clique em Editar antes de salvar.");
       if (!validarCamposObrigatorios()) return;
       if (!validarRemocaoMembros()) return;
-      if (!validarMultiplicacaoFuncoesOrigem()) return;
 
       const metodo = modoMultiplicacao && id ? "POST" : (id ? "PUT" : "POST");
       const url = modoMultiplicacao && id ? `${API_CELULAS}/${id}/multiplicar` : (id ? `${API_CELULAS}/${id}` : API_CELULAS);
@@ -1713,30 +1641,11 @@
     if (listaMultiplicacao) {
       listaMultiplicacao.addEventListener("change", () => {
         contadorMultiplicacao.textContent = `${obterIdsMultiplicacaoMarcados().length} selecionado(s)`;
-
-        if (modoMultiplicacao && celulaAtual) {
-          const selecionados = obterIdsMultiplicacaoMarcados().map(String);
-          const liderOrigem = String(celulaAtual.lider_celula || "");
-          const anfitriaoOrigem = String(celulaAtual.anfitriao || "");
-
-          if ((liderOrigem && selecionados.includes(liderOrigem)) || (anfitriaoOrigem && selecionados.includes(anfitriaoOrigem))) {
-            mostrarMensagem("Atenção: líder/anfitrião da célula original não pode ser transferido sem substituição prévia na célula original.", "#dc2626");
-          }
-        }
       });
     }
 
     campoListaVinculados.addEventListener("change", () => {
       if (contadorRemoverVinculados) contadorRemoverVinculados.textContent = `${obterMembrosRemovidosSelecionados().length} remover`;
-    });
-
-
-    [
-      campoNomeCelula, campoDiaSemana, campoHoraReuniao, campoAnfitriao, campoLiderCelula,
-      campoCep, campoRua, campoNumero, campoBairro, campoCidade, campoEstado, campoGeolocalizacao
-    ].forEach((campo) => {
-      campo?.addEventListener?.("input", () => campo.classList.remove("campo-alerta"));
-      campo?.addEventListener?.("change", () => campo.classList.remove("campo-alerta"));
     });
 
     if (protegerPagina()) {

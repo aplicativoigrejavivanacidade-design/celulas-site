@@ -546,6 +546,19 @@
             Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar.
           </div>
 
+          <div class="acoes-topo-sistema">
+            <button class="btn-secondary" id="btnNova" type="button">Novo</button>
+            <button class="btn-primary" id="btnEditar" type="button">Editar</button>
+            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar</button>
+            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar</button>
+            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir</button>
+            <button class="btn-warning" id="btnMultiplicar" type="button" disabled>Multiplicar</button>
+            <button class="btn-secondary" id="btnInativar" type="button" disabled>Inativar</button>
+            <button class="btn-secondary" id="btnAtivar" type="button" disabled>Ativar</button>
+            <button class="btn-warning" id="btnGeo" type="button" disabled>Atualizar geolocalização</button>
+          </div>
+
+
           <label for="nomeCelula">Nome da célula</label>
           <input id="nomeCelula" type="text" placeholder="CÉLULA 00" readonly />
 
@@ -626,20 +639,7 @@
             <span class="status-celula-label">Status:</span>
             <span id="statusCelulaChip" class="status-celula-chip ativa">ATIVA</span>
           </div>
-
-          <div class="acoes">
-            <button class="btn-secondary" id="btnNova" type="button">Novo</button>
-            <button class="btn-primary" id="btnEditar" type="button">Editar</button>
-            <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar</button>
-            <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar</button>
-            <button class="btn-danger" id="btnExcluir" type="button" disabled>Excluir</button>
-            <button class="btn-warning" id="btnMultiplicar" type="button" disabled>Multiplicar</button>
-            <button class="btn-secondary" id="btnInativar" type="button" disabled>Inativar</button>
-            <button class="btn-secondary" id="btnAtivar" type="button" disabled>Ativar</button>
-            <button class="btn-warning" id="btnGeo" type="button" disabled>Atualizar geolocalização</button>
-          </div>
-
-          <div class="info-ajuda">
+<div class="info-ajuda">
             A seleção da célula apenas carrega os dados. As alterações só são permitidas após clicar em <strong>Editar</strong>.
           </div>
 
@@ -666,6 +666,9 @@
             <div class="topo-card">
               <h2 style="margin:0;">Membros para a nova célula</h2>
               <span class="contador" id="contadorMultiplicacao">0 selecionado(s)</span>
+            </div>
+            <div class="info-ajuda" id="avisoMultiplicacao">
+              Se o líder ou anfitrião da célula original forem para a nova célula, primeiro defina substitutos na célula original.
             </div>
             <div id="listaMultiplicacao"></div>
             <div class="info-ajuda">
@@ -1416,11 +1419,38 @@
       return true;
     }
 
+
+    function validarMultiplicacaoFuncoesOrigem() {
+      if (!modoMultiplicacao || !celulaAtual) return true;
+
+      const selecionados = obterIdsMultiplicacaoMarcados().map(String);
+      const liderOrigem = String(celulaAtual.lider_celula || "");
+      const anfitriaoOrigem = String(celulaAtual.anfitriao || "");
+
+      const moverLider = liderOrigem && selecionados.includes(liderOrigem);
+      const moverAnfitriao = anfitriaoOrigem && selecionados.includes(anfitriaoOrigem);
+
+      if (moverLider || moverAnfitriao) {
+        const partes = [];
+        if (moverLider) partes.push("líder");
+        if (moverAnfitriao) partes.push("anfitrião");
+
+        mostrarMensagem(
+          `Você selecionou para a nova célula o ${partes.join(" e ")} da célula original. Antes de multiplicar, edite a célula original e defina novo ${partes.join(" e novo ")} para ela. Depois volte em Multiplicar.`,
+          "#dc2626"
+        );
+        return false;
+      }
+
+      return true;
+    }
+
     async function salvarEdicao() {
       const id = campoCelulaId.value.trim();
       if (!modoEdicao) return mostrarMensagem("Clique em Editar antes de salvar.");
       if (!validarCamposObrigatorios()) return;
       if (!validarRemocaoMembros()) return;
+      if (!validarMultiplicacaoFuncoesOrigem()) return;
 
       const metodo = modoMultiplicacao && id ? "POST" : (id ? "PUT" : "POST");
       const url = modoMultiplicacao && id ? `${API_CELULAS}/${id}/multiplicar` : (id ? `${API_CELULAS}/${id}` : API_CELULAS);
@@ -1641,6 +1671,16 @@
     if (listaMultiplicacao) {
       listaMultiplicacao.addEventListener("change", () => {
         contadorMultiplicacao.textContent = `${obterIdsMultiplicacaoMarcados().length} selecionado(s)`;
+
+        if (modoMultiplicacao && celulaAtual) {
+          const selecionados = obterIdsMultiplicacaoMarcados().map(String);
+          const liderOrigem = String(celulaAtual.lider_celula || "");
+          const anfitriaoOrigem = String(celulaAtual.anfitriao || "");
+
+          if ((liderOrigem && selecionados.includes(liderOrigem)) || (anfitriaoOrigem && selecionados.includes(anfitriaoOrigem))) {
+            mostrarMensagem("Atenção: líder/anfitrião da célula original não pode ser transferido sem substituição prévia na célula original.", "#dc2626");
+          }
+        }
       });
     }
 
