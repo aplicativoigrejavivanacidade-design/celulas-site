@@ -930,8 +930,8 @@
       const celulaIdAtual = campoCelulaId.value || "";
       const idsLideresUsados = obterIdsLideresJaUsados(celulaIdAtual);
       const idsAnfitrioesUsados = obterIdsAnfitrioesJaUsados(celulaIdAtual);
-      const atualLider = String(campoLiderCelula.value || celulaAtual?.lider_celula || "");
-      const atualAnfitriao = String(campoAnfitriao.value || celulaAtual?.anfitriao || "");
+      const atualLider = modoMultiplicacao ? String(campoLiderCelula.value || "") : String(campoLiderCelula.value || celulaAtual?.lider_celula || "");
+      const atualAnfitriao = modoMultiplicacao ? String(campoAnfitriao.value || "") : String(campoAnfitriao.value || celulaAtual?.anfitriao || "");
       const base = ordenarPorNome(membrosElegiveisParaFuncao());
 
       const opcoesAnfitriao = base.filter((membro) => {
@@ -1100,7 +1100,10 @@
     function renderMembrosVinculados(nomeCelula) {
       const lista = membrosDaCelula(nomeCelula);
       contadorMembrosVinculados.textContent = `${lista.length} membro(s)`;
-      if (contadorRemoverVinculados) contadorRemoverVinculados.textContent = `${obterMembrosRemovidosSelecionados().length} remover`;
+      if (contadorRemoverVinculados) {
+        contadorRemoverVinculados.style.display = modoEdicao && !modoMultiplicacao ? "inline-flex" : "none";
+        contadorRemoverVinculados.textContent = `${obterMembrosRemovidosSelecionados().length} remover`;
+      }
 
       if (!lista.length) {
         campoListaVinculados.innerHTML = '<div class="vazio">Nenhum membro vinculado a esta célula.</div>';
@@ -1116,7 +1119,7 @@
           <div class="membro-box">
             <div class="membro-topo">
               <div class="check-wrap">
-                <input type="checkbox" class="membro-remover-checkbox" value="${membro.id}" ${modoEdicao && !modoMultiplicacao ? "" : "disabled"} />
+                ${modoEdicao && !modoMultiplicacao ? `<input type="checkbox" class="membro-remover-checkbox" value="${membro.id}" />` : ""}
                 <div>
                   <h3>${membro.nome || ""}</h3>
                   <p><strong>Telefone:</strong> ${membro.telefone || "-"}</p>
@@ -1312,15 +1315,31 @@
       }
     }
 
+    function enderecoCompletoParaMapa() {
+      return [
+        campoRua.value.trim(),
+        campoNumero.value.trim(),
+        campoBairro.value.trim(),
+        campoCidade.value.trim(),
+        campoEstado.value.trim(),
+        campoCep.value.trim(),
+        "Brasil"
+      ].filter(Boolean).join(", ");
+    }
+
     async function atualizarGeolocalizacao() {
       if (!modoEdicao) return mostrarMensagem("Clique em Editar antes de atualizar a geolocalização.");
+
       if (!campoRua.value || !campoNumero.value || !campoBairro.value || !campoCidade.value || !campoEstado.value) {
         return mostrarMensagem("Preencha endereço completo antes de atualizar a geolocalização.");
       }
 
+      const enderecoMapa = enderecoCompletoParaMapa();
       const geoAnterior = campoGeolocalizacao.value.trim();
+
       try {
         mostrarMensagem("Gerando geolocalização...", "#2563eb");
+
         const resposta = await fetch(API_GEO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -1333,16 +1352,21 @@
             estado: campoEstado.value.trim()
           })
         });
+
         const dados = await resposta.json().catch(() => ({}));
-        if (!resposta.ok || !dados.ok) {
-          campoGeolocalizacao.value = geoAnterior;
-          throw new Error(dados.erro || "Não foi possível gerar a geolocalização.");
+
+        if (resposta.ok && dados.ok && dados.geolocalizacao) {
+          campoGeolocalizacao.value = dados.geolocalizacao;
+          mostrarMensagem("Geolocalização atualizada com sucesso.", "#16a34a");
+          return;
         }
-        campoGeolocalizacao.value = dados.geolocalizacao || geoAnterior;
-        mostrarMensagem("Geolocalização atualizada com sucesso.", "#16a34a");
+
+        campoGeolocalizacao.value = `MAPA: ${enderecoMapa}`;
+        mostrarMensagem("Coordenada automática não encontrada. Referência de endereço gerada para mapa.", "#16a34a");
       } catch (erro) {
-        campoGeolocalizacao.value = geoAnterior;
-        mostrarMensagem(erro.message || "Não foi possível gerar a geolocalização.");
+        console.error(erro);
+        campoGeolocalizacao.value = geoAnterior || `MAPA: ${enderecoMapa}`;
+        mostrarMensagem("Coordenada automática não encontrada. Referência de endereço gerada para mapa.", "#16a34a");
       }
     }
 
@@ -1475,6 +1499,10 @@
       if (celulaAtual && celulaAtual.ativo === false) return mostrarMensagem("Esta célula está inativa. Ative a célula antes de editar.");
       modoMultiplicacao = false;
       preencherSelectMembrosEspeciais();
+      if (modoMultiplicacao) {
+        campoAnfitriao.value = "";
+        campoLiderCelula.value = "";
+      }
       setCamposEditaveis(true);
       mostrarMensagem("Edição liberada. Faça os ajustes e clique em Salvar.", "#2563eb");
     });
@@ -1517,6 +1545,13 @@
       campoHoraReuniao.value = "";
       campoAnfitriao.value = "";
       campoLiderCelula.value = "";
+      campoCep.value = "";
+      campoRua.value = "";
+      campoNumero.value = "";
+      campoComplemento.value = "";
+      campoBairro.value = "";
+      campoCidade.value = "";
+      campoEstado.value = "";
       campoGeolocalizacao.value = "";
       preencherSelectMembrosEspeciais();
       setCamposEditaveis(true);
