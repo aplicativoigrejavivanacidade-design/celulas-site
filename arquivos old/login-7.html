@@ -168,26 +168,30 @@
         font-size: 17px;
       }
     }
-  
-    .login-seguro {
-      margin: 14px 0 0;
-      color: #64748b;
-      font-size: 13px;
-      text-align: center;
-      font-weight: bold;
-    }
-</style>
+  </style>
 </head>
 <body>
-  
+  <div class="card-login">
+    <h1 class="logo">+Células</h1>
+    <div class="sub">Acesse o sistema com seu usuário</div>
 
     <label for="usuario">Usuário</label>
-
+    <input id="usuario" type="text" placeholder="Digite seu usuário" value="admin" autocomplete="username" />
 
     <label for="senha">Senha</label>
+    <input id="senha" type="password" placeholder="Digite sua senha" value="1234" autocomplete="current-password" />
 
+    <div class="acoes">
+      <button id="btnEntrar" type="button">Entrar</button>
+    </div>
 
-    
+    <div id="msg" class="msg"></div>
+
+    <div class="box-ajuda">
+      <strong>Acesso inicial:</strong><br />
+      Usuário: <strong>admin</strong><br />
+      Senha: <strong>1234</strong>
+    </div>
 
     <div class="rodape">+Células • Gestão de células</div>
   </div>
@@ -226,8 +230,8 @@
 
       localStorage.setItem("logado", "sim");
       localStorage.setItem("usuario", usuario.usuario || campoUsuario.value.trim());
-
-
+      localStorage.setItem("nomeUsuario", usuario.nome || usuario.usuario || campoUsuario.value.trim() || "Administrador");
+      localStorage.setItem("nivelUsuario", String(usuario.nivel || "ADMIN").toLowerCase());
       localStorage.setItem("usuarioId", usuario.id || "");
       localStorage.setItem("celulaUsuario", String(celulaVinculada || "").trim());
     }
