@@ -302,23 +302,6 @@
       font-size: 14px;
     }
 
-    .msg-topo {
-      display: block;
-      margin-bottom: 16px;
-      padding: 14px 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: bold;
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      color: #475569;
-    }
-
-    .msg-topo.erro { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-    .msg-topo.sucesso { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
-    .msg-topo.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-    .msg-topo.neutro { background: #f8fafc; color: #475569; border-color: var(--line); }
-
     .contador {
       background: #e8f0ff;
       color: var(--blue-dark);
@@ -444,17 +427,6 @@
       color: var(--muted);
     }
 
-    .campo-obrigatorio::after {
-      content: " *";
-      color: var(--red);
-      font-weight: bold;
-    }
-
-    .campo-alerta {
-      border-color: var(--red) !important;
-      box-shadow: 0 0 0 3px rgba(220,38,38,0.14) !important;
-    }
-
     .status-celula-box {
       margin-top: 12px;
       display: flex;
@@ -570,8 +542,6 @@
             <option value="">Carregando células...</option>
           </select>
 
-          <div id="msgTopo" class="msg-topo neutro">Selecione uma célula para visualizar ou editar.</div>
-
           <div class="status-edicao" id="statusEdicao">
             Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar.
           </div>
@@ -589,12 +559,12 @@
           </div>
 
 
-          <label for="nomeCelula" class="campo-obrigatorio">Nome da célula</label>
+          <label for="nomeCelula">Nome da célula</label>
           <input id="nomeCelula" type="text" placeholder="CÉLULA 00" readonly />
 
           <div class="grid-2">
             <div>
-              <label for="diaSemana" class="campo-obrigatorio">Dia da semana</label>
+              <label for="diaSemana">Dia da semana</label>
               <select id="diaSemana" disabled>
                 <option value="">Selecione</option>
                 <option value="SEGUNDA-FEIRA">SEGUNDA-FEIRA</option>
@@ -608,30 +578,30 @@
             </div>
 
             <div>
-              <label for="horaReuniao" class="campo-obrigatorio">Hora</label>
+              <label for="horaReuniao">Hora</label>
               <input id="horaReuniao" type="time" readonly />
             </div>
           </div>
 
-          <label for="anfitriao" class="campo-obrigatorio">Anfitrião</label>
+          <label for="anfitriao">Anfitrião</label>
           <select id="anfitriao" disabled>
             <option value="">Carregando membros...</option>
           </select>
 
-          <label for="liderCelula" class="campo-obrigatorio">LÍDER DA CÉLULA</label>
+          <label for="liderCelula">LÍDER DA CÉLULA</label>
           <select id="liderCelula" disabled>
             <option value="">Carregando membros...</option>
           </select>
 
-          <label for="cep" class="campo-obrigatorio">CEP</label>
+          <label for="cep">CEP</label>
           <input id="cep" type="text" placeholder="00000-000" readonly />
 
-          <label for="rua" class="campo-obrigatorio">Rua</label>
+          <label for="rua">Rua</label>
           <input id="rua" type="text" placeholder="Rua" readonly />
 
           <div class="grid-2">
             <div>
-              <label for="numero" class="campo-obrigatorio">Número</label>
+              <label for="numero">Número</label>
               <input id="numero" type="text" placeholder="Número" readonly />
             </div>
 
@@ -643,24 +613,24 @@
 
           <div class="grid-2">
             <div>
-              <label for="bairro" class="campo-obrigatorio">Bairro</label>
+              <label for="bairro">Bairro</label>
               <input id="bairro" type="text" placeholder="Bairro" readonly />
             </div>
 
             <div>
-              <label for="cidade" class="campo-obrigatorio">Cidade</label>
+              <label for="cidade">Cidade</label>
               <input id="cidade" type="text" placeholder="Cidade" readonly />
             </div>
           </div>
 
           <div class="grid-2">
             <div>
-              <label for="estado" class="campo-obrigatorio">Estado</label>
+              <label for="estado">Estado</label>
               <input id="estado" type="text" placeholder="UF" readonly />
             </div>
 
             <div>
-              <label for="geolocalizacao" class="campo-obrigatorio">Geolocalização</label>
+              <label for="geolocalizacao">Geolocalização</label>
               <input id="geolocalizacao" type="text" placeholder="-23.000000, -51.000000" readonly />
             </div>
           </div>
@@ -758,7 +728,6 @@
     const campoEstado = document.getElementById("estado");
     const campoGeolocalizacao = document.getElementById("geolocalizacao");
     const campoMsg = document.getElementById("msg");
-    const campoMsgTopo = document.getElementById("msgTopo");
     const campoUsuarioLogado = document.getElementById("usuarioLogado");
     const campoStatusEdicao = document.getElementById("statusEdicao");
     const campoResumoCelula = document.getElementById("resumoCelula");
@@ -805,28 +774,10 @@
       return nivelUsuario === "admin" || nivelUsuario === "supervisor";
     }
 
-    function tipoMensagemPorCor(cor) {
-      if (cor === "#16a34a") return "sucesso";
-      if (cor === "#2563eb") return "info";
-      if (cor === "#64748b") return "neutro";
-      return "erro";
-    }
-
     function mostrarMensagem(texto, cor = "#dc2626") {
-      const tipo = tipoMensagemPorCor(cor);
       campoMsg.textContent = texto;
       campoMsg.style.color = cor;
-
-      if (campoMsgTopo) {
-        campoMsgTopo.textContent = texto || "Selecione uma célula para visualizar ou editar.";
-        campoMsgTopo.className = `msg-topo ${texto ? tipo : "neutro"}`;
-      }
-
       if (cor === "#dc2626" && texto) window.alert(texto);
-
-      if (texto && campoMsgTopo) {
-        campoMsgTopo.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
     }
 
     function sairSistema() {
@@ -1193,8 +1144,8 @@
         return;
       }
 
-      const selecionadosSalvos = new Set(obterIdsLideresTreinamento(celulaAtual).filter((id) => String(id) !== String(celulaAtual.lider_celula || "")));
-      const lista = membrosDaCelula(celulaAtual.nome).filter((membro) => String(membro.id) !== String(celulaAtual.lider_celula || ""));
+      const selecionadosSalvos = new Set(obterIdsLideresTreinamento(celulaAtual));
+      const lista = membrosDaCelula(celulaAtual.nome);
       const selecionadosTela = Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked")).length;
       contadorLideresTreinamento.textContent = `${modoEdicao ? selecionadosTela : selecionadosSalvos.size} selecionado(s)`;
 
@@ -1294,9 +1245,7 @@
     }
 
     function obterLideresTreinamentoSelecionados() {
-      return Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked"))
-        .map((item) => String(item.value))
-        .filter((id) => String(id) !== String(celulaAtual?.lider_celula || ""));
+      return Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked")).map((item) => String(item.value));
     }
 
     function limparFormulario() {
@@ -1424,33 +1373,6 @@
       }
     }
 
-
-    function limparAlertasCampos() {
-      [
-        campoNomeCelula, campoDiaSemana, campoHoraReuniao, campoAnfitriao, campoLiderCelula,
-        campoCep, campoRua, campoNumero, campoBairro, campoCidade, campoEstado, campoGeolocalizacao, btnGeo
-      ].forEach((campo) => campo?.classList?.remove("campo-alerta"));
-    }
-
-    function alertarCampo(campo, mensagem, botaoAlternativo = null) {
-      limparAlertasCampos();
-      mostrarMensagem(mensagem);
-
-      const alvo = botaoAlternativo || campo;
-      alvo?.classList?.add("campo-alerta");
-      alvo?.scrollIntoView?.({ behavior: "smooth", block: "center" });
-
-      setTimeout(() => {
-        if (botaoAlternativo) {
-          botaoAlternativo.focus?.();
-        } else {
-          campo?.focus?.();
-        }
-      }, 200);
-
-      return false;
-    }
-
     function validarCamposObrigatorios() {
       const campos = [
         [campoNomeCelula, "Informe o nome da célula."],
@@ -1463,24 +1385,20 @@
         [campoNumero, "Informe o número."],
         [campoBairro, "Informe o bairro."],
         [campoCidade, "Informe a cidade."],
-        [campoEstado, "Informe o estado."]
+        [campoEstado, "Informe o estado."],
+        [campoGeolocalizacao, "Atualize a geolocalização antes de salvar."]
       ];
-
       for (const [campo, mensagem] of campos) {
         if (!String(campo.value || "").trim()) {
-          return alertarCampo(campo, mensagem);
+          mostrarMensagem(mensagem);
+          campo.focus?.();
+          return false;
         }
       }
-
-      if (!String(campoGeolocalizacao.value || "").trim()) {
-        return alertarCampo(campoGeolocalizacao, "Atualize a geolocalização antes de salvar.", btnGeo);
-      }
-
       if (modoMultiplicacao && obterIdsMultiplicacaoMarcados().length === 0) {
-        return alertarCampo(listaMultiplicacao, "Selecione ao menos um membro para a nova célula.");
+        mostrarMensagem("Selecione ao menos um membro para a nova célula.");
+        return false;
       }
-
-      limparAlertasCampos();
       return true;
     }
 
@@ -1527,22 +1445,6 @@
       return true;
     }
 
-
-    async function salvarRemocoesMembros() {
-      const removidos = obterMembrosRemovidosSelecionados();
-      if (!campoCelulaId.value || removidos.length === 0) return true;
-
-      const resposta = await fetch(`${API_CELULAS}/${campoCelulaId.value}/remover-membros`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ membrosRemovidos: removidos })
-      });
-
-      const dados = await resposta.json().catch(() => ({}));
-      if (!resposta.ok) throw new Error(dados.erro || "Erro ao remover membros da célula.");
-      return true;
-    }
-
     async function salvarEdicao() {
       const id = campoCelulaId.value.trim();
       if (!modoEdicao) return mostrarMensagem("Clique em Editar antes de salvar.");
@@ -1573,11 +1475,6 @@
 
       try {
         mostrarMensagem("Salvando...", "#2563eb");
-
-        if (!modoMultiplicacao) {
-          await salvarRemocoesMembros();
-        }
-
         const resposta = await fetch(url, {
           method: metodo,
           headers: { "Content-Type": "application/json" },
@@ -1789,15 +1686,6 @@
 
     campoListaVinculados.addEventListener("change", () => {
       if (contadorRemoverVinculados) contadorRemoverVinculados.textContent = `${obterMembrosRemovidosSelecionados().length} remover`;
-    });
-
-
-    [
-      campoNomeCelula, campoDiaSemana, campoHoraReuniao, campoAnfitriao, campoLiderCelula,
-      campoCep, campoRua, campoNumero, campoBairro, campoCidade, campoEstado, campoGeolocalizacao
-    ].forEach((campo) => {
-      campo?.addEventListener?.("input", () => campo.classList.remove("campo-alerta"));
-      campo?.addEventListener?.("change", () => campo.classList.remove("campo-alerta"));
     });
 
     if (protegerPagina()) {
