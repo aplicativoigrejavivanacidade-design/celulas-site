@@ -487,8 +487,9 @@
           </div>
 
           <div class="acoes-topo">
-            <button class="btn-success" id="btnSalvar" type="button">Salvar presença</button>
-            <button class="btn-primary" id="btnEditar" type="button">Editar presença</button>
+            <button class="btn-success" id="btnSalvar" type="button">Salvar</button>
+            <button class="btn-primary" id="btnEditar" type="button">Editar</button>
+            <button class="btn-secondary" id="btnCancelar" type="button">Cancelar</button>
             <button class="btn-secondary" id="btnMarcarTodos" type="button">Marcar todos presentes</button>
             <button class="btn-danger" id="btnDesmarcarTodos" type="button">Marcar todos ausentes</button>
             <button class="btn-secondary" id="btnLimpar" type="button">Limpar seleção</button>
@@ -697,10 +698,31 @@
           campoInfoEdicao.style.background = "#eff6ff";
           campoInfoEdicao.style.color = "#1d4ed8";
         } else {
-          campoInfoEdicao.textContent = "Modo atual: PRESENÇA TRAVADA. Para alterar, clique em Editar presença.";
+          campoInfoEdicao.textContent = "Modo atual: PRESENÇA TRAVADA. Para alterar, clique em Editar.";
           campoInfoEdicao.style.background = "#fef3c7";
           campoInfoEdicao.style.color = "#92400e";
         }
+
+        atualizarEstadoBotoes();
+      }
+
+      function atualizarEstadoBotoes() {
+        const btnSalvar = document.getElementById("btnSalvar");
+        const btnEditar = document.getElementById("btnEditar");
+        const btnCancelar = document.getElementById("btnCancelar");
+        const btnMarcarTodos = document.getElementById("btnMarcarTodos");
+        const btnDesmarcarTodos = document.getElementById("btnDesmarcarTodos");
+        const btnLimpar = document.getElementById("btnLimpar");
+
+        const temCelula = !!campoCelula.value;
+        const temMembros = membrosFiltrados.length > 0;
+
+        btnSalvar.disabled = !edicaoLiberada || !temCelula || !temMembros;
+        btnCancelar.disabled = !edicaoLiberada || !temCelula;
+        btnEditar.disabled = edicaoLiberada || !temCelula || !temMembros;
+        btnMarcarTodos.disabled = !edicaoLiberada || !temCelula || !temMembros;
+        btnDesmarcarTodos.disabled = !edicaoLiberada || !temCelula || !temMembros;
+        btnLimpar.disabled = !edicaoLiberada || !temCelula || !temMembros;
       }
 
       function atualizarResumo() {
@@ -713,6 +735,7 @@
         document.getElementById("totalPresentes").textContent = `${presentes} presente(s)`;
         document.getElementById("totalAusentes").textContent = `${ausentes} ausente(s)`;
         document.getElementById("totalPendentes").textContent = `${pendentes} pendente(s)`;
+        atualizarEstadoBotoes();
       }
 
       function obterCelulasUnicas() {
@@ -1075,6 +1098,18 @@
         atualizarModoEdicao();
         renderizarMembros();
         mostrarMensagem("Edição liberada. Agora ajuste os checkboxes e salve novamente.", "#2563eb");
+      });
+
+      document.getElementById("btnCancelar").addEventListener("click", async () => {
+        if (!campoCelula.value) {
+          mostrarMensagem("Selecione uma célula para cancelar a edição.");
+          return;
+        }
+
+        edicaoLiberada = false;
+        atualizarModoEdicao();
+        await carregarPresencasData();
+        mostrarMensagem("Edição cancelada. Dados atuais restaurados.", "#64748b");
       });
 
       document.getElementById("btnMarcarTodos").addEventListener("click", () => {
