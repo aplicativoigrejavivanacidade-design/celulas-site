@@ -281,6 +281,56 @@
       display: block;
     }
 
+    .painel-filtro-presenca {
+      margin-bottom: 20px;
+    }
+
+    .linha-filtro {
+      display: grid;
+      grid-template-columns: 1fr auto auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .area-lancamento {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 20px;
+      align-items: start;
+      margin-bottom: 20px;
+    }
+
+    .botao-bloqueado {
+      cursor: not-allowed !important;
+      opacity: 0.58;
+      position: relative;
+    }
+
+    .botao-bloqueado:hover::after {
+      content: "🚫";
+      position: absolute;
+      top: -12px;
+      right: -8px;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 999px;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 1100px) {
+      .area-lancamento,
+      .linha-filtro {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .lista-grid.compacta {
       grid-template-columns: repeat(3, 1fr);
     }
@@ -534,32 +584,45 @@
     <main class="content">
       <div class="header">
         <h1>Presença</h1>
-        <p>Consulte ou inclua a presença da reunião da célula.</p>
+        <p>Consulte presenças já registradas ou inclua a presença da reunião da célula.</p>
         <p id="usuarioLogado" class="usuario-logado"></p>
       </div>
 
-      <div class="grid-topo">
-        <div class="card">
-          <h2>Filtro de consulta</h2>
+      <div class="card painel-filtro-presenca">
+        <h2>Filtro de consulta</h2>
+        <div id="msgTopo" class="msg-topo neutro">Pesquise pela data da reunião ou clique em Incluir para lançar uma nova presença.</div>
 
-          <div id="msgTopo" class="msg-topo neutro">Use a data para consultar ou clique em Incluir para lançar uma nova presença.</div>
+        <div class="linha-filtro">
+          <div>
+            <label for="filtroDataConsulta" class="campo-obrigatorio">Data da reunião</label>
+            <input type="date" id="filtroDataConsulta" />
+          </div>
+
+          <button class="btn-primary" id="btnConsultar" type="button">Consultar</button>
+          <button class="btn-secondary" id="btnHoje" type="button">Hoje</button>
+          <button class="btn-primary" id="btnIncluir" type="button">Incluir</button>
+        </div>
+      </div>
+
+      <div class="area-lancamento">
+        <div class="card">
+          <h2>Presença da reunião</h2>
 
           <div class="grid-2">
             <div>
-              <label for="filtroDataConsulta" class="campo-obrigatorio">Data da reunião</label>
-              <input type="date" id="filtroDataConsulta" />
+              <label for="dataReuniao" class="campo-obrigatorio">Data da reunião</label>
+              <input type="date" id="dataReuniao" disabled />
             </div>
 
             <div>
               <label for="celulaSelecionada" class="campo-obrigatorio">Célula</label>
-              <select id="celulaSelecionada">
+              <select id="celulaSelecionada" disabled>
                 <option value="">Carregando células...</option>
               </select>
             </div>
           </div>
 
           <div class="acoes-topo">
-            <button class="btn-primary" id="btnIncluir" type="button">Incluir</button>
             <button class="btn-primary" id="btnEditar" type="button" disabled>Editar</button>
             <button class="btn-secondary" id="btnCancelar" type="button" disabled>Cancelar</button>
             <button class="btn-success" id="btnSalvar" type="button" disabled>Salvar</button>
@@ -590,8 +653,6 @@
               <button class="btn-secondary" id="btnCancelarVisitante" type="button">Cancelar visitante</button>
             </div>
           </div>
-
-          <div class="mensagem" id="mensagem"></div>
 
           <div class="mensagem" id="mensagem"></div>
         </div>
@@ -640,12 +701,18 @@
       const campoLista = document.getElementById("listaMembros");
       const campoMensagem = document.getElementById("mensagem");
       const campoMsgTopo = document.getElementById("msgTopo");
-      const campoData = document.getElementById("filtroDataConsulta");
+      const campoFiltroData = document.getElementById("filtroDataConsulta");
+      const campoData = document.getElementById("dataReuniao");
       const campoCelula = document.getElementById("celulaSelecionada");
       const campoInfoEdicao = document.getElementById("infoEdicao");
       const boxVisitante = document.getElementById("boxVisitante");
       const campoVisitanteNome = document.getElementById("visitanteNome");
       const campoVisitanteTelefone = document.getElementById("visitanteTelefone");
+
+      const botoesFuncao = [
+        "btnEditar", "btnCancelar", "btnSalvar", "btnVisitante",
+        "btnMarcarTodos", "btnDesmarcarTodos", "btnLimpar"
+      ];
 
       function sair() {
         localStorage.clear();
@@ -686,14 +753,16 @@
       function mostrarMensagem(texto, cor = "#dc2626") {
         campoMensagem.textContent = texto;
         campoMensagem.style.color = cor;
-        campoMsgTopo.textContent = texto || "Use a data para consultar ou clique em Incluir para lançar uma nova presença.";
+        campoMsgTopo.textContent = texto || "Pesquise pela data da reunião ou clique em Incluir para lançar uma nova presença.";
         campoMsgTopo.className = `msg-topo ${texto ? tipoMensagemPorCor(cor) : "neutro"}`;
         if (cor === "#dc2626" && texto) window.alert(texto);
       }
 
       function definirDataHoje() {
         const hoje = new Date();
-        campoData.value = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`;
+        const valor = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`;
+        campoFiltroData.value = valor;
+        campoData.value = valor;
       }
 
       function obterDataCadastroMembro(membro) {
@@ -705,7 +774,16 @@
         return /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : "";
       }
 
+      function deveAplicarDataCadastro(membro) {
+        const origem = normalizarTexto(membro.origem_cadastro || membro.origemCadastro || "");
+        const completo = membro.cadastro_completo;
+        // Por enquanto, a regra de data vale para visitantes e cadastros novos com origem conhecida.
+        // Membros antigos migrados sem data real não podem ser escondidos em datas anteriores.
+        return origem === "PRESENCA_VISITANTE" || completo === false;
+      }
+
       function membroPodeEntrarNaPresenca(membro) {
+        if (!deveAplicarDataCadastro(membro)) return true;
         const dataCadastro = obterDataCadastroMembro(membro);
         if (!dataCadastro || !campoData.value) return true;
         return dataCadastro <= campoData.value;
@@ -770,6 +848,13 @@
           </svg></a>`;
       }
 
+      function configurarBotao(id, liberado) {
+        const botao = document.getElementById(id);
+        if (!botao) return;
+        botao.disabled = !liberado;
+        botao.classList.toggle("botao-bloqueado", !liberado);
+      }
+
       function atualizarModo() {
         if (modo === "consulta") {
           campoInfoEdicao.textContent = "Modo atual: CONSULTA. Clique em Incluir para lançar presença.";
@@ -793,16 +878,18 @@
         const liberado = modo === "inclusao" || modo === "edicao";
 
         document.getElementById("btnIncluir").disabled = !temCelula || modo !== "consulta";
-        document.getElementById("btnEditar").disabled = !temCelula || !temMembros || modo !== "consulta";
-        document.getElementById("btnCancelar").disabled = modo === "consulta";
-        document.getElementById("btnSalvar").disabled = !liberado || !temCelula || !temMembros;
-        document.getElementById("btnVisitante").disabled = !liberado || !temCelula;
-        document.getElementById("btnMarcarTodos").disabled = !liberado || !temCelula || !temMembros;
-        document.getElementById("btnDesmarcarTodos").disabled = !liberado || !temCelula || !temMembros;
-        document.getElementById("btnLimpar").disabled = !liberado || !temCelula || !temMembros;
+        document.getElementById("btnIncluir").classList.toggle("botao-bloqueado", !temCelula || modo !== "consulta");
 
-        campoData.disabled = false;
-        campoCelula.disabled = usuarioEhLider();
+        configurarBotao("btnEditar", temCelula && temMembros && modo === "consulta");
+        configurarBotao("btnCancelar", modo !== "consulta");
+        configurarBotao("btnSalvar", liberado && temCelula && temMembros);
+        configurarBotao("btnVisitante", liberado && temCelula);
+        configurarBotao("btnMarcarTodos", liberado && temCelula && temMembros);
+        configurarBotao("btnDesmarcarTodos", liberado && temCelula && temMembros);
+        configurarBotao("btnLimpar", liberado && temCelula && temMembros);
+
+        campoData.disabled = modo === "consulta";
+        campoCelula.disabled = usuarioEhLider() || modo === "consulta";
       }
 
       function atualizarResumo() {
@@ -834,7 +921,9 @@
           return;
         }
         const celulas = obterCelulasUnicas();
+        const atual = campoCelula.value;
         campoCelula.innerHTML = '<option value="">Selecione a célula</option>' + celulas.map((c) => `<option value="${c}">${c}</option>`).join("");
+        if (celulas.includes(atual)) campoCelula.value = atual;
       }
 
       function filtrarMembrosPorCelula() {
@@ -863,7 +952,7 @@
         campoLista.innerHTML = membrosOrdenados.map((membro) => {
           const status = presencas[membro.id] || "";
           const marcado = status === "presente" ? "checked" : "";
-          return `<div class="membro-check ${status === "presente" ? "marcado" : ""}">
+          return `<div class="membro-check ${status === "presente" ? "marcado" : ""} ${modo === "consulta" ? "bloqueado" : ""}">
             <label class="membro-check-topo">
               <input type="checkbox" class="check-presenca" data-id="${membro.id}" ${marcado} ${bloqueado}>
               <div class="membro-info">
@@ -909,6 +998,21 @@
         }
       }
 
+      function prepararLancamento(tipo) {
+        if (!campoFiltroData.value) return mostrarMensagem("Informe a data da reunião no filtro.");
+        campoData.value = campoFiltroData.value;
+        modo = tipo;
+        if (tipo === "inclusao") {
+          presencas = {};
+          membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
+          mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
+        } else {
+          mostrarMensagem("Edição liberada.", "#2563eb");
+        }
+        atualizarModo();
+        filtrarMembrosPorCelula();
+      }
+
       function marcarTodosComo(valorPresente) {
         if (modo === "consulta") return mostrarMensagem("Clique em Incluir ou Editar antes de alterar presença.");
         membrosFiltrados.forEach((membro) => {
@@ -939,6 +1043,7 @@
           const dados = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(dados.erro || "Erro ao salvar presença.");
           modo = "consulta";
+          boxVisitante.classList.remove("ativo");
           atualizarModo();
           await carregarPresencasData();
           mostrarMensagem("Presença salva com sucesso.", "#16a34a");
@@ -985,21 +1090,22 @@
       }
 
       document.getElementById("btnSair").addEventListener("click", sair);
-      document.getElementById("btnIncluir").addEventListener("click", () => {
-        modo = "inclusao";
-        presencas = {};
-        membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
+      document.getElementById("btnConsultar").addEventListener("click", async () => {
+        if (!campoFiltroData.value) return mostrarMensagem("Informe a data para consultar.");
+        campoData.value = campoFiltroData.value;
+        modo = "consulta";
         atualizarModo();
-        renderizarMembros();
-        atualizarResumo();
-        mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
+        await carregarPresencasData();
+        mostrarMensagem("Consulta carregada.", "#16a34a");
       });
-      document.getElementById("btnEditar").addEventListener("click", () => {
-        modo = "edicao";
+      document.getElementById("btnHoje").addEventListener("click", async () => {
+        definirDataHoje();
+        modo = "consulta";
         atualizarModo();
-        renderizarMembros();
-        mostrarMensagem("Edição liberada.", "#2563eb");
+        await carregarPresencasData();
       });
+      document.getElementById("btnIncluir").addEventListener("click", () => prepararLancamento("inclusao"));
+      document.getElementById("btnEditar").addEventListener("click", () => prepararLancamento("edicao"));
       document.getElementById("btnCancelar").addEventListener("click", async () => {
         modo = "consulta";
         boxVisitante.classList.remove("ativo");
@@ -1021,17 +1127,6 @@
       document.getElementById("btnMarcarTodos").addEventListener("click", () => marcarTodosComo(true));
       document.getElementById("btnDesmarcarTodos").addEventListener("click", () => marcarTodosComo(false));
       document.getElementById("btnLimpar").addEventListener("click", () => marcarTodosComo(false));
-      campoData.addEventListener("change", async () => {
-        modo = "consulta";
-        atualizarModo();
-        await carregarPresencasData();
-      });
-      campoCelula.addEventListener("change", async () => {
-        modo = "consulta";
-        atualizarModo();
-        filtrarMembrosPorCelula();
-        await carregarPresencasData();
-      });
       campoLista.addEventListener("change", (evento) => {
         const checkbox = evento.target.closest(".check-presenca");
         if (!checkbox) return;

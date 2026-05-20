@@ -181,53 +181,6 @@
       background: #f8fafc;
     }
 
-    .filtro-periodo-presenca {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto auto auto;
-      gap: 14px;
-      align-items: end;
-    }
-
-    .botoes-filtro-data {
-      display: contents;
-    }
-
-    .botao-bloqueado {
-      cursor: not-allowed !important;
-      opacity: 0.58;
-      position: relative;
-    }
-
-    .botao-bloqueado:hover::after {
-      content: "🚫";
-      position: absolute;
-      top: -12px;
-      right: -8px;
-      background: #fee2e2;
-      color: #991b1b;
-      border: 1px solid #fecaca;
-      border-radius: 999px;
-      width: 26px;
-      height: 26px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      box-shadow: var(--shadow);
-    }
-
-    @media (max-width: 1100px) {
-      .filtro-periodo-presenca {
-        grid-template-columns: 1fr;
-      }
-
-      .botoes-filtro-data {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-    }
-
     button {
       padding: 12px 14px;
       border-radius: 10px;
@@ -581,36 +534,29 @@
     <main class="content">
       <div class="header">
         <h1>Presença</h1>
-        <p>Consulte períodos e inclua a presença da reunião da célula.</p>
+        <p>Consulte ou inclua a presença da reunião da célula.</p>
         <p id="usuarioLogado" class="usuario-logado"></p>
-      </div>
-
-      <div class="card" style="margin-bottom:20px;">
-        <h2>Filtro de consulta</h2>
-        <div id="msgTopo" class="msg-topo neutro">Use o filtro para consultar presenças ou clique em Incluir para lançar a reunião.</div>
-
-        <div class="filtro-periodo-presenca">
-          <div>
-            <label for="dataInicialFiltro" class="campo-obrigatorio">Data inicial</label>
-            <input type="date" id="dataInicialFiltro" />
-          </div>
-
-          <div>
-            <label for="dataFinalFiltro" class="campo-obrigatorio">Data final</label>
-            <input type="date" id="dataFinalFiltro" />
-          </div>
-
-          <div class="botoes-filtro-data">
-            <button class="btn-primary" id="btnHoje" type="button">Hoje</button>
-            <button class="btn-success" id="btn7dias" type="button">7 dias</button>
-            <button class="btn-secondary" id="btn30dias" type="button" style="background:#f59e0b;">30 dias</button>
-          </div>
-        </div>
       </div>
 
       <div class="grid-topo">
         <div class="card">
-          <h2>Presença da reunião</h2>
+          <h2>Filtro de consulta</h2>
+
+          <div id="msgTopo" class="msg-topo neutro">Use a data para consultar ou clique em Incluir para lançar uma nova presença.</div>
+
+          <div class="grid-2">
+            <div>
+              <label for="filtroDataConsulta" class="campo-obrigatorio">Data da reunião</label>
+              <input type="date" id="filtroDataConsulta" />
+            </div>
+
+            <div>
+              <label for="celulaSelecionada" class="campo-obrigatorio">Célula</label>
+              <select id="celulaSelecionada">
+                <option value="">Carregando células...</option>
+              </select>
+            </div>
+          </div>
 
           <div class="acoes-topo">
             <button class="btn-primary" id="btnIncluir" type="button">Incluir</button>
@@ -621,20 +567,6 @@
             <button class="btn-secondary" id="btnMarcarTodos" type="button" disabled>Marcar todos presentes</button>
             <button class="btn-danger" id="btnDesmarcarTodos" type="button" disabled>Marcar todos ausentes</button>
             <button class="btn-secondary" id="btnLimpar" type="button" disabled>Limpar seleção</button>
-          </div>
-
-          <div class="grid-2">
-            <div>
-              <label for="dataReuniao" class="campo-obrigatorio">Data da reunião</label>
-              <input type="date" id="dataReuniao" disabled />
-            </div>
-
-            <div>
-              <label for="celulaSelecionada" class="campo-obrigatorio">Célula</label>
-              <select id="celulaSelecionada" disabled>
-                <option value="">Carregando células...</option>
-              </select>
-            </div>
           </div>
 
           <div class="info-edicao" id="infoEdicao">
@@ -658,6 +590,8 @@
               <button class="btn-secondary" id="btnCancelarVisitante" type="button">Cancelar visitante</button>
             </div>
           </div>
+
+          <div class="mensagem" id="mensagem"></div>
 
           <div class="mensagem" id="mensagem"></div>
         </div>
@@ -706,9 +640,7 @@
       const campoLista = document.getElementById("listaMembros");
       const campoMensagem = document.getElementById("mensagem");
       const campoMsgTopo = document.getElementById("msgTopo");
-      const campoDataInicial = document.getElementById("dataInicialFiltro");
-      const campoDataFinal = document.getElementById("dataFinalFiltro");
-      const campoData = document.getElementById("dataReuniao");
+      const campoData = document.getElementById("filtroDataConsulta");
       const campoCelula = document.getElementById("celulaSelecionada");
       const campoInfoEdicao = document.getElementById("infoEdicao");
       const boxVisitante = document.getElementById("boxVisitante");
@@ -754,33 +686,14 @@
       function mostrarMensagem(texto, cor = "#dc2626") {
         campoMensagem.textContent = texto;
         campoMensagem.style.color = cor;
-        campoMsgTopo.textContent = texto || "Use o filtro para consultar presenças ou clique em Incluir para lançar a reunião.";
+        campoMsgTopo.textContent = texto || "Use a data para consultar ou clique em Incluir para lançar uma nova presença.";
         campoMsgTopo.className = `msg-topo ${texto ? tipoMensagemPorCor(cor) : "neutro"}`;
         if (cor === "#dc2626" && texto) window.alert(texto);
       }
 
-      function hojeISO() {
+      function definirDataHoje() {
         const hoje = new Date();
-        return `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`;
-      }
-
-      function deslocarDias(dataIso, dias) {
-        const d = new Date(`${dataIso}T12:00:00`);
-        d.setDate(d.getDate() + dias);
-        return d.toISOString().slice(0, 10);
-      }
-
-      function definirPeriodo(dias) {
-        const fim = hojeISO();
-        const inicio = deslocarDias(fim, -(dias - 1));
-        campoDataInicial.value = inicio;
-        campoDataFinal.value = fim;
-        campoData.value = fim;
-        carregarPresencasData();
-      }
-
-      function dataReuniaoAtual() {
-        return campoData.value || campoDataFinal.value || hojeISO();
+        campoData.value = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`;
       }
 
       function obterDataCadastroMembro(membro) {
@@ -788,34 +701,19 @@
           membro.data_cadastro || membro.dataCadastro || membro.criado_em || membro.criadoEm ||
           membro.created_at || membro.createdAt || ""
         ).slice(0, 10);
-        return /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : "";
-      }
 
-      function temOrigemCadastroNova(membro) {
-        const origem = normalizarTexto(membro.origem_cadastro || membro.origemCadastro || "");
-        if (origem === "PRESENCA_VISITANTE") return true;
-        if (membro.cadastro_completo === false) return true;
-        // Quando o cadastro vier completo e tiver origem CADASTRO, também pode respeitar data real.
-        if (origem === "CADASTRO" && obterDataCadastroMembro(membro)) return true;
-        return false;
+        return /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : "";
       }
 
       function membroPodeEntrarNaPresenca(membro) {
         const dataCadastro = obterDataCadastroMembro(membro);
-        const dataReuniao = dataReuniaoAtual();
-
-        // Membros antigos que receberam data padrão do banco não podem sumir indevidamente.
-        // Só aplicamos a regra quando há origem confiável ou visitante/cadastro novo.
-        if (!temOrigemCadastroNova(membro)) return true;
-        if (!dataCadastro || !dataReuniao) return true;
-
-        return dataCadastro <= dataReuniao;
+        if (!dataCadastro || !campoData.value) return true;
+        return dataCadastro <= campoData.value;
       }
 
       async function garantirCelulaDoUsuario() {
         if (!usuarioEhLider()) return true;
         if (celulaPermitidaParaUsuario()) return true;
-
         try {
           const resposta = await fetch(apiUsuarios, { cache: "no-store" });
           const lista = resposta.ok ? await resposta.json() : [];
@@ -833,14 +731,12 @@
       function aplicarTravaCelulaLider() {
         if (!usuarioEhLider()) return true;
         const celulaPermitida = celulaPermitidaParaUsuario();
-
         if (!celulaPermitida) {
           campoCelula.innerHTML = '<option value="">Líder sem célula vinculada</option>';
           campoCelula.disabled = true;
           mostrarMensagem("Seu usuário líder não possui célula vinculada. Solicite ajuste ao administrador.");
           return false;
         }
-
         campoCelula.innerHTML = `<option value="${celulaPermitida}">${celulaPermitida}</option>`;
         campoCelula.value = celulaPermitida;
         campoCelula.disabled = true;
@@ -868,19 +764,10 @@
       function iconeWhatsapp(numero) {
         const telefone = formatarWhatsapp(numero);
         if (!telefone) return "";
-        return `
-          <a class="btn-whatsapp" target="_blank" href="https://wa.me/${telefone}" aria-label="Abrir WhatsApp">
-            <svg viewBox="0 0 32 32" aria-hidden="true">
-              <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
-            </svg>
-          </a>`;
-      }
-
-      function configurarBotao(id, liberado) {
-        const botao = document.getElementById(id);
-        if (!botao) return;
-        botao.disabled = !liberado;
-        botao.classList.toggle("botao-bloqueado", !liberado);
+        return `<a class="btn-whatsapp" target="_blank" href="https://wa.me/${telefone}" aria-label="Abrir WhatsApp">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989z"/>
+          </svg></a>`;
       }
 
       function atualizarModo() {
@@ -905,17 +792,17 @@
         const temMembros = membrosFiltrados.length > 0;
         const liberado = modo === "inclusao" || modo === "edicao";
 
-        configurarBotao("btnIncluir", temCelula && modo === "consulta");
-        configurarBotao("btnEditar", temCelula && temMembros && modo === "consulta");
-        configurarBotao("btnCancelar", modo !== "consulta");
-        configurarBotao("btnSalvar", liberado && temCelula && temMembros);
-        configurarBotao("btnVisitante", liberado && temCelula);
-        configurarBotao("btnMarcarTodos", liberado && temCelula && temMembros);
-        configurarBotao("btnDesmarcarTodos", liberado && temCelula && temMembros);
-        configurarBotao("btnLimpar", liberado && temCelula && temMembros);
+        document.getElementById("btnIncluir").disabled = !temCelula || modo !== "consulta";
+        document.getElementById("btnEditar").disabled = !temCelula || !temMembros || modo !== "consulta";
+        document.getElementById("btnCancelar").disabled = modo === "consulta";
+        document.getElementById("btnSalvar").disabled = !liberado || !temCelula || !temMembros;
+        document.getElementById("btnVisitante").disabled = !liberado || !temCelula;
+        document.getElementById("btnMarcarTodos").disabled = !liberado || !temCelula || !temMembros;
+        document.getElementById("btnDesmarcarTodos").disabled = !liberado || !temCelula || !temMembros;
+        document.getElementById("btnLimpar").disabled = !liberado || !temCelula || !temMembros;
 
-        campoData.disabled = true;
-        campoCelula.disabled = usuarioEhLider() || modo === "consulta";
+        campoData.disabled = false;
+        campoCelula.disabled = usuarioEhLider();
       }
 
       function atualizarResumo() {
@@ -923,7 +810,6 @@
         const presentes = membrosFiltrados.filter((m) => presencas[m.id] === "presente").length;
         const ausentes = membrosFiltrados.filter((m) => presencas[m.id] === "ausente").length;
         const pendentes = total - presentes - ausentes;
-
         document.getElementById("totalMembros").textContent = `${total} membro(s)`;
         document.getElementById("totalPresentes").textContent = `${presentes} presente(s)`;
         document.getElementById("totalAusentes").textContent = `${ausentes} ausente(s)`;
@@ -939,7 +825,7 @@
           if (!chave) return;
           if (!mapa.has(chave)) mapa.set(chave, nomeCelulaExibicao(bruto));
         });
-        return Array.from(mapa.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
+        return Array.from(mapa.values()).sort((a,b) => a.localeCompare(b, "pt-BR"));
       }
 
       function preencherSelectCelulas() {
@@ -947,21 +833,16 @@
           aplicarTravaCelulaLider();
           return;
         }
-
         const celulas = obterCelulasUnicas();
-        const atual = campoCelula.value;
         campoCelula.innerHTML = '<option value="">Selecione a célula</option>' + celulas.map((c) => `<option value="${c}">${c}</option>`).join("");
-        if (celulas.includes(atual)) campoCelula.value = atual;
       }
 
       function filtrarMembrosPorCelula() {
         const celulaSelecionada = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
         const alvo = normalizarNomeCelula(celulaSelecionada);
-
         membrosFiltrados = alvo
           ? todosMembros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo && membroPodeEntrarNaPresenca(membro))
           : [];
-
         renderizarMembros();
         atualizarResumo();
       }
@@ -971,19 +852,18 @@
           campoLista.innerHTML = '<div class="vazio">Selecione uma célula para carregar os membros.</div>';
           return;
         }
-
         if (!membrosFiltrados.length) {
           campoLista.innerHTML = '<div class="vazio">Nenhum membro elegível para esta célula/data.</div>';
           return;
         }
 
-        const membrosOrdenados = [...membrosFiltrados].sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+        const membrosOrdenados = [...membrosFiltrados].sort((a,b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
         const bloqueado = modo === "consulta" ? "disabled" : "";
 
         campoLista.innerHTML = membrosOrdenados.map((membro) => {
           const status = presencas[membro.id] || "";
           const marcado = status === "presente" ? "checked" : "";
-          return `<div class="membro-check ${status === "presente" ? "marcado" : ""} ${modo === "consulta" ? "bloqueado" : ""}">
+          return `<div class="membro-check ${status === "presente" ? "marcado" : ""}">
             <label class="membro-check-topo">
               <input type="checkbox" class="check-presenca" data-id="${membro.id}" ${marcado} ${bloqueado}>
               <div class="membro-info">
@@ -999,21 +879,14 @@
 
       async function carregarPresencasData() {
         presencas = {};
-
-        if (!campoData.value) {
-          filtrarMembrosPorCelula();
-          return;
-        }
-
+        if (!campoData.value) return;
         try {
           const resposta = await fetch(`${apiPresencas}/${campoData.value}`, { cache: "no-store" });
           if (!resposta.ok) throw new Error("Erro ao carregar presença.");
           const dados = await resposta.json();
-
           (Array.isArray(dados) ? dados : []).forEach((item) => {
             presencas[Number(item.membroId)] = item.status;
           });
-
           filtrarMembrosPorCelula();
         } catch (erro) {
           mostrarMensagem("Erro ao carregar presença da data selecionada.");
@@ -1025,7 +898,6 @@
           campoLista.innerHTML = '<div class="vazio">Carregando membros...</div>';
           const resposta = await fetch(apiMembros, { cache: "no-store" });
           if (!resposta.ok) throw new Error("Erro ao carregar membros.");
-
           todosMembros = await resposta.json();
           await garantirCelulaDoUsuario();
           preencherSelectCelulas();
@@ -1035,24 +907,6 @@
           campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
           mostrarMensagem("Erro ao carregar membros.");
         }
-      }
-
-      function prepararLancamento(tipo) {
-        if (!campoDataFinal.value) return mostrarMensagem("Informe a data final do filtro para lançar a reunião.");
-
-        campoData.value = campoDataFinal.value;
-        modo = tipo;
-
-        if (tipo === "inclusao") {
-          presencas = {};
-          membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
-          mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
-        } else {
-          mostrarMensagem("Edição liberada.", "#2563eb");
-        }
-
-        atualizarModo();
-        filtrarMembrosPorCelula();
       }
 
       function marcarTodosComo(valorPresente) {
@@ -1084,9 +938,7 @@
           });
           const dados = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(dados.erro || "Erro ao salvar presença.");
-
           modo = "consulta";
-          boxVisitante.classList.remove("ativo");
           atualizarModo();
           await carregarPresencasData();
           mostrarMensagem("Presença salva com sucesso.", "#16a34a");
@@ -1115,14 +967,13 @@
               celula,
               status: "VISITANTE",
               origemCadastro: "PRESENCA_VISITANTE",
-              dataCadastro: dataReuniaoAtual(),
+              dataCadastro: campoData.value,
               cadastroCompleto: false,
-              observacoes: `VISITANTE CADASTRADO PELA PRESENÇA EM ${dataReuniaoAtual()}`
+              observacoes: `VISITANTE CADASTRADO PELA PRESENÇA EM ${campoData.value}`
             })
           });
           const dados = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(dados.erro || "Erro ao cadastrar visitante.");
-
           campoVisitanteNome.value = "";
           campoVisitanteTelefone.value = "";
           boxVisitante.classList.remove("ativo");
@@ -1134,11 +985,21 @@
       }
 
       document.getElementById("btnSair").addEventListener("click", sair);
-      document.getElementById("btnHoje").addEventListener("click", () => definirPeriodo(1));
-      document.getElementById("btn7dias").addEventListener("click", () => definirPeriodo(7));
-      document.getElementById("btn30dias").addEventListener("click", () => definirPeriodo(30));
-      document.getElementById("btnIncluir").addEventListener("click", () => prepararLancamento("inclusao"));
-      document.getElementById("btnEditar").addEventListener("click", () => prepararLancamento("edicao"));
+      document.getElementById("btnIncluir").addEventListener("click", () => {
+        modo = "inclusao";
+        presencas = {};
+        membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
+        atualizarModo();
+        renderizarMembros();
+        atualizarResumo();
+        mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
+      });
+      document.getElementById("btnEditar").addEventListener("click", () => {
+        modo = "edicao";
+        atualizarModo();
+        renderizarMembros();
+        mostrarMensagem("Edição liberada.", "#2563eb");
+      });
       document.getElementById("btnCancelar").addEventListener("click", async () => {
         modo = "consulta";
         boxVisitante.classList.remove("ativo");
@@ -1160,45 +1021,37 @@
       document.getElementById("btnMarcarTodos").addEventListener("click", () => marcarTodosComo(true));
       document.getElementById("btnDesmarcarTodos").addEventListener("click", () => marcarTodosComo(false));
       document.getElementById("btnLimpar").addEventListener("click", () => marcarTodosComo(false));
-
-      campoDataFinal.addEventListener("change", async () => {
-        campoData.value = campoDataFinal.value;
+      campoData.addEventListener("change", async () => {
         modo = "consulta";
         atualizarModo();
         await carregarPresencasData();
       });
-
       campoCelula.addEventListener("change", async () => {
         modo = "consulta";
         atualizarModo();
         filtrarMembrosPorCelula();
         await carregarPresencasData();
       });
-
       campoLista.addEventListener("change", (evento) => {
         const checkbox = evento.target.closest(".check-presenca");
         if (!checkbox) return;
-
         if (modo === "consulta") {
           checkbox.checked = !checkbox.checked;
           return mostrarMensagem("Clique em Incluir ou Editar antes de alterar presença.");
         }
-
         presencas[Number(checkbox.dataset.id)] = checkbox.checked ? "presente" : "ausente";
         renderizarMembros();
         atualizarResumo();
       });
 
       async function iniciarTela() {
-        definirPeriodo(1);
-
+        definirDataHoje();
         if (usuarioEhLider()) {
           await garantirCelulaDoUsuario();
           campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario} | Célula: ${celulaPermitidaParaUsuario() || "não vinculada"}`;
         } else {
           campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
         }
-
         atualizarModo();
         await carregarMembros();
       }
