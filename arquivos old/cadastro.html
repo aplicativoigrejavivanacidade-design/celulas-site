@@ -252,6 +252,44 @@
       font-size: 14px;
     }
 
+    .msg-topo {
+      display: none;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px solid transparent;
+    }
+
+    .msg-topo.erro {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border-color: #fecaca;
+    }
+
+    .msg-topo.sucesso {
+      display: block;
+      background: #dcfce7;
+      color: #166534;
+      border-color: #bbf7d0;
+    }
+
+    .msg-topo.info {
+      display: block;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+
+    .msg-topo.neutro {
+      display: block;
+      background: #f8fafc;
+      color: #475569;
+      border-color: var(--line);
+    }
+
     .campo-obrigatorio::after {
       content: " *";
       color: var(--red);
@@ -468,6 +506,8 @@
         <div class="card">
           <h2>Dados do membro</h2>
 
+          <div id="msgTopo" class="msg-topo neutro">Selecione um membro ou clique em Novo para iniciar.</div>
+
           <input id="membroId" type="hidden" />
 
           <div class="status-edicao" id="statusEdicao">
@@ -611,6 +651,7 @@
     const campoObservacoes = document.getElementById("observacoes");
     const campoLista = document.getElementById("listaMembros");
     const campoMsg = document.getElementById("msg");
+    const campoMsgTopo = document.getElementById("msgTopo");
     const campoUsuario = document.getElementById("usuarioLogado");
     const campoStatusEdicao = document.getElementById("statusEdicao");
     const campoFiltroNome = document.getElementById("filtroNome");
@@ -666,13 +707,44 @@
       window.location.href = "login.html";
     }
 
-    function mostrarMensagem(texto, cor = "#dc2626") {
+    function tipoMensagemPorCor(cor) {
+      if (cor === "#16a34a") return "sucesso";
+      if (cor === "#2563eb") return "info";
+      if (cor === "#64748b") return "neutro";
+      return "erro";
+    }
+
+    function mostrarPopup(texto, tipo = "erro") {
+      if (!texto) return;
+      if (tipo === "erro") window.alert(texto);
+    }
+
+    function mostrarMensagem(texto, cor = "#dc2626", popup = false) {
+      const tipo = tipoMensagemPorCor(cor);
+
       campoMsg.textContent = texto;
       campoMsg.style.color = cor;
+
+      if (campoMsgTopo) {
+        campoMsgTopo.textContent = texto || "Selecione um membro ou clique em Novo para iniciar.";
+        campoMsgTopo.className = `msg-topo ${texto ? tipo : "neutro"}`;
+      }
+
+      if (popup || tipo === "erro") {
+        mostrarPopup(texto, tipo);
+      }
+
+      if (texto && campoMsgTopo) {
+        campoMsgTopo.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
 
     function limparMensagem() {
       campoMsg.textContent = "";
+      if (campoMsgTopo) {
+        campoMsgTopo.textContent = "Selecione um membro ou clique em Novo para iniciar.";
+        campoMsgTopo.className = "msg-topo neutro";
+      }
     }
 
     function normalizarTexto(valor) {
@@ -743,7 +815,7 @@
         btnExcluir.style.display = usuarioEhLider() ? "none" : "inline-block";
         campoFiltroNome.disabled = false;
         campoFiltroStatus.disabled = false;
-        campoFiltroCelula.disabled = false;
+        campoFiltroCelula.disabled = usuarioEhLider();
       }
     }
 
@@ -802,8 +874,9 @@
 
       if (usuarioEhLider()) {
         const celulaPermitida = celulaUsuario;
-        campoFiltroCelula.innerHTML = `<option value="${celulaPermitida}">${celulaPermitida || "Célula do líder"}</option>`;
-        campoFiltroCelula.value = celulaPermitida;
+        const celulaTravada = celulaPermitida || "Célula do líder";
+        campoFiltroCelula.innerHTML = `<option value="${celulaTravada}">${celulaTravada}</option>`;
+        campoFiltroCelula.value = celulaTravada;
         campoFiltroCelula.disabled = true;
         return;
       }
@@ -822,7 +895,7 @@
     function membrosFiltrados() {
       const nome = normalizarTexto(campoFiltroNome.value);
       const status = normalizarTexto(campoFiltroStatus.value);
-      const celula = normalizarTexto(campoFiltroCelula.value);
+      const celula = usuarioEhLider() ? normalizarTexto(celulaUsuario) : normalizarTexto(campoFiltroCelula.value);
 
       return ordenarMembros(membros).filter((membro) => {
         const nomeOk = !nome || normalizarTexto(membro.nome).includes(nome);
@@ -1293,6 +1366,7 @@
       setCamposEditaveis(false);
       atualizarWhatsappCampoTelefone();
       atualizarEstadoBotoes();
+      mostrarMensagem("Tela de membros carregada.", "#64748b");
       carregarMembros();
     }
   </script>

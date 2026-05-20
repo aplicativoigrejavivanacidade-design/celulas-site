@@ -174,11 +174,6 @@
       flex-wrap: wrap;
       gap: 10px;
       margin-top: 18px;
-      margin-bottom: 18px;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #f8fafc;
     }
 
     button {
@@ -231,71 +226,6 @@
       font-weight: bold;
       min-height: 20px;
       font-size: 14px;
-    }
-
-    .msg-topo {
-      display: block;
-      margin-bottom: 16px;
-      padding: 14px 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: bold;
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      color: #475569;
-    }
-
-    .msg-topo.erro { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-    .msg-topo.sucesso { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
-    .msg-topo.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-    .msg-topo.neutro { background: #f8fafc; color: #475569; border-color: var(--line); }
-
-    .campo-obrigatorio::after {
-      content: " *";
-      color: var(--red);
-      font-weight: bold;
-    }
-
-    .acoes-topo {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-      margin-bottom: 18px;
-      padding: 12px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #f8fafc;
-    }
-
-    .visitante-box {
-      margin-top: 18px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fcfdff;
-      display: none;
-    }
-
-    .visitante-box.ativo {
-      display: block;
-    }
-
-    .lista-grid.compacta {
-      grid-template-columns: repeat(3, 1fr);
-    }
-
-    .lista-grid.compacta .membro-check {
-      padding: 12px;
-    }
-
-    .lista-grid.compacta .membro-info h3 {
-      font-size: 15px;
-      margin-bottom: 6px;
-    }
-
-    .lista-grid.compacta .membro-info p {
-      font-size: 12px;
     }
 
     .resumo {
@@ -477,6 +407,64 @@
       background: #fcfdff;
     }
 
+
+    .acoes-topo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+
+    .msg-topo {
+      display: block;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #475569;
+    }
+
+    .msg-topo.erro { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+    .msg-topo.sucesso { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    .msg-topo.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .msg-topo.neutro { background: #f8fafc; color: #475569; border-color: var(--line); }
+
+    .campo-obrigatorio::after {
+      content: " *";
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    .visitante-box {
+      display: none;
+      margin-top: 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+    }
+
+    .visitante-box.ativo { display: block; }
+
+    .membro-linha {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .membro-linha h3 { margin: 0 0 4px; font-size: 16px; }
+    .membro-linha p { margin: 0; font-size: 13px; color: #4b5563; }
+
+
     @media (max-width: 1200px) {
       .grid-topo {
         grid-template-columns: 1fr;
@@ -559,31 +547,11 @@
           </div>
 
           <div class="acoes-topo">
-            <button class="btn-primary" id="btnEditar" type="button">Editar</button>
-            <button class="btn-secondary" id="btnCancelar" type="button">Cancelar</button>
-            <button class="btn-success" id="btnSalvar" type="button">Salvar</button>
-            <button class="btn-secondary" id="btnVisitante" type="button">Visitante</button>
+            <button class="btn-success" id="btnSalvar" type="button">Salvar presença</button>
+            <button class="btn-primary" id="btnEditar" type="button">Editar presença</button>
             <button class="btn-secondary" id="btnMarcarTodos" type="button">Marcar todos presentes</button>
             <button class="btn-danger" id="btnDesmarcarTodos" type="button">Marcar todos ausentes</button>
             <button class="btn-secondary" id="btnLimpar" type="button">Limpar seleção</button>
-          </div>
-
-          <div class="visitante-box" id="boxVisitante">
-            <h3 style="margin:0 0 10px;">Cadastrar visitante</h3>
-            <div class="grid-2">
-              <div>
-                <label for="visitanteNome" class="campo-obrigatorio">Nome</label>
-                <input id="visitanteNome" type="text" placeholder="Nome do visitante" />
-              </div>
-              <div>
-                <label for="visitanteTelefone" class="campo-obrigatorio">Telefone</label>
-                <input id="visitanteTelefone" type="text" placeholder="Telefone do visitante" />
-              </div>
-            </div>
-            <div class="acoes-topo" style="margin-top:12px;">
-              <button class="btn-success" id="btnSalvarVisitante" type="button">Salvar visitante</button>
-              <button class="btn-secondary" id="btnCancelarVisitante" type="button">Cancelar visitante</button>
-            </div>
           </div>
 
           <div class="info-edicao" id="infoEdicao">
@@ -606,11 +574,12 @@
 
       <div class="card" style="margin-bottom: 20px;">
         <h2>Membros vinculados à célula</h2>
-        <div class="lista-grid compacta" id="listaMembros"></div>
+        <div class="lista-grid" id="listaMembros"></div>
       </div>
 
       <div class="card">
         <h2>Registro salvo da reunião</h2>
+        <p style="margin-top:-8px;color:#6b7280;font-size:13px;">Mostra como a presença ficou gravada para esta data.</p>
         <div id="historicoPresencas"></div>
       </div>
     </main>
@@ -621,7 +590,6 @@
       const API_BASE = "https://celulas-backend.onrender.com";
       const apiMembros = `${API_BASE}/membros`;
       const apiPresencas = `${API_BASE}/presencas`;
-      const apiUsuarios = `${API_BASE}/usuarios`;
 
       if (localStorage.getItem("logado") !== "sim") {
         window.location.href = "login.html";
@@ -629,9 +597,7 @@
       }
 
       const nomeUsuario = localStorage.getItem("nomeUsuario") || "Administrador";
-      const nivelUsuario = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
-      let celulaUsuario = localStorage.getItem("celulaUsuario") || "";
-      const loginUsuario = localStorage.getItem("usuario") || "";
+      const nivelUsuario = localStorage.getItem("nivelUsuario") || "admin";
 
       let todosMembros = [];
       let membrosFiltrados = [];
@@ -644,15 +610,18 @@
       const campoHistorico = document.getElementById("historicoPresencas");
       const campoMensagem = document.getElementById("mensagem");
       const campoMsgTopo = document.getElementById("msgTopo");
+      const boxVisitante = document.getElementById("boxVisitante");
+      const visitanteNome = document.getElementById("visitanteNome");
+      const visitanteTelefone = document.getElementById("visitanteTelefone");
       const campoData = document.getElementById("dataReuniao");
       const campoCelula = document.getElementById("celulaSelecionada");
       const campoInfoEdicao = document.getElementById("infoEdicao");
-      const boxVisitante = document.getElementById("boxVisitante");
-      const campoVisitanteNome = document.getElementById("visitanteNome");
-      const campoVisitanteTelefone = document.getElementById("visitanteTelefone");
 
       function sair() {
-        localStorage.clear();
+        localStorage.removeItem("logado");
+        localStorage.removeItem("usuario");
+        localStorage.removeItem("nomeUsuario");
+        localStorage.removeItem("nivelUsuario");
         window.location.href = "login.html";
       }
 
@@ -666,38 +635,12 @@
       }
 
       function normalizarNomeCelula(valor) {
-        return normalizarTexto(valor).replace(/^C[EÉ]LULA\s*/i, "").replace(/^CELULA\s*/i, "").trim();
+        return normalizarTexto(valor).replace(/^CELULA\s*/i, "").trim();
       }
 
       function nomeCelulaExibicao(valor) {
         const base = normalizarNomeCelula(valor);
         return base ? `CÉLULA ${base}` : "";
-      }
-
-      function usuarioEhLider() {
-        return nivelUsuario === "lider" || nivelUsuario === "líder";
-      }
-
-      function celulaPermitidaParaUsuario() {
-        if (!usuarioEhLider()) return "";
-        return nomeCelulaExibicao(celulaUsuario);
-      }
-
-      function tipoMensagemPorCor(cor) {
-        if (cor === "#16a34a") return "sucesso";
-        if (cor === "#2563eb") return "info";
-        if (cor === "#64748b") return "neutro";
-        return "erro";
-      }
-
-      function mostrarMensagem(texto, cor = "#dc2626") {
-        campoMensagem.textContent = texto;
-        campoMensagem.style.color = cor;
-        if (campoMsgTopo) {
-          campoMsgTopo.textContent = texto || "Selecione a data e a célula para registrar a presença.";
-          campoMsgTopo.className = `msg-topo ${texto ? tipoMensagemPorCor(cor) : "neutro"}`;
-        }
-        if (cor === "#dc2626" && texto) window.alert(texto);
       }
 
       function definirDataHoje() {
@@ -706,59 +649,6 @@
         const mes = String(hoje.getMonth() + 1).padStart(2, "0");
         const dia = String(hoje.getDate()).padStart(2, "0");
         campoData.value = `${ano}-${mes}-${dia}`;
-      }
-
-      function obterDataCadastroMembro(membro) {
-        return String(membro.criado_em || membro.criadoEm || membro.data_cadastro || membro.dataCadastro || membro.created_at || membro.createdAt || "").slice(0, 10);
-      }
-
-      function membroPodeEntrarNaPresenca(membro) {
-        const dataCadastro = obterDataCadastroMembro(membro);
-        if (!dataCadastro || !campoData.value) return true;
-        return dataCadastro <= campoData.value;
-      }
-
-      async function garantirCelulaDoUsuario() {
-        if (!usuarioEhLider()) return true;
-        if (celulaPermitidaParaUsuario()) return true;
-
-        const usuarioId = localStorage.getItem("usuarioId") || "";
-        try {
-          let usuarioAtual = null;
-          if (usuarioId) {
-            const respostaId = await fetch(`${apiUsuarios}/${usuarioId}`, { cache: "no-store" });
-            if (respostaId.ok) usuarioAtual = await respostaId.json();
-          }
-          if (!usuarioAtual || !usuarioAtual.celula) {
-            const resposta = await fetch(apiUsuarios, { cache: "no-store" });
-            if (!resposta.ok) throw new Error("Erro ao consultar usuário.");
-            const lista = await resposta.json();
-            usuarioAtual = (Array.isArray(lista) ? lista : []).find((item) =>
-              String(item.usuario || "").toLowerCase() === String(loginUsuario || "").toLowerCase()
-            );
-          }
-          celulaUsuario = usuarioAtual?.celula || "";
-          localStorage.setItem("celulaUsuario", celulaUsuario || "");
-          return !!celulaPermitidaParaUsuario();
-        } catch (erro) {
-          console.error("Erro ao recuperar célula do líder:", erro);
-          return false;
-        }
-      }
-
-      function aplicarTravaCelulaLider() {
-        if (!usuarioEhLider()) return true;
-        const celulaPermitida = celulaPermitidaParaUsuario();
-        if (!celulaPermitida) {
-          campoCelula.innerHTML = '<option value="">Líder sem célula vinculada</option>';
-          campoCelula.disabled = true;
-          mostrarMensagem("Seu usuário líder não possui célula vinculada. Solicite ajuste ao administrador.");
-          return false;
-        }
-        campoCelula.innerHTML = `<option value="${celulaPermitida}">${celulaPermitida}</option>`;
-        campoCelula.value = celulaPermitida;
-        campoCelula.disabled = true;
-        return true;
       }
 
       function textoStatus(status) {
@@ -773,6 +663,26 @@
         return "tag-status tag-pendente";
       }
 
+      function tipoMensagemPorCor(cor) {
+        if (cor === "#16a34a") return "sucesso";
+        if (cor === "#2563eb") return "info";
+        if (cor === "#64748b") return "neutro";
+        return "erro";
+      }
+
+      function mostrarMensagem(texto, cor = "#dc2626") {
+        const tipo = tipoMensagemPorCor(cor);
+        campoMensagem.textContent = texto;
+        campoMensagem.style.color = cor;
+
+        if (campoMsgTopo) {
+          campoMsgTopo.textContent = texto || "Selecione a data e a célula para registrar a presença.";
+          campoMsgTopo.className = `msg-topo ${texto ? tipo : "neutro"}`;
+        }
+
+        if (cor === "#dc2626" && texto) window.alert(texto);
+      }
+
       function formatarWhatsapp(numero) {
         const limpo = String(numero || "").replace(/\D/g, "");
         if (!limpo) return "";
@@ -782,12 +692,14 @@
       function iconeWhatsapp(numero) {
         const telefone = formatarWhatsapp(numero);
         if (!telefone) return "";
+
         return `
           <a class="btn-whatsapp" target="_blank" href="https://wa.me/${telefone}" aria-label="Abrir WhatsApp">
             <svg viewBox="0 0 32 32" aria-hidden="true">
               <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
             </svg>
-          </a>`;
+          </a>
+        `;
       }
 
       function atualizarModoEdicao() {
@@ -796,32 +708,10 @@
           campoInfoEdicao.style.background = "#eff6ff";
           campoInfoEdicao.style.color = "#1d4ed8";
         } else {
-          campoInfoEdicao.textContent = "Modo atual: PRESENÇA TRAVADA. Para alterar, clique em Editar.";
+          campoInfoEdicao.textContent = "Modo atual: PRESENÇA TRAVADA. Para alterar, clique em Editar presença.";
           campoInfoEdicao.style.background = "#fef3c7";
           campoInfoEdicao.style.color = "#92400e";
         }
-        atualizarEstadoBotoes();
-      }
-
-      function atualizarEstadoBotoes() {
-        const btnSalvar = document.getElementById("btnSalvar");
-        const btnEditar = document.getElementById("btnEditar");
-        const btnCancelar = document.getElementById("btnCancelar");
-        const btnMarcarTodos = document.getElementById("btnMarcarTodos");
-        const btnDesmarcarTodos = document.getElementById("btnDesmarcarTodos");
-        const btnLimpar = document.getElementById("btnLimpar");
-        const btnVisitante = document.getElementById("btnVisitante");
-
-        const temCelula = !!campoCelula.value;
-        const temMembros = membrosFiltrados.length > 0;
-
-        btnSalvar.disabled = !edicaoLiberada || !temCelula || !temMembros;
-        btnCancelar.disabled = !edicaoLiberada || !temCelula;
-        btnEditar.disabled = edicaoLiberada || !temCelula || !temMembros;
-        btnMarcarTodos.disabled = !edicaoLiberada || !temCelula || !temMembros;
-        btnDesmarcarTodos.disabled = !edicaoLiberada || !temCelula || !temMembros;
-        btnLimpar.disabled = !edicaoLiberada || !temCelula || !temMembros;
-        btnVisitante.disabled = !edicaoLiberada || !temCelula;
       }
 
       function atualizarResumo() {
@@ -829,49 +719,72 @@
         const presentes = membrosFiltrados.filter((m) => presencas[m.id] === "presente").length;
         const ausentes = membrosFiltrados.filter((m) => presencas[m.id] === "ausente").length;
         const pendentes = total - presentes - ausentes;
+
         document.getElementById("totalMembros").textContent = `${total} membro(s)`;
         document.getElementById("totalPresentes").textContent = `${presentes} presente(s)`;
         document.getElementById("totalAusentes").textContent = `${ausentes} ausente(s)`;
         document.getElementById("totalPendentes").textContent = `${pendentes} pendente(s)`;
-        atualizarEstadoBotoes();
       }
 
       function obterCelulasUnicas() {
         const mapa = new Map();
+
         todosMembros.forEach((membro) => {
           const bruto = String(membro.celula || "").trim();
           const chave = normalizarNomeCelula(bruto);
           if (!chave) return;
-          if (!mapa.has(chave)) mapa.set(chave, nomeCelulaExibicao(bruto));
+
+          if (!mapa.has(chave)) {
+            mapa.set(chave, nomeCelulaExibicao(bruto));
+          }
         });
+
         return Array.from(mapa.values()).sort((a, b) => a.localeCompare(b, "pt-BR"));
       }
 
       function preencherSelectCelulas() {
-        if (usuarioEhLider()) {
-          aplicarTravaCelulaLider();
-          return;
-        }
         const celulas = obterCelulasUnicas();
-        campoCelula.disabled = false;
+
         if (celulas.length === 0) {
           campoCelula.innerHTML = '<option value="">Nenhuma célula cadastrada</option>';
           return;
         }
+
         const valorAtual = campoCelula.value;
         campoCelula.innerHTML =
           '<option value="">Selecione a célula</option>' +
           celulas.map((celula) => `<option value="${celula}">${celula}</option>`).join("");
-        if (celulas.includes(valorAtual)) campoCelula.value = valorAtual;
+
+        if (celulas.includes(valorAtual)) {
+          campoCelula.value = valorAtual;
+        }
+      }
+
+
+      function dataCadastroMembro(membro) {
+        const valor = membro.created_at || membro.createdAt || membro.data_cadastro || membro.dataCadastro || membro.criado_em || membro.criadoEm || "";
+        return String(valor || "").slice(0, 10);
+      }
+
+      function membroExistiaNaData(membro) {
+        if (!campoData.value) return true;
+        const dataCadastro = dataCadastroMembro(membro);
+        if (!dataCadastro) return true;
+        return dataCadastro <= campoData.value;
       }
 
       function filtrarMembrosPorCelula() {
-        if (usuarioEhLider()) aplicarTravaCelulaLider();
-        const celulaSelecionada = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
+        const celulaSelecionada = campoCelula.value;
         const alvo = normalizarNomeCelula(celulaSelecionada);
-        membrosFiltrados = alvo
-          ? todosMembros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo && membroPodeEntrarNaPresenca(membro))
-          : [];
+
+        if (!alvo) {
+          membrosFiltrados = [];
+        } else {
+          membrosFiltrados = todosMembros.filter((membro) => {
+            return normalizarNomeCelula(membro.celula) === alvo && membroExistiaNaData(membro);
+          });
+        }
+
         renderizarMembros();
         atualizarResumo();
         renderizarHistorico();
@@ -882,68 +795,104 @@
           campoLista.innerHTML = '<div class="vazio">Selecione uma célula para carregar os membros.</div>';
           return;
         }
+
         if (membrosFiltrados.length === 0) {
-          campoLista.innerHTML = '<div class="vazio">Nenhum membro elegível para esta célula/data.</div>';
+          campoLista.innerHTML = '<div class="vazio">Nenhum membro encontrado para esta célula.</div>';
           return;
         }
-        const membrosOrdenados = [...membrosFiltrados].sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+
+        const membrosOrdenados = [...membrosFiltrados].sort((a, b) =>
+          String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR")
+        );
+
         campoLista.innerHTML = membrosOrdenados.map((membro) => {
           const status = presencas[membro.id] || "";
           const marcado = status === "presente" ? "checked" : "";
           const bloqueado = !edicaoLiberada ? "disabled" : "";
           const classeMarcado = status === "presente" ? "marcado" : "";
           const classeBloqueado = !edicaoLiberada ? "bloqueado" : "";
+
           return `
             <div class="membro-check ${classeMarcado} ${classeBloqueado}">
-              <label class="membro-check-topo">
-                <input type="checkbox" class="check-presenca" data-id="${membro.id}" ${marcado} ${bloqueado}>
+              <label class="membro-check-topo membro-linha">
+                <input
+                  type="checkbox"
+                  class="check-presenca"
+                  data-id="${membro.id}"
+                  ${marcado}
+                  ${bloqueado}
+                >
                 <div class="membro-info">
                   <h3>${membro.nome || ""}</h3>
                   <p><strong>Telefone:</strong> ${membro.telefone || "-"} ${iconeWhatsapp(membro.telefone)}</p>
-                  <span class="${classeStatus(status)}">${textoStatus(status)}</span>
                 </div>
+                <span class="${classeStatus(status)}">${textoStatus(status)}</span>
               </label>
-            </div>`;
+            </div>
+          `;
         }).join("");
       }
 
       function renderizarHistorico() {
         if (!campoCelula.value) {
-          campoHistorico.innerHTML = '<div class="vazio">Selecione uma célula para ver o registro salvo.</div>';
+          campoHistorico.innerHTML = '<div class="vazio">Selecione uma célula para ver o histórico da data.</div>';
           return;
         }
+
+        if (membrosFiltrados.length === 0) {
+          campoHistorico.innerHTML = '<div class="vazio">Nenhum membro encontrado para esta célula.</div>';
+          return;
+        }
+
         const listaComStatus = membrosFiltrados.filter((membro) => !!presencas[membro.id]);
+
         if (listaComStatus.length === 0) {
           campoHistorico.innerHTML = '<div class="vazio">Nenhum registro salvo para esta data.</div>';
           return;
         }
+
         campoHistorico.innerHTML = `
           <div class="historico-lista">
             ${listaComStatus.map((membro) => `
               <div class="historico-item">
                 <h3>${membro.nome || ""}</h3>
                 <p><strong>Status salvo:</strong> ${textoStatus(presencas[membro.id])}</p>
-              </div>`).join("")}
-          </div>`;
+              </div>
+            `).join("")}
+          </div>
+        `;
       }
 
       async function carregarPresencasData() {
         try {
-          if (usuarioEhLider() && !aplicarTravaCelulaLider()) return;
           presencas = {};
+
           if (!campoData.value) {
-            renderizarMembros(); atualizarResumo(); renderizarHistorico(); return;
+            renderizarMembros();
+            atualizarResumo();
+            renderizarHistorico();
+            return;
           }
+
           const resposta = await fetch(`${apiPresencas}/${campoData.value}`, { cache: "no-store" });
-          if (!resposta.ok) throw new Error("Erro ao carregar presença da data selecionada.");
+
+          if (!resposta.ok) {
+            throw new Error("Erro ao carregar presença da data selecionada.");
+          }
+
           const dados = await resposta.json();
+
           (Array.isArray(dados) ? dados : []).forEach((item) => {
             presencas[Number(item.membroId)] = item.status;
           });
+
           houveSalvamentoInicial = Object.keys(presencas).length > 0;
           edicaoLiberada = !houveSalvamentoInicial;
-          filtrarMembrosPorCelula();
+
           atualizarModoEdicao();
+          renderizarMembros();
+          atualizarResumo();
+          renderizarHistorico();
         } catch (erro) {
           console.error(erro);
           mostrarMensagem("Erro ao carregar presença da data selecionada.");
@@ -952,83 +901,152 @@
 
       function atualizarCheckboxPresenca(membroId, marcado) {
         presencas[Number(membroId)] = marcado ? "presente" : "ausente";
-        renderizarMembros(); atualizarResumo(); renderizarHistorico();
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
       }
 
       function marcarTodosComo(valorPresente) {
-        if (!campoCelula.value || membrosFiltrados.length === 0) return mostrarMensagem("Selecione uma célula com membros.");
-        if (!edicaoLiberada) return mostrarMensagem("A presença está travada. Clique em Editar para alterar.");
+        if (!campoCelula.value || membrosFiltrados.length === 0) {
+          mostrarMensagem("Selecione uma célula com membros.");
+          return;
+        }
+
+        if (!edicaoLiberada) {
+          mostrarMensagem("A presença está travada. Clique em Editar para alterar.");
+          return;
+        }
+
         membrosFiltrados.forEach((membro) => {
           presencas[Number(membro.id)] = valorPresente ? "presente" : "ausente";
         });
-        renderizarMembros(); atualizarResumo(); renderizarHistorico();
-        mostrarMensagem(valorPresente ? "Todos marcados como presentes." : "Todos marcados como ausentes.", valorPresente ? "#16a34a" : "#dc2626");
+
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
+        mostrarMensagem(
+          valorPresente ? "Todos marcados como presentes." : "Todos marcados como ausentes.",
+          valorPresente ? "#16a34a" : "#dc2626"
+        );
       }
 
       async function salvarPresencas() {
-        if (!campoData.value) return mostrarMensagem("Selecione a data da reunião.");
-        if (!campoCelula.value) return mostrarMensagem("Selecione a célula.");
-        if (membrosFiltrados.length === 0) return mostrarMensagem("Não há membros para salvar nesta célula/data.");
+        if (!campoData.value) {
+          mostrarMensagem("Selecione a data da reunião.");
+          return;
+        }
+
+        if (!campoCelula.value) {
+          mostrarMensagem("Selecione a célula.");
+          return;
+        }
+
+        if (membrosFiltrados.length === 0) {
+          mostrarMensagem("Não há membros para salvar nesta célula.");
+          return;
+        }
+
         const registros = membrosFiltrados.map((membro) => ({
           membroId: membro.id,
           status: presencas[membro.id] === "presente" ? "presente" : "ausente"
         }));
+
         try {
           mostrarMensagem("Salvando presença...", "#2563eb");
+
           const resposta = await fetch(apiPresencas, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ data: campoData.value, registros })
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              data: campoData.value,
+              registros
+            })
           });
+
           const dados = await resposta.json().catch(() => ({}));
-          if (!resposta.ok) throw new Error(dados.erro || "Erro ao salvar presença.");
+
+          if (!resposta.ok) {
+            throw new Error(dados.erro || "Erro ao salvar presença.");
+          }
+
           houveSalvamentoInicial = true;
           edicaoLiberada = false;
           atualizarModoEdicao();
+
           mostrarMensagem("Presença salva com sucesso.", "#16a34a");
           await carregarPresencasData();
         } catch (erro) {
+          console.error(erro);
           mostrarMensagem(erro.message || "Erro ao salvar presença.");
         }
       }
 
-      async function cadastrarVisitante() {
-        const nome = normalizarTexto(campoVisitanteNome.value);
-        const telefone = String(campoVisitanteTelefone.value || "").trim();
-        const celula = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
-        if (!nome) return mostrarMensagem("Informe o nome do visitante.");
-        if (!telefone) return mostrarMensagem("Informe o telefone do visitante.");
-        if (!celula) return mostrarMensagem("Selecione a célula antes de cadastrar visitante.");
+
+      function abrirCadastroVisitante() {
+        if (!campoData.value) {
+          mostrarMensagem("Selecione a data da reunião antes de cadastrar visitante.");
+          campoData.focus();
+          return;
+        }
+
+        if (!campoCelula.value) {
+          mostrarMensagem("Selecione a célula antes de cadastrar visitante.");
+          campoCelula.focus();
+          return;
+        }
+
+        boxVisitante.classList.add("ativo");
+        visitanteNome.value = "";
+        visitanteTelefone.value = "";
+        visitanteNome.focus();
+        mostrarMensagem("Cadastro rápido de visitante liberado.", "#2563eb");
+      }
+
+      function fecharCadastroVisitante() {
+        boxVisitante.classList.remove("ativo");
+        visitanteNome.value = "";
+        visitanteTelefone.value = "";
+        mostrarMensagem("Cadastro de visitante cancelado.", "#64748b");
+      }
+
+      async function salvarVisitante() {
+        const nome = String(visitanteNome.value || "").trim();
+        const telefone = String(visitanteTelefone.value || "").trim();
+
+        if (!nome) {
+          mostrarMensagem("Informe o nome do visitante.");
+          visitanteNome.focus();
+          return;
+        }
+
+        if (telefone.replace(/\D/g, "").length < 10) {
+          mostrarMensagem("Informe um telefone válido para o visitante.");
+          visitanteTelefone.focus();
+          return;
+        }
+
         try {
           mostrarMensagem("Salvando visitante...", "#2563eb");
-          const resposta = await fetch(apiMembros, {
+
+          const resposta = await fetch(apiVisitantes, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               nome,
               telefone,
-              email: `${Date.now()}@visitante.local`,
-              documento: `VIS${Date.now()}`,
-              celula,
-              nascimento: campoData.value,
-              status: "VISITANTE",
-              cep: "00000-000",
-              rua: "NÃO INFORMADO",
-              numero: "S/N",
-              complemento: "",
-              bairro: "NÃO INFORMADO",
-              cidade: "NÃO INFORMADO",
-              estado: "PR",
-              observacoes: `VISITANTE CADASTRADO PELA PRESENÇA EM ${campoData.value}`
+              celula: campoCelula.value,
+              dataCadastro: campoData.value
             })
           });
+
           const dados = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(dados.erro || "Erro ao cadastrar visitante.");
-          campoVisitanteNome.value = "";
-          campoVisitanteTelefone.value = "";
-          boxVisitante.classList.remove("ativo");
+
+          fecharCadastroVisitante();
           await carregarMembros();
-          mostrarMensagem("Visitante cadastrado com sucesso.", "#16a34a");
+          mostrarMensagem("Visitante cadastrado e vinculado à reunião.", "#16a34a");
         } catch (erro) {
           mostrarMensagem(erro.message || "Erro ao cadastrar visitante.");
         }
@@ -1037,82 +1055,109 @@
       async function carregarMembros() {
         try {
           campoLista.innerHTML = '<div class="vazio">Carregando membros...</div>';
-          campoHistorico.innerHTML = '<div class="vazio">Carregando registro salvo...</div>';
+          campoHistorico.innerHTML = '<div class="vazio">Carregando histórico...</div>';
+
           const resposta = await fetch(apiMembros, { cache: "no-store" });
-          if (!resposta.ok) throw new Error("Erro ao carregar membros.");
-          todosMembros = await resposta.json();
-          const liderComCelula = await garantirCelulaDoUsuario();
-          if (usuarioEhLider() && !liderComCelula) {
-            preencherSelectCelulas(); atualizarResumo(); return;
+
+          if (!resposta.ok) {
+            throw new Error("Erro ao carregar membros.");
           }
+
+          todosMembros = await resposta.json();
           preencherSelectCelulas();
           filtrarMembrosPorCelula();
           await carregarPresencasData();
         } catch (erro) {
           console.error(erro);
           campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
-          campoHistorico.innerHTML = '<div class="vazio">Erro ao carregar registro salvo.</div>';
+          campoHistorico.innerHTML = '<div class="vazio">Erro ao carregar histórico.</div>';
           mostrarMensagem("Erro ao carregar membros.");
         }
       }
 
       document.getElementById("btnSair").addEventListener("click", sair);
+      document.getElementById("btnNovoVisitante").addEventListener("click", abrirCadastroVisitante);
+      document.getElementById("btnSalvarVisitante").addEventListener("click", salvarVisitante);
+      document.getElementById("btnCancelarVisitante").addEventListener("click", fecharCadastroVisitante);
+
+      campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
+
       campoData.addEventListener("change", async () => {
-        houveSalvamentoInicial = false; edicaoLiberada = true; atualizarModoEdicao();
-        filtrarMembrosPorCelula();
+        houveSalvamentoInicial = false;
+        edicaoLiberada = true;
+        atualizarModoEdicao();
         await carregarPresencasData();
       });
+
       campoCelula.addEventListener("change", async () => {
-        houveSalvamentoInicial = false; edicaoLiberada = true; atualizarModoEdicao();
+        houveSalvamentoInicial = false;
+        edicaoLiberada = true;
+        atualizarModoEdicao();
         filtrarMembrosPorCelula();
         await carregarPresencasData();
       });
+
       campoLista.addEventListener("change", (evento) => {
         const checkbox = evento.target.closest(".check-presenca");
         if (!checkbox) return;
+
         if (!edicaoLiberada) {
           checkbox.checked = !checkbox.checked;
-          return mostrarMensagem("A presença está travada. Clique em Editar para alterar.");
+          mostrarMensagem("A presença está travada. Clique em Editar para alterar.");
+          return;
         }
-        atualizarCheckboxPresenca(Number(checkbox.dataset.id), checkbox.checked);
+
+        const membroId = Number(checkbox.dataset.id);
+        atualizarCheckboxPresenca(membroId, checkbox.checked);
         mostrarMensagem("Alteração feita na tela. Clique em Salvar para gravar.", "#2563eb");
       });
-      document.getElementById("btnSalvar").addEventListener("click", salvarPresencas);
-      document.getElementById("btnEditar").addEventListener("click", () => {
-        if (!campoCelula.value) return mostrarMensagem("Selecione uma célula para editar a presença.");
-        edicaoLiberada = true; atualizarModoEdicao(); renderizarMembros();
-        mostrarMensagem("Edição liberada. Ajuste os checkboxes e salve novamente.", "#2563eb");
-      });
-      document.getElementById("btnCancelar").addEventListener("click", async () => {
-        edicaoLiberada = false; atualizarModoEdicao(); await carregarPresencasData();
-        mostrarMensagem("Edição cancelada. Dados atuais restaurados.", "#64748b");
-      });
-      document.getElementById("btnVisitante").addEventListener("click", () => {
-        if (!campoCelula.value) return mostrarMensagem("Selecione a célula antes de cadastrar visitante.");
-        boxVisitante.classList.toggle("ativo");
-      });
-      document.getElementById("btnSalvarVisitante").addEventListener("click", cadastrarVisitante);
-      document.getElementById("btnCancelarVisitante").addEventListener("click", () => {
-        boxVisitante.classList.remove("ativo");
-        campoVisitanteNome.value = "";
-        campoVisitanteTelefone.value = "";
-      });
-      document.getElementById("btnMarcarTodos").addEventListener("click", () => marcarTodosComo(true));
-      document.getElementById("btnDesmarcarTodos").addEventListener("click", () => marcarTodosComo(false));
-      document.getElementById("btnLimpar").addEventListener("click", () => marcarTodosComo(false));
 
-      async function iniciarTela() {
-        definirDataHoje();
-        if (usuarioEhLider()) {
-          await garantirCelulaDoUsuario();
-          campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario} | Célula: ${celulaPermitidaParaUsuario() || "não vinculada"}`;
-        } else {
-          campoUsuario.textContent = `Usuário: ${nomeUsuario} | Nível: ${nivelUsuario}`;
+      document.getElementById("btnSalvar").addEventListener("click", salvarPresencas);
+
+      document.getElementById("btnEditar").addEventListener("click", () => {
+        if (!campoCelula.value) {
+          mostrarMensagem("Selecione uma célula para editar a presença.");
+          return;
         }
+
+        edicaoLiberada = true;
         atualizarModoEdicao();
-        await carregarMembros();
-      }
-      iniciarTela();
+        renderizarMembros();
+        mostrarMensagem("Edição liberada. Agora ajuste os checkboxes e salve novamente.", "#2563eb");
+      });
+
+      document.getElementById("btnMarcarTodos").addEventListener("click", () => {
+        marcarTodosComo(true);
+      });
+
+      document.getElementById("btnDesmarcarTodos").addEventListener("click", () => {
+        marcarTodosComo(false);
+      });
+
+      document.getElementById("btnLimpar").addEventListener("click", () => {
+        if (!campoCelula.value || membrosFiltrados.length === 0) {
+          mostrarMensagem("Selecione uma célula para limpar.");
+          return;
+        }
+
+        if (!edicaoLiberada) {
+          mostrarMensagem("A presença está travada. Clique em Editar para alterar.");
+          return;
+        }
+
+        membrosFiltrados.forEach((membro) => {
+          presencas[Number(membro.id)] = "ausente";
+        });
+
+        renderizarMembros();
+        atualizarResumo();
+        renderizarHistorico();
+        mostrarMensagem("Todos marcados como ausentes na tela.", "#64748b");
+      });
+
+      definirDataHoje();
+      atualizarModoEdicao();
+      carregarMembros();
     });
   </script>
 </body>
