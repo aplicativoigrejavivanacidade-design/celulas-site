@@ -726,7 +726,7 @@
       </div>
 
       <div class="card" style="margin-bottom: 20px;">
-        <h2>Membros da Célula</h2>
+        <h2>Membros vinculados à célula</h2>
         <div class="lista-grid compacta" id="listaMembros"></div>
       </div>
     </main>
@@ -960,7 +960,7 @@
         configurarBotao("btnDesmarcarTodos", liberado && temCelula && temMembros);
         configurarBotao("btnLimpar", liberado && temCelula && temMembros);
 
-        campoData.disabled = modo === "consulta";
+        campoData.disabled = modo !== "inclusao";
         campoCelula.disabled = usuarioEhLider() || modo === "consulta";
       }
 
@@ -1227,14 +1227,17 @@
 
         try {
           mostrarMensagem("Salvando visitante...", "#2563eb");
-          const resposta = await fetch(`${apiMembros}/visitante`, {
+          const resposta = await fetch(apiMembros, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               nome,
               telefone,
               celula,
+              status: "VISITANTE",
+              origemCadastro: "PRESENCA_VISITANTE",
               dataCadastro: dataReuniaoAtual(),
+              cadastroCompleto: false,
               observacoes: `VISITANTE CADASTRADO PELA PRESENÇA EM ${dataReuniaoAtual()}`
             })
           });
@@ -1317,7 +1320,7 @@
 
       async function iniciarTela() {
         const fim = hojeISO();
-        campoDataInicial.value = deslocarDias(fim, -29);
+        campoDataInicial.value = fim;
         campoDataFinal.value = fim;
         campoData.value = fim;
 
