@@ -754,7 +754,6 @@
       let presencas = {};
       let modo = "consulta";
       let reuniaoSelecionada = null;
-      let dataOriginalEdicao = "";
       let reunioesRegistradas = [];
 
       const campoUsuario = document.getElementById("usuarioLogado");
@@ -933,16 +932,6 @@
         botao.classList.toggle("botao-bloqueado", !liberado);
       }
 
-      function visitanteAberto() {
-        return boxVisitante && boxVisitante.classList.contains("ativo");
-      }
-
-      function validarVisitanteAberto() {
-        if (!visitanteAberto()) return true;
-        mostrarMensagem("Finalize o cadastro do visitante ou clique em Cancelar visitante antes de continuar.");
-        return false;
-      }
-
       function atualizarModo() {
         if (modo === "consulta") {
           campoInfoEdicao.textContent = "Modo atual: CONSULTA. Clique em Incluir para lançar nova presença ou selecione uma reunião registrada para editar.";
@@ -1089,7 +1078,6 @@
 
       async function carregarReunioesRegistradas() {
         reuniaoSelecionada = null;
-        dataOriginalEdicao = "";
         reunioesRegistradas = [];
         listaReunioes.innerHTML = '<div class="vazio">Carregando reuniões registradas...</div>';
 
@@ -1170,7 +1158,6 @@
         const item = reunioesRegistradas.find((r) => r.data === data);
         if (!item) return;
         reuniaoSelecionada = item;
-        dataOriginalEdicao = data;
         campoData.value = data;
         modo = "consulta";
         await carregarPresencasData();
@@ -1180,30 +1167,24 @@
       }
 
       function prepararLancamento(tipo) {
-        if (!validarVisitanteAberto()) return;
-
         if (tipo === "inclusao") {
           modo = "inclusao";
           reuniaoSelecionada = null;
-          dataOriginalEdicao = "";
           presencas = {};
-          campoData.value = hojeISO();
+          if (!campoData.value) campoData.value = campoDataFinal.value || hojeISO();
           membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
-          mostrarMensagem("Inclusão liberada. A data sugerida é hoje. Você pode alterar a data da reunião, marcar os presentes e salvar.", "#2563eb");
+          mostrarMensagem("Inclusão liberada. Agora você pode ajustar a data da reunião, marcar os presentes e salvar.", "#2563eb");
         } else {
           if (!reuniaoSelecionada) return mostrarMensagem("Selecione uma reunião registrada antes de editar.");
           modo = "edicao";
-          dataOriginalEdicao = reuniaoSelecionada.data;
           campoData.value = reuniaoSelecionada.data;
           mostrarMensagem("Edição liberada. A data da reunião também pode ser alterada antes de salvar.", "#2563eb");
         }
-
         atualizarModo();
         filtrarMembrosPorCelula();
       }
 
       function marcarTodosComo(valorPresente) {
-        if (!validarVisitanteAberto()) return;
         if (modo === "consulta") return mostrarMensagem("Clique em Incluir ou Editar antes de alterar presença.");
         membrosFiltrados.forEach((membro) => {
           presencas[Number(membro.id)] = valorPresente ? "presente" : "ausente";
@@ -1213,7 +1194,6 @@
       }
 
       async function salvarPresencas() {
-        if (!validarVisitanteAberto()) return;
         if (modo === "consulta") return mostrarMensagem("Clique em Incluir ou Editar antes de salvar.");
         if (!campoData.value) return mostrarMensagem("Informe a data da reunião.");
         if (!campoCelula.value) return mostrarMensagem("Selecione a célula.");
@@ -1234,19 +1214,7 @@
           const dados = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(dados.erro || "Erro ao salvar presença.");
 
-          if (modo === "edicao" && dataOriginalEdicao && dataOriginalEdicao !== campoData.value) {
-            await fetch(`${apiPresencas}/remover-data-membros`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                data: dataOriginalEdicao,
-                membroIds: registros.map((r) => r.membroId)
-              })
-            });
-          }
-
           modo = "consulta";
-          dataOriginalEdicao = "";
           boxVisitante.classList.remove("ativo");
           atualizarModo();
           await carregarPresencasData();
@@ -1286,7 +1254,6 @@
           campoVisitanteTelefone.value = "";
           boxVisitante.classList.remove("ativo");
           await carregarMembros();
-          atualizarEstadoBotoes();
           mostrarMensagem("Visitante cadastrado como cadastro pendente. Complete os dados depois na tela Membros.", "#16a34a");
         } catch (erro) {
           mostrarMensagem(erro.message || "Erro ao cadastrar visitante.");
@@ -1301,7 +1268,6 @@
       document.getElementById("btnEditar").addEventListener("click", () => prepararLancamento("edicao"));
       document.getElementById("btnCancelar").addEventListener("click", async () => {
         modo = "consulta";
-        dataOriginalEdicao = "";
         boxVisitante.classList.remove("ativo");
         atualizarModo();
         await carregarPresencasData();
@@ -1310,17 +1276,13 @@
       document.getElementById("btnSalvar").addEventListener("click", salvarPresencas);
       document.getElementById("btnVisitante").addEventListener("click", () => {
         if (modo === "consulta") return mostrarMensagem("Clique em Incluir antes de cadastrar visitante.");
-        boxVisitante.classList.add("ativo");
-        atualizarEstadoBotoes();
-        mostrarMensagem("Finalize o cadastro do visitante ou clique em Cancelar visitante para continuar.", "#2563eb");
+        boxVisitante.classList.toggle("ativo");
       });
       document.getElementById("btnSalvarVisitante").addEventListener("click", cadastrarVisitante);
       document.getElementById("btnCancelarVisitante").addEventListener("click", () => {
         boxVisitante.classList.remove("ativo");
         campoVisitanteNome.value = "";
         campoVisitanteTelefone.value = "";
-        atualizarEstadoBotoes();
-        mostrarMensagem("Cadastro de visitante cancelado.", "#64748b");
       });
       document.getElementById("btnMarcarTodos").addEventListener("click", () => marcarTodosComo(true));
       document.getElementById("btnDesmarcarTodos").addEventListener("click", () => marcarTodosComo(false));
@@ -1351,11 +1313,6 @@
       campoLista.addEventListener("change", (evento) => {
         const checkbox = evento.target.closest(".check-presenca");
         if (!checkbox) return;
-
-        if (!validarVisitanteAberto()) {
-          checkbox.checked = !checkbox.checked;
-          return;
-        }
 
         if (modo === "consulta") {
           checkbox.checked = !checkbox.checked;
