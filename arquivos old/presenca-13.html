@@ -558,51 +558,6 @@
         grid-template-columns: 1fr;
       }
     }
-  
-    .reunioes-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .reuniao-item {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: #fafbfd;
-      padding: 14px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .reuniao-item:hover {
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
-    }
-
-    .reuniao-item.ativa {
-      border-color: var(--green);
-      background: #f3fff7;
-      box-shadow: 0 0 0 3px rgba(22,163,74,0.10);
-    }
-
-    .reuniao-item h3 {
-      margin: 0 0 8px;
-      font-size: 15px;
-    }
-
-    .reuniao-item p {
-      margin: 0;
-      color: #4b5563;
-      font-size: 12px;
-    }
-
-    @media (max-width: 1100px) {
-      .reunioes-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
   </style>
 </head>
 <body>
@@ -650,13 +605,6 @@
             <button class="btn-success" id="btn7dias" type="button">7 dias</button>
             <button class="btn-secondary" id="btn30dias" type="button" style="background:#f59e0b;">30 dias</button>
           </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom:20px;">
-        <h2>Reuniões registradas</h2>
-        <div id="listaReunioesRegistradas" class="reunioes-grid">
-          <div class="vazio">Use o filtro acima para carregar as reuniões registradas.</div>
         </div>
       </div>
 
@@ -726,7 +674,7 @@
       </div>
 
       <div class="card" style="margin-bottom: 20px;">
-        <h2>Membros da Célula</h2>
+        <h2>Membros vinculados à célula</h2>
         <div class="lista-grid compacta" id="listaMembros"></div>
       </div>
     </main>
@@ -753,8 +701,6 @@
       let membrosFiltrados = [];
       let presencas = {};
       let modo = "consulta";
-      let reuniaoSelecionada = null;
-      let reunioesRegistradas = [];
 
       const campoUsuario = document.getElementById("usuarioLogado");
       const campoLista = document.getElementById("listaMembros");
@@ -768,7 +714,6 @@
       const boxVisitante = document.getElementById("boxVisitante");
       const campoVisitanteNome = document.getElementById("visitanteNome");
       const campoVisitanteTelefone = document.getElementById("visitanteTelefone");
-      const listaReunioes = document.getElementById("listaReunioesRegistradas");
 
       function sair() {
         localStorage.clear();
@@ -825,13 +770,13 @@
         return d.toISOString().slice(0, 10);
       }
 
-      async function definirPeriodo(dias) {
+      function definirPeriodo(dias) {
         const fim = hojeISO();
         const inicio = deslocarDias(fim, -(dias - 1));
         campoDataInicial.value = inicio;
         campoDataFinal.value = fim;
         campoData.value = fim;
-        await carregarReunioesRegistradas();
+        carregarPresencasData();
       }
 
       function dataReuniaoAtual() {
@@ -850,6 +795,7 @@
         const origem = normalizarTexto(membro.origem_cadastro || membro.origemCadastro || "");
         if (origem === "PRESENCA_VISITANTE") return true;
         if (membro.cadastro_completo === false) return true;
+        // Quando o cadastro vier completo e tiver origem CADASTRO, também pode respeitar data real.
         if (origem === "CADASTRO" && obterDataCadastroMembro(membro)) return true;
         return false;
       }
@@ -857,14 +803,19 @@
       function membroPodeEntrarNaPresenca(membro) {
         const dataCadastro = obterDataCadastroMembro(membro);
         const dataReuniao = dataReuniaoAtual();
+
+        // Membros antigos que receberam data padrão do banco não podem sumir indevidamente.
+        // Só aplicamos a regra quando há origem confiável ou visitante/cadastro novo.
         if (!temOrigemCadastroNova(membro)) return true;
         if (!dataCadastro || !dataReuniao) return true;
+
         return dataCadastro <= dataReuniao;
       }
 
       async function garantirCelulaDoUsuario() {
         if (!usuarioEhLider()) return true;
         if (celulaPermitidaParaUsuario()) return true;
+
         try {
           const resposta = await fetch(apiUsuarios, { cache: "no-store" });
           const lista = resposta.ok ? await resposta.json() : [];
@@ -882,12 +833,14 @@
       function aplicarTravaCelulaLider() {
         if (!usuarioEhLider()) return true;
         const celulaPermitida = celulaPermitidaParaUsuario();
+
         if (!celulaPermitida) {
           campoCelula.innerHTML = '<option value="">Líder sem célula vinculada</option>';
           campoCelula.disabled = true;
           mostrarMensagem("Seu usuário líder não possui célula vinculada. Solicite ajuste ao administrador.");
           return false;
         }
+
         campoCelula.innerHTML = `<option value="${celulaPermitida}">${celulaPermitida}</option>`;
         campoCelula.value = celulaPermitida;
         campoCelula.disabled = true;
@@ -915,11 +868,12 @@
       function iconeWhatsapp(numero) {
         const telefone = formatarWhatsapp(numero);
         if (!telefone) return "";
-        return `<a class="btn-whatsapp" target="_blank" href="https://wa.me/${telefone}" aria-label="Abrir WhatsApp">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
-          </svg>
-        </a>`;
+        return `
+          <a class="btn-whatsapp" target="_blank" href="https://wa.me/${telefone}" aria-label="Abrir WhatsApp">
+            <svg viewBox="0 0 32 32" aria-hidden="true">
+              <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
+            </svg>
+          </a>`;
       }
 
       function configurarBotao(id, liberado) {
@@ -931,7 +885,7 @@
 
       function atualizarModo() {
         if (modo === "consulta") {
-          campoInfoEdicao.textContent = "Modo atual: CONSULTA. Clique em Incluir para lançar nova presença ou selecione uma reunião registrada para editar.";
+          campoInfoEdicao.textContent = "Modo atual: CONSULTA. Clique em Incluir para lançar presença.";
           campoInfoEdicao.style.background = "#f8fafc";
           campoInfoEdicao.style.color = "#475569";
         } else if (modo === "inclusao") {
@@ -952,7 +906,7 @@
         const liberado = modo === "inclusao" || modo === "edicao";
 
         configurarBotao("btnIncluir", temCelula && modo === "consulta");
-        configurarBotao("btnEditar", !!reuniaoSelecionada && temCelula && temMembros && modo === "consulta");
+        configurarBotao("btnEditar", temCelula && temMembros && modo === "consulta");
         configurarBotao("btnCancelar", modo !== "consulta");
         configurarBotao("btnSalvar", liberado && temCelula && temMembros);
         configurarBotao("btnVisitante", liberado && temCelula);
@@ -960,7 +914,7 @@
         configurarBotao("btnDesmarcarTodos", liberado && temCelula && temMembros);
         configurarBotao("btnLimpar", liberado && temCelula && temMembros);
 
-        campoData.disabled = modo === "consulta";
+        campoData.disabled = true;
         campoCelula.disabled = usuarioEhLider() || modo === "consulta";
       }
 
@@ -993,6 +947,7 @@
           aplicarTravaCelulaLider();
           return;
         }
+
         const celulas = obterCelulasUnicas();
         const atual = campoCelula.value;
         campoCelula.innerHTML = '<option value="">Selecione a célula</option>' + celulas.map((c) => `<option value="${c}">${c}</option>`).join("");
@@ -1002,9 +957,11 @@
       function filtrarMembrosPorCelula() {
         const celulaSelecionada = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
         const alvo = normalizarNomeCelula(celulaSelecionada);
+
         membrosFiltrados = alvo
           ? todosMembros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo && membroPodeEntrarNaPresenca(membro))
           : [];
+
         renderizarMembros();
         atualizarResumo();
       }
@@ -1014,12 +971,15 @@
           campoLista.innerHTML = '<div class="vazio">Selecione uma célula para carregar os membros.</div>';
           return;
         }
+
         if (!membrosFiltrados.length) {
           campoLista.innerHTML = '<div class="vazio">Nenhum membro elegível para esta célula/data.</div>';
           return;
         }
+
         const membrosOrdenados = [...membrosFiltrados].sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
         const bloqueado = modo === "consulta" ? "disabled" : "";
+
         campoLista.innerHTML = membrosOrdenados.map((membro) => {
           const status = presencas[membro.id] || "";
           const marcado = status === "presente" ? "checked" : "";
@@ -1039,17 +999,21 @@
 
       async function carregarPresencasData() {
         presencas = {};
+
         if (!campoData.value) {
           filtrarMembrosPorCelula();
           return;
         }
+
         try {
           const resposta = await fetch(`${apiPresencas}/${campoData.value}`, { cache: "no-store" });
           if (!resposta.ok) throw new Error("Erro ao carregar presença.");
           const dados = await resposta.json();
+
           (Array.isArray(dados) ? dados : []).forEach((item) => {
             presencas[Number(item.membroId)] = item.status;
           });
+
           filtrarMembrosPorCelula();
         } catch (erro) {
           mostrarMensagem("Erro ao carregar presença da data selecionada.");
@@ -1061,116 +1025,32 @@
           campoLista.innerHTML = '<div class="vazio">Carregando membros...</div>';
           const resposta = await fetch(apiMembros, { cache: "no-store" });
           if (!resposta.ok) throw new Error("Erro ao carregar membros.");
+
           todosMembros = await resposta.json();
           await garantirCelulaDoUsuario();
           preencherSelectCelulas();
           await carregarPresencasData();
           filtrarMembrosPorCelula();
-          await carregarReunioesRegistradas();
         } catch (erro) {
           campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
           mostrarMensagem("Erro ao carregar membros.");
         }
       }
 
-      async function carregarReunioesRegistradas() {
-        reuniaoSelecionada = null;
-        reunioesRegistradas = [];
-        listaReunioes.innerHTML = '<div class="vazio">Carregando reuniões registradas...</div>';
-
-        const inicio = campoDataInicial.value;
-        const fim = campoDataFinal.value || inicio;
-        const celulaAtual = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
-
-        if (!inicio || !fim) {
-          listaReunioes.innerHTML = '<div class="vazio">Informe o período para consultar.</div>';
-          atualizarEstadoBotoes();
-          return;
-        }
-
-        try {
-          const datas = [];
-          let atual = inicio;
-          while (atual <= fim && datas.length <= 90) {
-            datas.push(atual);
-            atual = deslocarDias(atual, 1);
-          }
-
-          const respostas = await Promise.all(datas.map(async (data) => {
-            const res = await fetch(`${apiPresencas}/${data}`, { cache: "no-store" });
-            if (!res.ok) return null;
-            const registros = await res.json();
-            return { data, registros: Array.isArray(registros) ? registros : [] };
-          }));
-
-          reunioesRegistradas = (respostas || [])
-            .filter(Boolean)
-            .map((item) => {
-              const ids = new Set(item.registros.map((r) => Number(r.membroId)));
-              const membrosDaData = todosMembros.filter((m) => ids.has(Number(m.id)));
-              const membrosDaCelula = celulaAtual
-                ? membrosDaData.filter((m) => normalizarNomeCelula(m.celula) === normalizarNomeCelula(celulaAtual))
-                : membrosDaData;
-
-              const presentes = item.registros.filter((r) => {
-                const membro = membrosDaCelula.find((m) => Number(m.id) === Number(r.membroId));
-                return membro && r.status === "presente";
-              }).length;
-
-              const total = membrosDaCelula.length;
-
-              return { data: item.data, celula: celulaAtual || "GERAL", total, presentes };
-            })
-            .filter((r) => r.total > 0);
-
-          renderizarReunioesRegistradas();
-        } catch (erro) {
-          listaReunioes.innerHTML = '<div class="vazio">Erro ao carregar reuniões registradas.</div>';
-        }
-      }
-
-      function renderizarReunioesRegistradas() {
-        if (!reunioesRegistradas.length) {
-          listaReunioes.innerHTML = '<div class="vazio">Nenhuma reunião registrada no período.</div>';
-          atualizarEstadoBotoes();
-          return;
-        }
-
-        listaReunioes.innerHTML = reunioesRegistradas.map((r) => `
-          <div class="reuniao-item ${reuniaoSelecionada?.data === r.data ? "ativa" : ""}" data-data="${r.data}">
-            <h3>${r.data.split("-").reverse().join("/")}</h3>
-            <p><strong>Célula:</strong> ${r.celula}</p>
-            <p><strong>Presentes:</strong> ${r.presentes}/${r.total}</p>
-          </div>
-        `).join("");
-        atualizarEstadoBotoes();
-      }
-
-      async function selecionarReuniaoRegistrada(data) {
-        const item = reunioesRegistradas.find((r) => r.data === data);
-        if (!item) return;
-        reuniaoSelecionada = item;
-        campoData.value = data;
-        modo = "consulta";
-        await carregarPresencasData();
-        renderizarReunioesRegistradas();
-        atualizarModo();
-        mostrarMensagem("Reunião selecionada. Clique em Editar para alterar.", "#2563eb");
-      }
-
       function prepararLancamento(tipo) {
+        if (!campoDataFinal.value) return mostrarMensagem("Informe a data final do filtro para lançar a reunião.");
+
+        campoData.value = campoDataFinal.value;
+        modo = tipo;
+
         if (tipo === "inclusao") {
-          modo = "inclusao";
-          reuniaoSelecionada = null;
           presencas = {};
-          if (!campoData.value) campoData.value = campoDataFinal.value || hojeISO();
           membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
-          mostrarMensagem("Inclusão liberada. Agora você pode ajustar a data da reunião, marcar os presentes e salvar.", "#2563eb");
+          mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
         } else {
-          if (!reuniaoSelecionada) return mostrarMensagem("Selecione uma reunião registrada antes de editar.");
-          modo = "edicao";
           mostrarMensagem("Edição liberada.", "#2563eb");
         }
+
         atualizarModo();
         filtrarMembrosPorCelula();
       }
@@ -1209,7 +1089,6 @@
           boxVisitante.classList.remove("ativo");
           atualizarModo();
           await carregarPresencasData();
-          await carregarReunioesRegistradas();
           mostrarMensagem("Presença salva com sucesso.", "#16a34a");
         } catch (erro) {
           mostrarMensagem(erro.message || "Erro ao salvar presença.");
@@ -1227,14 +1106,17 @@
 
         try {
           mostrarMensagem("Salvando visitante...", "#2563eb");
-          const resposta = await fetch(`${apiMembros}/visitante`, {
+          const resposta = await fetch(apiMembros, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               nome,
               telefone,
               celula,
+              status: "VISITANTE",
+              origemCadastro: "PRESENCA_VISITANTE",
               dataCadastro: dataReuniaoAtual(),
+              cadastroCompleto: false,
               observacoes: `VISITANTE CADASTRADO PELA PRESENÇA EM ${dataReuniaoAtual()}`
             })
           });
@@ -1279,28 +1161,20 @@
       document.getElementById("btnDesmarcarTodos").addEventListener("click", () => marcarTodosComo(false));
       document.getElementById("btnLimpar").addEventListener("click", () => marcarTodosComo(false));
 
-      campoData.addEventListener("change", () => {
-        if (modo !== "consulta") {
-          filtrarMembrosPorCelula();
-        }
-      });
-      campoDataInicial.addEventListener("change", carregarReunioesRegistradas);
       campoDataFinal.addEventListener("change", async () => {
-        if (modo === "consulta") {
-          campoData.value = campoDataFinal.value;
-          await carregarReunioesRegistradas();
-        }
+        campoData.value = campoDataFinal.value;
+        modo = "consulta";
+        atualizarModo();
+        await carregarPresencasData();
       });
+
       campoCelula.addEventListener("change", async () => {
-        reuniaoSelecionada = null;
+        modo = "consulta";
+        atualizarModo();
         filtrarMembrosPorCelula();
-        await carregarReunioesRegistradas();
+        await carregarPresencasData();
       });
-      listaReunioes.addEventListener("click", async (evento) => {
-        const item = evento.target.closest(".reuniao-item");
-        if (!item) return;
-        await selecionarReuniaoRegistrada(item.dataset.data);
-      });
+
       campoLista.addEventListener("change", (evento) => {
         const checkbox = evento.target.closest(".check-presenca");
         if (!checkbox) return;
@@ -1316,10 +1190,7 @@
       });
 
       async function iniciarTela() {
-        const fim = hojeISO();
-        campoDataInicial.value = deslocarDias(fim, -29);
-        campoDataFinal.value = fim;
-        campoData.value = fim;
+        definirPeriodo(1);
 
         if (usuarioEhLider()) {
           await garantirCelulaDoUsuario();
