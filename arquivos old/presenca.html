@@ -848,9 +848,12 @@
 
       function temOrigemCadastroNova(membro) {
         const origem = normalizarTexto(membro.origem_cadastro || membro.origemCadastro || "");
+        const incompleto = membro.cadastro_completo === false || String(membro.cadastro_completo) === "false";
+
+        // Nesta etapa, somente visitante/pendente deve ser bloqueado por data.
+        // Membro comum não pode sumir em reuniões antigas, pois versões anteriores podem ter preenchido data_cadastro artificialmente.
         if (origem === "PRESENCA_VISITANTE") return true;
-        if (membro.cadastro_completo === false) return true;
-        if (origem === "CADASTRO" && obterDataCadastroMembro(membro)) return true;
+        if (incompleto) return true;
         return false;
       }
 
@@ -960,7 +963,7 @@
         configurarBotao("btnDesmarcarTodos", liberado && temCelula && temMembros);
         configurarBotao("btnLimpar", liberado && temCelula && temMembros);
 
-        campoData.disabled = modo === "consulta";
+        campoData.disabled = !(modo === "inclusao" || modo === "edicao");
         campoCelula.disabled = usuarioEhLider() || modo === "consulta";
       }
 
@@ -1078,8 +1081,13 @@
         reunioesRegistradas = [];
         listaReunioes.innerHTML = '<div class="vazio">Carregando reuniões registradas...</div>';
 
-        const inicio = campoDataInicial.value;
-        const fim = campoDataFinal.value || inicio;
+        let inicio = campoDataInicial.value;
+        let fim = campoDataFinal.value || inicio;
+        if (inicio && fim && inicio > fim) {
+          const temp = inicio;
+          inicio = fim;
+          fim = temp;
+        }
         const celulaAtual = usuarioEhLider() ? celulaPermitidaParaUsuario() : campoCelula.value;
 
         if (!inicio || !fim) {
@@ -1169,7 +1177,8 @@
         } else {
           if (!reuniaoSelecionada) return mostrarMensagem("Selecione uma reunião registrada antes de editar.");
           modo = "edicao";
-          mostrarMensagem("Edição liberada.", "#2563eb");
+          campoData.value = reuniaoSelecionada.data;
+          mostrarMensagem("Edição liberada. A data da reunião também pode ser alterada antes de salvar.", "#2563eb");
         }
         atualizarModo();
         filtrarMembrosPorCelula();
