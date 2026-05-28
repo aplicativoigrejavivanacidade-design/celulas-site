@@ -351,6 +351,28 @@
     </aside>
 
     <main class="content">
+      <div class="card" style="margin-bottom:18px;">
+        <h2>Filtro do Painel</h2>
+        <div class="grid-4" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;">
+          <div>
+            <label for="dataInicialFiltroPainel">Data inicial</label>
+            <input type="date" id="dataInicialFiltroPainel" />
+          </div>
+          <div>
+            <label for="dataFinalFiltroPainel">Data final</label>
+            <input type="date" id="dataFinalFiltroPainel" />
+          </div>
+          <div>
+            <label for="filtroCelulaPainel">Célula</label>
+            <select id="filtroCelulaPainel"><option value="">Todas</option></select>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-primary" id="btnPainelHoje" type="button">Hoje</button>
+            <button class="btn-success" id="btnPainel7" type="button">7 dias</button>
+            <button class="btn-secondary" id="btnPainel30" type="button">30 dias</button>
+          </div>
+        </div>
+      </div>
       <div class="header">
         <h1>Painel Executivo</h1>
         <p>Visão estratégica de crescimento, retenção e frequência ministerial</p>
@@ -835,6 +857,98 @@
       preencherUsuario();
       carregarDados();
     }
+  </script>
+<script>
+    window.painelFiltroAplicadoV4 = true;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const API_BASE = "https://celulas-backend.onrender.com";
+      const campoInicio = document.getElementById("dataInicialFiltroPainel");
+      const campoFim = document.getElementById("dataFinalFiltroPainel");
+      const campoCelula = document.getElementById("filtroCelulaPainel");
+
+      function hojeISO() {
+        const hoje = new Date();
+        return `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`;
+      }
+
+      function deslocarDias(dataIso, dias) {
+        const d = new Date(`${dataIso}T12:00:00`);
+        d.setDate(d.getDate() + dias);
+        return d.toISOString().slice(0, 10);
+      }
+
+      function normalizarTexto(valor) {
+        return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
+      }
+
+      function normalizarNomeCelula(valor) {
+        return normalizarTexto(valor).replace(/^C[EÉ]LULA\s*/i, "").replace(/^CELULA\s*/i, "").trim();
+      }
+
+      function nomeCelulaExibicao(valor) {
+        const base = normalizarNomeCelula(valor);
+        return base ? `CÉLULA ${base}` : "";
+      }
+
+      async function carregarCelulasFiltro() {
+        try {
+          const resposta = await fetch(`${API_BASE}/membros`, { cache: "no-store" });
+          const membros = resposta.ok ? await resposta.json() : [];
+          const celulas = Array.from(new Set((Array.isArray(membros) ? membros : [])
+            .map((m) => nomeCelulaExibicao(m.celula || ""))
+            .filter(Boolean)))
+            .sort((a,b) => a.localeCompare(b, "pt-BR"));
+
+          const nivel = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
+          const celulaUsuario = nomeCelulaExibicao(localStorage.getItem("celulaUsuario") || "");
+
+          if (nivel === "lider" || nivel === "líder") {
+            campoCelula.innerHTML = `<option value="${celulaUsuario}">${celulaUsuario || "Célula não vinculada"}</option>`;
+            campoCelula.value = celulaUsuario;
+            campoCelula.disabled = true;
+          } else {
+            campoCelula.innerHTML = '<option value="">Todas</option>' + celulas.map((c) => `<option value="${c}">${c}</option>`).join("");
+          }
+        } catch (erro) {
+          console.error("Erro ao carregar células do filtro do painel", erro);
+        }
+      }
+
+      function definirPeriodo(dias) {
+        const fim = hojeISO();
+        campoInicio.value = deslocarDias(fim, -(dias - 1));
+        campoFim.value = fim;
+        localStorage.setItem("painelFiltroDataInicial", campoInicio.value);
+        localStorage.setItem("painelFiltroDataFinal", campoFim.value);
+        localStorage.setItem("painelFiltroCelula", campoCelula.value || "");
+        window.dispatchEvent(new CustomEvent("painel:filtro-alterado", {
+          detail: { inicio: campoInicio.value, fim: campoFim.value, celula: campoCelula.value || "" }
+        }));
+      }
+
+      document.getElementById("btnPainelHoje")?.addEventListener("click", () => definirPeriodo(1));
+      document.getElementById("btnPainel7")?.addEventListener("click", () => definirPeriodo(7));
+      document.getElementById("btnPainel30")?.addEventListener("click", () => definirPeriodo(30));
+
+      [campoInicio, campoFim, campoCelula].forEach((campo) => {
+        campo?.addEventListener("change", () => {
+          localStorage.setItem("painelFiltroDataInicial", campoInicio.value || "");
+          localStorage.setItem("painelFiltroDataFinal", campoFim.value || "");
+          localStorage.setItem("painelFiltroCelula", campoCelula.value || "");
+          window.dispatchEvent(new CustomEvent("painel:filtro-alterado", {
+            detail: { inicio: campoInicio.value, fim: campoFim.value, celula: campoCelula.value || "" }
+          }));
+        });
+      });
+
+      carregarCelulasFiltro().then(() => {
+        campoInicio.value = localStorage.getItem("painelFiltroDataInicial") || deslocarDias(hojeISO(), -29);
+        campoFim.value = localStorage.getItem("painelFiltroDataFinal") || hojeISO();
+        const celulaSalva = localStorage.getItem("painelFiltroCelula") || "";
+        if (celulaSalva) campoCelula.value = celulaSalva;
+      });
+    });
   </script>
 </body>
 </html>

@@ -237,65 +237,6 @@
       background: #fcfdff;
     }
 
-    .visao-box {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      background: linear-gradient(135deg, #eff6ff, #ecfdf5);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      padding: 18px;
-      margin-bottom: 20px;
-    }
-
-    .visao-box h2 {
-      margin: 0 0 6px;
-      font-size: 22px;
-    }
-
-    .visao-box p {
-      margin: 0;
-      color: #4b5563;
-      font-size: 14px;
-    }
-
-    .tag-visao {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 10px 14px;
-      border-radius: 999px;
-      font-weight: bold;
-      font-size: 13px;
-      background: var(--blue);
-      color: #fff;
-      white-space: nowrap;
-    }
-
-    .alerta-suave { border-left: 5px solid var(--amber); }
-    .alerta-ok { border-left: 5px solid var(--green); }
-
-    .btn-whatsapp {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 30px;
-      height: 30px;
-      margin-left: 8px;
-      border-radius: 999px;
-      background: #25D366;
-      text-decoration: none;
-      vertical-align: middle;
-      box-shadow: 0 4px 10px rgba(37, 211, 102, 0.25);
-    }
-
-    .btn-whatsapp svg {
-      width: 18px;
-      height: 18px;
-      fill: #ffffff;
-    }
-
     @media (max-width: 1400px) {
       .grid-hero {
         grid-template-columns: repeat(3, 1fr);
@@ -355,14 +296,6 @@
         <h1>Painel Executivo</h1>
         <p>Visão estratégica de crescimento, retenção e frequência ministerial</p>
         <p id="usuarioLogado" class="usuario-logado"></p>
-      </div>
-
-      <div class="visao-box" id="boxVisao">
-        <div>
-          <h2 id="tituloVisao">Visão geral</h2>
-          <p id="descricaoVisao">Carregando informações do painel...</p>
-        </div>
-        <div class="tag-visao" id="tagVisao">ADMIN</div>
       </div>
 
       <div class="grid-hero">
@@ -425,23 +358,6 @@
           <div id="topRetencao"></div>
         </div>
       </div>
-
-      <div class="grid-3">
-        <div class="card">
-          <h2>🚨 Alerta pastoral</h2>
-          <div id="alertaPastoral"></div>
-        </div>
-
-        <div class="card">
-          <h2>🎂 Aniversariantes do mês</h2>
-          <div id="aniversariantesMes"></div>
-        </div>
-
-        <div class="card">
-          <h2>🗓️ Última presença registrada</h2>
-          <div id="ultimaPresenca"></div>
-        </div>
-      </div>
     </main>
   </div>
 
@@ -453,9 +369,6 @@
     let membros = [];
     let presencas = [];
 
-    const nivelUsuario = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
-    const celulaUsuario = String(localStorage.getItem("celulaUsuario") || "").trim();
-
     function protegerPagina() {
       if (localStorage.getItem("logado") !== "sim") {
         window.location.href = "login.html";
@@ -464,13 +377,9 @@
       return true;
     }
 
-    function usuarioEhLider() {
-      return nivelUsuario === "lider";
-    }
-
     function preencherUsuario() {
       document.getElementById("usuarioLogado").textContent =
-        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${nivelUsuario}${usuarioEhLider() ? ` | Célula: ${celulaUsuario || "não vinculada"}` : ""}`;
+        `Usuário: ${localStorage.getItem("nomeUsuario") || "Administrador"} | Nível: ${localStorage.getItem("nivelUsuario") || "admin"}`;
     }
 
     function sair() {
@@ -497,74 +406,26 @@
       return base ? `CÉLULA ${base}` : "SEM CÉLULA";
     }
 
-    function membroPermitido(membro) {
-      if (!usuarioEhLider()) return true;
-      return nomeCelula(membro.celula) === nomeCelula(celulaUsuario);
-    }
-
     function percentual(valor) {
       return `${Math.round(valor || 0)}%`;
     }
 
-    function formatarDataBR(dataIso) {
-      if (!dataIso) return "-";
-      const partes = String(dataIso).slice(0, 10).split("-");
-      if (partes.length !== 3) return dataIso;
-      return `${partes[2]}/${partes[1]}/${partes[0]}`;
-    }
-
-    function formatarWhatsapp(telefone) {
-      const numero = String(telefone || "").replace(/\D/g, "");
-      if (!numero) return "";
-      return numero.startsWith("55") ? numero : `55${numero}`;
-    }
-
-    function whatsappIcon(telefone) {
-      const link = formatarWhatsapp(telefone);
-      if (!link) return "";
-      return `
-        <a class="btn-whatsapp" target="_blank" href="https://wa.me/${link}" aria-label="WhatsApp">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
-          </svg>
-        </a>`;
-    }
-
-    function atualizarVisao() {
-      const titulo = document.getElementById("tituloVisao");
-      const descricao = document.getElementById("descricaoVisao");
-      const tag = document.getElementById("tagVisao");
-
-      if (usuarioEhLider()) {
-        titulo.textContent = "Resumo da minha célula";
-        descricao.textContent = `Este painel está filtrado para ${celulaUsuario || "sua célula vinculada"}.`;
-        tag.textContent = celulaUsuario || "LÍDER";
-      } else {
-        titulo.textContent = "Visão geral do sistema";
-        descricao.textContent = "Este painel apresenta os dados consolidados de todas as células.";
-        tag.textContent = "ADMIN";
-      }
-    }
-
     function atualizarKpis() {
       const total = membros.length;
-      const semCelula = usuarioEhLider() ? 0 : membros.filter(m => !String(m.celula || "").trim()).length;
+      const semCelula = membros.filter(m => !String(m.celula || "").trim()).length;
       const visitantes = membros.filter(m => normalizarTexto(m.status) === "VISITANTE").length;
 
       const celulas = new Set(
         membros.map(m => nomeCelulaExibicao(m.celula)).filter(c => c !== "SEM CÉLULA")
       ).size;
 
-      const idsPermitidos = new Set(membros.map(m => Number(m.id)));
-      const presencasFiltradas = presencas.filter(p => idsPermitidos.has(Number(p.membro_id || p.membroId)));
-
-      const totalPres = presencasFiltradas.length;
-      const presentes = presencasFiltradas.filter(p => normalizarTexto(p.status) === "PRESENTE").length;
+      const totalPres = presencas.length;
+      const presentes = presencas.filter(p => normalizarTexto(p.status) === "PRESENTE").length;
       const freq = totalPres > 0 ? (presentes / totalPres) * 100 : 0;
 
       document.getElementById("kpiTotal").textContent = total;
       document.getElementById("kpiFreq").textContent = percentual(freq);
-      document.getElementById("kpiCelulas").textContent = usuarioEhLider() ? (total ? 1 : 0) : celulas;
+      document.getElementById("kpiCelulas").textContent = celulas;
       document.getElementById("kpiSemCelula").textContent = semCelula;
       document.getElementById("kpiVisitantes").textContent = visitantes;
     }
@@ -581,7 +442,7 @@
 
       const ranking = Array.from(mapa.entries())
         .sort((a, b) => b[1] - a[1])
-        .slice(0, usuarioEhLider() ? 1 : 8);
+        .slice(0, 8);
 
       if (!ranking.length) {
         el.innerHTML = '<div class="msg-vazio">Nenhuma célula encontrada.</div>';
@@ -590,9 +451,11 @@
 
       el.innerHTML = ranking.map(([nome, total], index) => `
         <div class="item">
-          <h3>${usuarioEhLider() ? nome : `${index + 1}. ${nome}`}</h3>
+          <h3>${index + 1}. ${nome}</h3>
           <p><strong>Membros:</strong> ${total}</p>
-          <div class="barra"><div class="barra-interna" style="width:${Math.min(100, total * 10)}%"></div></div>
+          <div class="barra">
+            <div class="barra-interna" style="width:${Math.min(100, total * 10)}%"></div>
+          </div>
         </div>
       `).join("");
     }
@@ -601,17 +464,25 @@
       const el = document.getElementById("melhorCelula");
       const mapaMembros = new Map();
 
-      membros.forEach((m) => mapaMembros.set(Number(m.id), nomeCelulaExibicao(m.celula)));
+      membros.forEach((m) => {
+        mapaMembros.set(Number(m.id), nomeCelulaExibicao(m.celula));
+      });
 
       const mapa = new Map();
 
       presencas.forEach((p) => {
         const celula = mapaMembros.get(Number(p.membro_id || p.membroId)) || "SEM CÉLULA";
         if (celula === "SEM CÉLULA") return;
-        if (!mapa.has(celula)) mapa.set(celula, { total: 0, presentes: 0 });
+
+        if (!mapa.has(celula)) {
+          mapa.set(celula, { total: 0, presentes: 0 });
+        }
+
         const item = mapa.get(celula);
         item.total += 1;
-        if (normalizarTexto(p.status) === "PRESENTE") item.presentes += 1;
+        if (normalizarTexto(p.status) === "PRESENTE") {
+          item.presentes += 1;
+        }
       });
 
       const ranking = Array.from(mapa.entries())
@@ -634,8 +505,11 @@
           <h3>${melhor.nome}</h3>
           <p><strong>Frequência:</strong> ${percentual(melhor.perc)}</p>
           <p><strong>Registros:</strong> ${melhor.total}</p>
-          <div class="barra"><div class="barra-interna" style="width:${melhor.perc}%"></div></div>
-        </div>`;
+          <div class="barra">
+            <div class="barra-interna" style="width:${melhor.perc}%"></div>
+          </div>
+        </div>
+      `;
     }
 
     function renderNovosPorStatus() {
@@ -647,27 +521,21 @@
         mapa[status] = (mapa[status] || 0) + 1;
       });
 
-      const itens = Object.entries(mapa).sort((a, b) => b[1] - a[1]);
-
-      if (!itens.length) {
-        el.innerHTML = '<div class="msg-vazio">Sem membros para exibir.</div>';
-        return;
-      }
-
-      el.innerHTML = itens.map(([status, total]) => `
-        <div class="mini-kpi">${status}<strong>${total}</strong></div>
-      `).join("");
+      el.innerHTML = Object.entries(mapa)
+        .sort((a, b) => b[1] - a[1])
+        .map(([status, total]) => `
+          <div class="mini-kpi">
+            ${status}
+            <strong>${total}</strong>
+          </div>
+        `).join("");
     }
 
     function renderSemCelula() {
       const el = document.getElementById("listaSemCelula");
-
-      if (usuarioEhLider()) {
-        el.innerHTML = '<div class="msg-vazio">Visão restrita à célula vinculada.</div>';
-        return;
-      }
-
-      const lista = membros.filter(m => !String(m.celula || "").trim()).slice(0, 10);
+      const lista = membros
+        .filter(m => !String(m.celula || "").trim())
+        .slice(0, 10);
 
       if (!lista.length) {
         el.innerHTML = '<div class="msg-vazio">Todos estão vinculados.</div>';
@@ -675,12 +543,7 @@
       }
 
       el.innerHTML = `<div class="lista-simples">${
-        lista.map(m => `
-          <div class="item">
-            <h3>${m.nome}</h3>
-            <p><strong>Telefone:</strong> ${m.telefone || "-"} ${whatsappIcon(m.telefone)}</p>
-          </div>
-        `).join("")
+        lista.map(m => `<div class="item"><h3>${m.nome}</h3><p>${m.telefone || "-"}</p></div>`).join("")
       }</div>`;
     }
 
@@ -688,7 +551,13 @@
       const el = document.getElementById("topRetencao");
       const mapa = new Map();
 
-      membros.forEach((m) => mapa.set(Number(m.id), { nome: m.nome, total: 0, presentes: 0 }));
+      membros.forEach((m) => {
+        mapa.set(Number(m.id), {
+          nome: m.nome,
+          total: 0,
+          presentes: 0
+        });
+      });
 
       presencas.forEach((p) => {
         const id = Number(p.membro_id || p.membroId);
@@ -699,13 +568,15 @@
       });
 
       const ranking = Array.from(mapa.values())
-        .filter(i => i.total > 0)
-        .map(i => ({ ...i, perc: i.total > 0 ? (i.presentes / i.total) * 100 : 0 }))
+        .map(i => ({
+          ...i,
+          perc: i.total > 0 ? (i.presentes / i.total) * 100 : 0
+        }))
         .sort((a, b) => b.perc - a.perc)
         .slice(0, 5);
 
       if (!ranking.length) {
-        el.innerHTML = '<div class="msg-vazio">Sem dados de frequência.</div>';
+        el.innerHTML = '<div class="msg-vazio">Sem dados.</div>';
         return;
       }
 
@@ -713,100 +584,20 @@
         <div class="item">
           <h3>${index + 1}. ${item.nome}</h3>
           <p><strong>Frequência:</strong> ${percentual(item.perc)}</p>
-          <div class="barra"><div class="barra-interna" style="width:${item.perc}%"></div></div>
+          <div class="barra">
+            <div class="barra-interna" style="width:${item.perc}%"></div>
+          </div>
         </div>
       `).join("");
-    }
-
-    function renderAlertaPastoral() {
-      const el = document.getElementById("alertaPastoral");
-      const idsComPresenca = new Set(
-        presencas.filter(p => normalizarTexto(p.status) === "PRESENTE").map(p => Number(p.membro_id || p.membroId))
-      );
-
-      const semPresenca = membros.filter(m => !idsComPresenca.has(Number(m.id))).slice(0, 6);
-
-      if (!semPresenca.length) {
-        el.innerHTML = '<div class="item alerta-ok"><h3>Tudo em ordem</h3><p>Todos possuem registro de presença.</p></div>';
-        return;
-      }
-
-      el.innerHTML = semPresenca.map(m => `
-        <div class="item alerta-suave">
-          <h3>${m.nome}</h3>
-          <p><strong>Ação sugerida:</strong> entrar em contato e acompanhar.</p>
-          <p><strong>Telefone:</strong> ${m.telefone || "-"} ${whatsappIcon(m.telefone)}</p>
-        </div>
-      `).join("");
-    }
-
-    function renderAniversariantesMes() {
-      const el = document.getElementById("aniversariantesMes");
-      const mes = new Date().getMonth() + 1;
-
-      const lista = membros
-        .filter(m => {
-          const nascimento = String(m.nascimento || "");
-          if (!nascimento.includes("-")) return false;
-          const partes = nascimento.slice(0, 10).split("-");
-          return Number(partes[1]) === mes;
-        })
-        .sort((a, b) => String(a.nascimento || "").slice(8,10).localeCompare(String(b.nascimento || "").slice(8,10)))
-        .slice(0, 8);
-
-      if (!lista.length) {
-        el.innerHTML = '<div class="msg-vazio">Nenhum aniversariante neste mês.</div>';
-        return;
-      }
-
-      el.innerHTML = lista.map(m => `
-        <div class="item">
-          <h3>${m.nome}</h3>
-          <p><strong>Data:</strong> ${formatarDataBR(m.nascimento)}</p>
-          <p><strong>Telefone:</strong> ${m.telefone || "-"} ${whatsappIcon(m.telefone)}</p>
-        </div>
-      `).join("");
-    }
-
-    function renderUltimaPresenca() {
-      const el = document.getElementById("ultimaPresenca");
-      const idsPermitidos = new Set(membros.map(m => Number(m.id)));
-
-      const lista = presencas
-        .filter(p => idsPermitidos.has(Number(p.membro_id || p.membroId)))
-        .sort((a, b) => String(b.data || "").localeCompare(String(a.data || "")));
-
-      if (!lista.length) {
-        el.innerHTML = '<div class="msg-vazio">Nenhuma presença registrada.</div>';
-        return;
-      }
-
-      const ultimaData = lista[0].data;
-      const registrosData = lista.filter(p => p.data === ultimaData);
-      const presentes = registrosData.filter(p => normalizarTexto(p.status) === "PRESENTE").length;
-      const freq = registrosData.length ? (presentes / registrosData.length) * 100 : 0;
-
-      el.innerHTML = `
-        <div class="item">
-          <h3>${formatarDataBR(ultimaData)}</h3>
-          <p><strong>Presentes:</strong> ${presentes}</p>
-          <p><strong>Total registros:</strong> ${registrosData.length}</p>
-          <p><strong>Frequência:</strong> ${percentual(freq)}</p>
-          <div class="barra"><div class="barra-interna" style="width:${freq}%"></div></div>
-        </div>`;
     }
 
     function renderizarDashboard() {
-      atualizarVisao();
       atualizarKpis();
       renderRankingCelulas();
       renderMelhorCelula();
       renderNovosPorStatus();
       renderSemCelula();
       renderTopRetencao();
-      renderAlertaPastoral();
-      renderAniversariantesMes();
-      renderUltimaPresenca();
     }
 
     async function carregarDados() {
@@ -815,16 +606,8 @@
         fetch(API_PRESENCAS, { cache: "no-store" })
       ]);
 
-      const todosMembros = await respMembros.json();
-      const todasPresencas = await respPresencas.json();
-
-      membros = (Array.isArray(todosMembros) ? todosMembros : []).filter(membroPermitido);
-
-      const idsPermitidos = new Set(membros.map(m => Number(m.id)));
-      presencas = (Array.isArray(todasPresencas) ? todasPresencas : []).filter(p => {
-        if (!usuarioEhLider()) return true;
-        return idsPermitidos.has(Number(p.membro_id || p.membroId));
-      });
+      membros = await respMembros.json();
+      presencas = await respPresencas.json();
 
       renderizarDashboard();
     }

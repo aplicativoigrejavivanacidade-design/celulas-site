@@ -843,6 +843,16 @@
         .toUpperCase();
     }
 
+    function membroEhVisitanteOuPendente(membro) {
+      const origem = normalizarTexto(membro.origem_cadastro || membro.origemCadastro || "");
+      const status = normalizarTexto(membro.status || "");
+      return origem === "PRESENCA_VISITANTE" ||
+        status === "VISITANTE" ||
+        status === "VISITANTE ARQUIVADO" ||
+        membro.cadastro_completo === false ||
+        String(membro.cadastro_completo) === "false";
+    }
+
     function normalizarNomeCelula(valor) {
       const texto = normalizarTexto(valor);
       if (!texto) return "";
@@ -945,7 +955,9 @@
 
     function membrosDaCelula(nomeCelula) {
       const alvo = normalizarNomeCelula(nomeCelula);
-      return ordenarPorNome(membros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo));
+      return membros
+        .filter((membro) => normalizarNomeCelula(membro.celula) === alvo)
+        .filter((membro) => !membroEhVisitanteOuPendente(membro));
     }
 
     function membrosDisponiveis() {

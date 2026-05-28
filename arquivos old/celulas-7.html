@@ -302,23 +302,6 @@
       font-size: 14px;
     }
 
-    .msg-topo {
-      display: block;
-      margin-bottom: 16px;
-      padding: 14px 16px;
-      border-radius: 14px;
-      font-size: 14px;
-      font-weight: bold;
-      border: 1px solid var(--line);
-      background: #f8fafc;
-      color: #475569;
-    }
-
-    .msg-topo.erro { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-    .msg-topo.sucesso { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
-    .msg-topo.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-    .msg-topo.neutro { background: #f8fafc; color: #475569; border-color: var(--line); }
-
     .contador {
       background: #e8f0ff;
       color: var(--blue-dark);
@@ -570,8 +553,6 @@
             <option value="">Carregando células...</option>
           </select>
 
-          <div id="msgTopo" class="msg-topo neutro">Selecione uma célula para visualizar ou editar.</div>
-
           <div class="status-edicao" id="statusEdicao">
             Modo atual: VISUALIZAÇÃO. Selecione uma célula e clique em Editar.
           </div>
@@ -758,7 +739,6 @@
     const campoEstado = document.getElementById("estado");
     const campoGeolocalizacao = document.getElementById("geolocalizacao");
     const campoMsg = document.getElementById("msg");
-    const campoMsgTopo = document.getElementById("msgTopo");
     const campoUsuarioLogado = document.getElementById("usuarioLogado");
     const campoStatusEdicao = document.getElementById("statusEdicao");
     const campoResumoCelula = document.getElementById("resumoCelula");
@@ -805,28 +785,10 @@
       return nivelUsuario === "admin" || nivelUsuario === "supervisor";
     }
 
-    function tipoMensagemPorCor(cor) {
-      if (cor === "#16a34a") return "sucesso";
-      if (cor === "#2563eb") return "info";
-      if (cor === "#64748b") return "neutro";
-      return "erro";
-    }
-
     function mostrarMensagem(texto, cor = "#dc2626") {
-      const tipo = tipoMensagemPorCor(cor);
       campoMsg.textContent = texto;
       campoMsg.style.color = cor;
-
-      if (campoMsgTopo) {
-        campoMsgTopo.textContent = texto || "Selecione uma célula para visualizar ou editar.";
-        campoMsgTopo.className = `msg-topo ${texto ? tipo : "neutro"}`;
-      }
-
       if (cor === "#dc2626" && texto) window.alert(texto);
-
-      if (texto && campoMsgTopo) {
-        campoMsgTopo.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
     }
 
     function sairSistema() {
@@ -1193,8 +1155,8 @@
         return;
       }
 
-      const selecionadosSalvos = new Set(obterIdsLideresTreinamento(celulaAtual).filter((id) => String(id) !== String(celulaAtual.lider_celula || "")));
-      const lista = membrosDaCelula(celulaAtual.nome).filter((membro) => String(membro.id) !== String(celulaAtual.lider_celula || ""));
+      const selecionadosSalvos = new Set(obterIdsLideresTreinamento(celulaAtual));
+      const lista = membrosDaCelula(celulaAtual.nome);
       const selecionadosTela = Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked")).length;
       contadorLideresTreinamento.textContent = `${modoEdicao ? selecionadosTela : selecionadosSalvos.size} selecionado(s)`;
 
@@ -1294,9 +1256,7 @@
     }
 
     function obterLideresTreinamentoSelecionados() {
-      return Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked"))
-        .map((item) => String(item.value))
-        .filter((id) => String(id) !== String(celulaAtual?.lider_celula || ""));
+      return Array.from(document.querySelectorAll(".lider-treinamento-checkbox:checked")).map((item) => String(item.value));
     }
 
     function limparFormulario() {
@@ -1527,22 +1487,6 @@
       return true;
     }
 
-
-    async function salvarRemocoesMembros() {
-      const removidos = obterMembrosRemovidosSelecionados();
-      if (!campoCelulaId.value || removidos.length === 0) return true;
-
-      const resposta = await fetch(`${API_CELULAS}/${campoCelulaId.value}/remover-membros`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ membrosRemovidos: removidos })
-      });
-
-      const dados = await resposta.json().catch(() => ({}));
-      if (!resposta.ok) throw new Error(dados.erro || "Erro ao remover membros da célula.");
-      return true;
-    }
-
     async function salvarEdicao() {
       const id = campoCelulaId.value.trim();
       if (!modoEdicao) return mostrarMensagem("Clique em Editar antes de salvar.");
@@ -1573,11 +1517,6 @@
 
       try {
         mostrarMensagem("Salvando...", "#2563eb");
-
-        if (!modoMultiplicacao) {
-          await salvarRemocoesMembros();
-        }
-
         const resposta = await fetch(url, {
           method: metodo,
           headers: { "Content-Type": "application/json" },

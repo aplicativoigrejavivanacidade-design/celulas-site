@@ -603,54 +603,6 @@
       }
     }
 
-  
-    .visitantes-anteriores-box {
-      display: none;
-      margin-top: 18px;
-      padding: 14px;
-      border: 1px solid #fed7aa;
-      border-radius: 14px;
-      background: #fff7ed;
-    }
-
-    .visitantes-anteriores-box.ativo {
-      display: block;
-    }
-
-    .visitantes-anteriores-lista {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .visitante-anterior-item {
-      border: 1px solid #fed7aa;
-      background: #fffbeb;
-      border-radius: 12px;
-      padding: 10px;
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-    }
-
-    .visitante-anterior-item h4 {
-      margin: 0 0 4px;
-      font-size: 14px;
-    }
-
-    .visitante-anterior-item p {
-      margin: 0;
-      font-size: 12px;
-      color: #78350f;
-    }
-
-    @media (max-width: 900px) {
-      .visitantes-anteriores-lista {
-        grid-template-columns: 1fr;
-      }
-    }
-
   </style>
 </head>
 <body>
@@ -745,14 +697,6 @@
             </div>
           </div>
 
-          <div class="visitantes-anteriores-box" id="boxVisitantesAnteriores">
-            <h3 style="margin:0;">Visitantes anteriores carregados</h3>
-            <p style="margin:6px 0 0;color:#92400e;font-size:13px;">
-              Marque apenas os visitantes que participaram desta reunião. Visitante desmarcado não será salvo como ausente.
-            </p>
-            <div class="visitantes-anteriores-lista" id="listaVisitantesAnteriores"></div>
-          </div>
-
           <div class="info-edicao" id="infoEdicao">
             Modo atual: CONSULTA
           </div>
@@ -820,7 +764,6 @@
       let reuniaoSelecionada = null;
       let reunioesRegistradas = [];
       let visitantesAnterioresLiberados = false;
-      let idsVisitantesAnterioresPermitidos = new Set();
       let dataOriginalEdicao = "";
 
       const campoUsuario = document.getElementById("usuarioLogado");
@@ -837,8 +780,6 @@
       const campoVisitanteNome = document.getElementById("visitanteNome");
       const campoVisitanteTelefone = document.getElementById("visitanteTelefone");
       const listaReunioes = document.getElementById("listaReunioesRegistradas");
-      const boxVisitantesAnteriores = document.getElementById("boxVisitantesAnteriores");
-      const listaVisitantesAnteriores = document.getElementById("listaVisitantesAnteriores");
 
       function sair() {
         localStorage.clear();
@@ -930,10 +871,10 @@
 
       function membroEhVisitantePendente(membro) {
         const origem = normalizarTexto(membro.origem_cadastro || membro.origemCadastro || "");
-        return normalizarTexto(membro.status) !== "VISITANTE ARQUIVADO" && (origem === "PRESENCA_VISITANTE" ||
+        return origem === "PRESENCA_VISITANTE" ||
           membro.cadastro_completo === false ||
           String(membro.cadastro_completo) === "false" ||
-          normalizarTexto(membro.status) === "VISITANTE");
+          normalizarTexto(membro.status) === "VISITANTE";
       }
 
       function membroPodeEntrarNaPresenca(membro) {
@@ -947,13 +888,7 @@
         }
 
         if (!dataCadastro || !dataReuniao) return true;
-        if (dataCadastro > dataReuniao) return false;
-
-        if (dataCadastro < dataReuniao) {
-          return idsVisitantesAnterioresPermitidos.has(String(membro.id));
-        }
-
-        return true;
+        return dataCadastro <= dataReuniao;
       }
 
       async function garantirCelulaDoUsuario() {
@@ -1081,7 +1016,7 @@
         configurarBotao("btnExcluirPresenca", usuarioEhAdmin() && !!reuniaoSelecionada && modo === "consulta" && !visitanteTravando);
 
         campoData.disabled = !(modo === "inclusao" || modo === "edicao");
-        campoCelula.disabled = usuarioEhLider() || modo !== "inclusao";
+        campoCelula.disabled = usuarioEhLider() || modo === "consulta";
       }
 
       function atualizarResumo() {
@@ -1315,76 +1250,19 @@
         mostrarMensagem("Reunião selecionada. Clique em Editar para alterar.", "#2563eb");
       }
 
-
-      function obterVisitantesAnterioresElegiveis() {
-        const celulaAtual = celulaAlvoLancamento();
-        const dataReuniao = dataReuniaoAtual();
-
-        return todosMembros
-          .filter((m) => {
-            if (!membroEhVisitantePendente(m)) return false;
-            const dataCadastro = obterDataCadastroMembro(m);
-            return dataCadastro &&
-              dataCadastro < dataReuniao &&
-              normalizarNomeCelula(m.celula) === normalizarNomeCelula(celulaAtual);
-          })
-          .sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
-      }
-
-      function renderizarControleVisitantesAnteriores() {
-        if (!boxVisitantesAnteriores || !listaVisitantesAnteriores) return;
-
-        const visitantes = obterVisitantesAnterioresElegiveis();
-
-        if (!visitantesAnterioresLiberados || visitantes.length === 0) {
-          boxVisitantesAnteriores.classList.remove("ativo");
-          listaVisitantesAnteriores.innerHTML = "";
-          return;
-        }
-
-        boxVisitantesAnteriores.classList.add("ativo");
-        listaVisitantesAnteriores.innerHTML = visitantes.map((membro) => {
-          const id = String(membro.id);
-          const dataCadastro = obterDataCadastroMembro(membro) || "-";
-          const marcado = idsVisitantesAnterioresPermitidos.has(id) ? "checked" : "";
-
-          return `
-            <label class="visitante-anterior-item">
-              <input type="checkbox" class="check-visitante-anterior" value="${id}" ${marcado}>
-              <div>
-                <h4>${membro.nome || ""}</h4>
-                <p>Cadastro: ${dataCadastro.split("-").reverse().join("/")}</p>
-                <p>Desmarque se não participou desta reunião.</p>
-                <button class="btn-danger btn-arquivar-visitante" type="button" data-id="${id}" style="margin-top:8px;padding:6px 10px;font-size:12px;">Arquivar visitante</button>
-              </div>
-            </label>
-          `;
-        }).join("");
-      }
-
       function perguntarVisitantesAnteriores() {
-        idsVisitantesAnterioresPermitidos = new Set();
-
-        const visitantes = obterVisitantesAnterioresElegiveis();
-
-        if (visitantes.length === 0) {
+        const celulaAtual = celulaAlvoLancamento();
+        const qtd = todosMembros.filter((m) => {
+          if (!membroEhVisitantePendente(m)) return false;
+          const dataCadastro = obterDataCadastroMembro(m);
+          return dataCadastro && dataCadastro < dataReuniaoAtual() &&
+            normalizarNomeCelula(m.celula) === normalizarNomeCelula(celulaAtual);
+        }).length;
+        if (qtd === 0) {
           visitantesAnterioresLiberados = false;
-          renderizarControleVisitantesAnteriores();
           return;
         }
-
-        visitantesAnterioresLiberados = window.confirm(
-          `Existem ${visitantes.length} visitante(s) anterior(es) nesta célula. Deseja carregar visitantes anteriores para escolher quais participaram desta reunião?`
-        );
-
-        if (visitantesAnterioresLiberados) {
-          idsVisitantesAnterioresPermitidos = new Set(visitantes.map((m) => String(m.id)));
-          visitantes.forEach((m) => {
-            presencas[Number(m.id)] = "presente";
-          });
-        }
-
-        renderizarControleVisitantesAnteriores();
+        visitantesAnterioresLiberados = window.confirm(`Existem ${qtd} visitante(s) anterior(es) nesta célula. Deseja carregar estes visitantes nesta presença?`);
       }
 
       function prepararLancamento(tipo) {
@@ -1398,15 +1276,12 @@
           if (!usuarioEhLider() && !campoCelula.value && campoFiltroCelula?.value) campoCelula.value = campoFiltroCelula.value;
           perguntarVisitantesAnteriores();
           filtrarMembrosPorCelula();
-          renderizarControleVisitantesAnteriores();
           membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
           mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
         } else {
           if (!reuniaoSelecionada) return mostrarMensagem("Selecione uma reunião registrada antes de editar.");
           modo = "edicao";
           visitantesAnterioresLiberados = true;
-          idsVisitantesAnterioresPermitidos = new Set();
-          renderizarControleVisitantesAnteriores();
           mostrarMensagem("Edição liberada. Você pode alterar a data da reunião e salvar novamente.", "#2563eb");
         }
         atualizarModo();
@@ -1452,8 +1327,6 @@
           modo = "consulta";
           dataOriginalEdicao = "";
           visitantesAnterioresLiberados = false;
-          idsVisitantesAnterioresPermitidos = new Set();
-          renderizarControleVisitantesAnteriores();
           boxVisitante.classList.remove("ativo");
           campoDataFinal.value = campoData.value;
           atualizarModo();
@@ -1486,33 +1359,6 @@
           mostrarMensagem(dados.mensagem || "Presença excluída com sucesso.", "#16a34a");
         } catch (erro) {
           mostrarMensagem(erro.message || "Erro ao excluir presença.");
-        }
-      }
-
-
-      async function arquivarVisitante(id) {
-        const confirmou = window.confirm("Arquivar este visitante? Ele deixará de aparecer como visitante ativo, mas o histórico de presenças será preservado.");
-        if (!confirmou) return;
-
-        try {
-          const resposta = await fetch(`${apiMembros}/visitante/${id}/arquivar`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" }
-          });
-
-          const dados = await resposta.json().catch(() => ({}));
-
-          if (!resposta.ok) {
-            throw new Error(dados.erro || "Erro ao arquivar visitante.");
-          }
-
-          idsVisitantesAnterioresPermitidos.delete(String(id));
-          delete presencas[Number(id)];
-
-          await carregarMembros();
-          mostrarMensagem(dados.mensagem || "Visitante arquivado com sucesso.", "#16a34a");
-        } catch (erro) {
-          mostrarMensagem(erro.message || "Erro ao arquivar visitante.");
         }
       }
 
@@ -1562,8 +1408,6 @@
         modo = "consulta";
         dataOriginalEdicao = "";
         visitantesAnterioresLiberados = false;
-        idsVisitantesAnterioresPermitidos = new Set();
-        renderizarControleVisitantesAnteriores();
         boxVisitante.classList.remove("ativo");
         campoVisitanteNome.value = "";
         campoVisitanteTelefone.value = "";
@@ -1595,7 +1439,6 @@
         if (modo !== "consulta") {
           perguntarVisitantesAnteriores();
           filtrarMembrosPorCelula();
-          renderizarControleVisitantesAnteriores();
         }
       });
       campoDataInicial.addEventListener("change", carregarReunioesRegistradas);
@@ -1635,22 +1478,6 @@
         presencas[Number(checkbox.dataset.id)] = checkbox.checked ? "presente" : "ausente";
         renderizarMembros();
         atualizarResumo();
-      });
-
-      listaVisitantesAnteriores?.addEventListener("change", (evento) => {
-        const check = evento.target.closest(".check-visitante-anterior");
-        if (!check) return;
-
-        if (check.checked) {
-          idsVisitantesAnterioresPermitidos.add(String(check.value));
-          presencas[Number(check.value)] = "presente";
-        } else {
-          idsVisitantesAnterioresPermitidos.delete(String(check.value));
-          delete presencas[Number(check.value)];
-        }
-
-        filtrarMembrosPorCelula();
-        renderizarControleVisitantesAnteriores();
       });
 
       async function iniciarTela() {
