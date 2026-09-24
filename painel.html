@@ -330,6 +330,82 @@
         grid-template-columns: 1fr;
       }
     }
+
+    /* ===== FILTRO DO PAINEL — PADRÃO DA TELA PRESENÇA ===== */
+    .filtro-painel {
+      margin-bottom: 20px;
+    }
+
+    .filtro-painel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .filtro-painel label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .filtro-painel input,
+    .filtro-painel select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    .filtro-painel input:focus,
+    .filtro-painel select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    .botoes-filtro-painel {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filtro-painel button {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-primary { background: var(--blue); color: #fff; }
+    .btn-primary:hover { background: var(--blue-dark); }
+    .btn-success { background: var(--green); color: #fff; }
+    .btn-secondary { background: #64748b; color: #fff; }
+    .btn-amber { background: var(--amber); color: #fff; }
+
+    .msg-filtro-painel {
+      display: block;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #475569;
+    }
+
+    @media (max-width: 1100px) {
+      .filtro-painel-grid { grid-template-columns: 1fr; }
+    }
+
   </style>
 </head>
 <body>
@@ -351,32 +427,41 @@
     </aside>
 
     <main class="content">
-      <div class="card" style="margin-bottom:18px;">
-        <h2>Filtro do Painel</h2>
-        <div class="grid-4" style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:12px;align-items:end;">
-          <div>
-            <label for="dataInicialFiltroPainel">Data inicial</label>
-            <input type="date" id="dataInicialFiltroPainel" />
-          </div>
-          <div>
-            <label for="dataFinalFiltroPainel">Data final</label>
-            <input type="date" id="dataFinalFiltroPainel" />
-          </div>
-          <div>
-            <label for="filtroCelulaPainel">Célula</label>
-            <select id="filtroCelulaPainel"><option value="">Todas</option></select>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn-primary" id="btnPainelHoje" type="button">Hoje</button>
-            <button class="btn-success" id="btnPainel7" type="button">7 dias</button>
-            <button class="btn-secondary" id="btnPainel30" type="button">30 dias</button>
-          </div>
-        </div>
-      </div>
       <div class="header">
         <h1>Painel Executivo</h1>
         <p>Visão estratégica de crescimento, retenção e frequência ministerial</p>
         <p id="usuarioLogado" class="usuario-logado"></p>
+      </div>
+
+      <div class="card filtro-painel">
+        <h2>Filtro do Painel</h2>
+        <div id="msgFiltroPainel" class="msg-filtro-painel">Escolha o período e a célula e clique em Filtrar.</div>
+
+        <div class="filtro-painel-grid">
+          <div>
+            <label for="dataInicialFiltroPainel">Data inicial</label>
+            <input type="date" id="dataInicialFiltroPainel" />
+          </div>
+
+          <div>
+            <label for="dataFinalFiltroPainel">Data final</label>
+            <input type="date" id="dataFinalFiltroPainel" />
+          </div>
+
+          <div>
+            <label for="filtroCelulaPainel">Célula</label>
+            <select id="filtroCelulaPainel">
+              <option value="">Todas</option>
+            </select>
+          </div>
+
+          <div class="botoes-filtro-painel">
+            <button class="btn-primary" id="btnPainelHoje" type="button">Hoje</button>
+            <button class="btn-success" id="btnPainel7" type="button">7 dias</button>
+            <button class="btn-amber" id="btnPainel30" type="button">30 dias</button>
+            <button class="btn-primary" id="btnFiltrarPainel" type="button">Filtrar</button>
+          </div>
+        </div>
       </div>
 
       <div class="visao-box" id="boxVisao">
@@ -472,6 +557,8 @@
     const API_MEMBROS = API_BASE + "/membros";
     const API_PRESENCAS = API_BASE + "/presencas";
 
+    let todosMembros = [];
+    let todasPresencas = [];
     let membros = [];
     let presencas = [];
 
@@ -550,6 +637,95 @@
             <path d="M27.997 15.989c0 6.617-5.375 11.981-12.003 11.981a11.95 11.95 0 0 1-6.115-1.676L3 28.157l1.901-6.73a11.926 11.926 0 0 1-1.91-6.438C2.991 8.372 8.366 3 14.994 3c6.628 0 12.003 5.372 12.003 11.989zm-12.003-9.08c-5.016 0-9.094 4.066-9.094 9.08 0 1.759.504 3.471 1.459 4.944l.232.358-1.126 3.988 4.08-1.068.343.204a9.124 9.124 0 0 0 4.106.98c5.016 0 9.094-4.066 9.094-9.08 0-5.014-4.078-9.406-9.094-9.406zm5.282 11.596c-.289-.145-1.708-.842-1.973-.94-.264-.097-.456-.145-.648.146-.191.29-.744.94-.912 1.133-.168.193-.336.218-.625.073-.289-.145-1.22-.449-2.325-1.434-.86-.768-1.441-1.716-1.61-2.006-.168-.29-.018-.447.127-.591.131-.13.289-.339.433-.509.145-.169.192-.29.289-.484.096-.193.048-.363-.024-.508-.072-.145-.648-1.567-.888-2.146-.233-.56-.469-.484-.648-.493l-.552-.01c-.192 0-.504.073-.768.363-.264.29-1.008.988-1.008 2.41s1.032 2.797 1.176 2.991c.145.193 2.03 3.095 4.917 4.34.687.297 1.223.474 1.641.606.689.219 1.315.188 1.81.114.552-.083 1.708-.697 1.949-1.37.24-.672.24-1.248.168-1.37-.072-.121-.264-.193-.553-.338z"/>
           </svg>
         </a>`;
+    }
+
+
+    function hojeISO() {
+      const hoje = new Date();
+      return `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-${String(hoje.getDate()).padStart(2, "0")}`;
+    }
+
+    function deslocarDias(dataIso, dias) {
+      const d = new Date(`${dataIso}T12:00:00`);
+      d.setDate(d.getDate() + dias);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function preencherFiltroCelulas() {
+      const campo = document.getElementById("filtroCelulaPainel");
+      if (!campo) return;
+
+      const celulas = Array.from(new Set(
+        todosMembros
+          .filter(membroPermitido)
+          .map(m => nomeCelulaExibicao(m.celula))
+          .filter(c => c && c !== "SEM CÉLULA")
+      )).sort((a, b) => a.localeCompare(b, "pt-BR"));
+
+      if (usuarioEhLider()) {
+        const celula = nomeCelulaExibicao(celulaUsuario);
+        campo.innerHTML = `<option value="${celula}">${celula}</option>`;
+        campo.value = celula;
+        campo.disabled = true;
+      } else {
+        const atual = campo.value;
+        campo.innerHTML = '<option value="">Todas</option>' +
+          celulas.map(c => `<option value="${c}">${c}</option>`).join("");
+        if (celulas.includes(atual)) campo.value = atual;
+      }
+    }
+
+    function aplicarFiltroPainel() {
+      const campoInicio = document.getElementById("dataInicialFiltroPainel");
+      const campoFim = document.getElementById("dataFinalFiltroPainel");
+      const campoCelula = document.getElementById("filtroCelulaPainel");
+      const msg = document.getElementById("msgFiltroPainel");
+
+      const inicio = campoInicio?.value || "";
+      const fim = campoFim?.value || "";
+      const celulaSelecionada = usuarioEhLider()
+        ? nomeCelulaExibicao(celulaUsuario)
+        : (campoCelula?.value || "");
+
+      if (!inicio || !fim) {
+        if (msg) msg.textContent = "Informe a data inicial e a data final.";
+        return;
+      }
+
+      if (inicio > fim) {
+        if (msg) msg.textContent = "A data inicial não pode ser maior que a data final.";
+        return;
+      }
+
+      membros = todosMembros
+        .filter(membroPermitido)
+        .filter(m => !celulaSelecionada || nomeCelulaExibicao(m.celula) === celulaSelecionada);
+
+      const idsPermitidos = new Set(membros.map(m => Number(m.id)));
+
+      presencas = todasPresencas.filter(p => {
+        const data = String(p.data || "").slice(0, 10);
+        const id = Number(p.membro_id || p.membroId);
+        return data >= inicio && data <= fim && idsPermitidos.has(id);
+      });
+
+      localStorage.setItem("painelFiltroDataInicial", inicio);
+      localStorage.setItem("painelFiltroDataFinal", fim);
+      localStorage.setItem("painelFiltroCelula", celulaSelecionada || "");
+
+      if (msg) {
+        const celulaTexto = celulaSelecionada || "Todas as células";
+        msg.textContent = `Filtro aplicado: ${formatarDataBR(inicio)} a ${formatarDataBR(fim)} | ${celulaTexto}.`;
+      }
+
+      renderizarDashboard();
+    }
+
+    function definirPeriodoPainel(dias) {
+      const fim = hojeISO();
+      const inicio = deslocarDias(fim, -(dias - 1));
+      document.getElementById("dataInicialFiltroPainel").value = inicio;
+      document.getElementById("dataFinalFiltroPainel").value = fim;
     }
 
     function atualizarVisao() {
@@ -837,118 +1013,45 @@
         fetch(API_PRESENCAS, { cache: "no-store" })
       ]);
 
-      const todosMembros = await respMembros.json();
-      const todasPresencas = await respPresencas.json();
+      if (!respMembros.ok) throw new Error("Erro ao carregar membros.");
+      if (!respPresencas.ok) throw new Error("Erro ao carregar presenças.");
 
-      membros = (Array.isArray(todosMembros) ? todosMembros : []).filter(membroPermitido);
+      const dadosMembros = await respMembros.json();
+      const dadosPresencas = await respPresencas.json();
 
-      const idsPermitidos = new Set(membros.map(m => Number(m.id)));
-      presencas = (Array.isArray(todasPresencas) ? todasPresencas : []).filter(p => {
-        if (!usuarioEhLider()) return true;
-        return idsPermitidos.has(Number(p.membro_id || p.membroId));
-      });
+      todosMembros = Array.isArray(dadosMembros) ? dadosMembros : [];
+      todasPresencas = Array.isArray(dadosPresencas) ? dadosPresencas : [];
 
-      renderizarDashboard();
+      preencherFiltroCelulas();
+
+      const hoje = hojeISO();
+      const inicioSalvo = localStorage.getItem("painelFiltroDataInicial") || deslocarDias(hoje, -29);
+      const fimSalvo = localStorage.getItem("painelFiltroDataFinal") || hoje;
+      const celulaSalva = localStorage.getItem("painelFiltroCelula") || "";
+
+      document.getElementById("dataInicialFiltroPainel").value = inicioSalvo;
+      document.getElementById("dataFinalFiltroPainel").value = fimSalvo;
+
+      const campoCelula = document.getElementById("filtroCelulaPainel");
+      if (!usuarioEhLider() && campoCelula) campoCelula.value = celulaSalva;
+
+      aplicarFiltroPainel();
     }
 
     document.getElementById("btnSair").addEventListener("click", sair);
+    document.getElementById("btnPainelHoje").addEventListener("click", () => definirPeriodoPainel(1));
+    document.getElementById("btnPainel7").addEventListener("click", () => definirPeriodoPainel(7));
+    document.getElementById("btnPainel30").addEventListener("click", () => definirPeriodoPainel(30));
+    document.getElementById("btnFiltrarPainel").addEventListener("click", aplicarFiltroPainel);
 
     if (protegerPagina()) {
       preencherUsuario();
-      carregarDados();
+      carregarDados().catch((erro) => {
+        console.error(erro);
+        const msg = document.getElementById("msgFiltroPainel");
+        if (msg) msg.textContent = erro.message || "Erro ao carregar o Painel.";
+      });
     }
-  </script>
-<script>
-    window.painelFiltroAplicadoV4 = true;
-
-    document.addEventListener("DOMContentLoaded", () => {
-      const API_BASE = "https://celulas-backend.onrender.com";
-      const campoInicio = document.getElementById("dataInicialFiltroPainel");
-      const campoFim = document.getElementById("dataFinalFiltroPainel");
-      const campoCelula = document.getElementById("filtroCelulaPainel");
-
-      function hojeISO() {
-        const hoje = new Date();
-        return `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,"0")}-${String(hoje.getDate()).padStart(2,"0")}`;
-      }
-
-      function deslocarDias(dataIso, dias) {
-        const d = new Date(`${dataIso}T12:00:00`);
-        d.setDate(d.getDate() + dias);
-        return d.toISOString().slice(0, 10);
-      }
-
-      function normalizarTexto(valor) {
-        return String(valor || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toUpperCase();
-      }
-
-      function normalizarNomeCelula(valor) {
-        return normalizarTexto(valor).replace(/^C[EÉ]LULA\s*/i, "").replace(/^CELULA\s*/i, "").trim();
-      }
-
-      function nomeCelulaExibicao(valor) {
-        const base = normalizarNomeCelula(valor);
-        return base ? `CÉLULA ${base}` : "";
-      }
-
-      async function carregarCelulasFiltro() {
-        try {
-          const resposta = await fetch(`${API_BASE}/membros`, { cache: "no-store" });
-          const membros = resposta.ok ? await resposta.json() : [];
-          const celulas = Array.from(new Set((Array.isArray(membros) ? membros : [])
-            .map((m) => nomeCelulaExibicao(m.celula || ""))
-            .filter(Boolean)))
-            .sort((a,b) => a.localeCompare(b, "pt-BR"));
-
-          const nivel = String(localStorage.getItem("nivelUsuario") || "admin").toLowerCase();
-          const celulaUsuario = nomeCelulaExibicao(localStorage.getItem("celulaUsuario") || "");
-
-          if (nivel === "lider" || nivel === "líder") {
-            campoCelula.innerHTML = `<option value="${celulaUsuario}">${celulaUsuario || "Célula não vinculada"}</option>`;
-            campoCelula.value = celulaUsuario;
-            campoCelula.disabled = true;
-          } else {
-            campoCelula.innerHTML = '<option value="">Todas</option>' + celulas.map((c) => `<option value="${c}">${c}</option>`).join("");
-          }
-        } catch (erro) {
-          console.error("Erro ao carregar células do filtro do painel", erro);
-        }
-      }
-
-      function definirPeriodo(dias) {
-        const fim = hojeISO();
-        campoInicio.value = deslocarDias(fim, -(dias - 1));
-        campoFim.value = fim;
-        localStorage.setItem("painelFiltroDataInicial", campoInicio.value);
-        localStorage.setItem("painelFiltroDataFinal", campoFim.value);
-        localStorage.setItem("painelFiltroCelula", campoCelula.value || "");
-        window.dispatchEvent(new CustomEvent("painel:filtro-alterado", {
-          detail: { inicio: campoInicio.value, fim: campoFim.value, celula: campoCelula.value || "" }
-        }));
-      }
-
-      document.getElementById("btnPainelHoje")?.addEventListener("click", () => definirPeriodo(1));
-      document.getElementById("btnPainel7")?.addEventListener("click", () => definirPeriodo(7));
-      document.getElementById("btnPainel30")?.addEventListener("click", () => definirPeriodo(30));
-
-      [campoInicio, campoFim, campoCelula].forEach((campo) => {
-        campo?.addEventListener("change", () => {
-          localStorage.setItem("painelFiltroDataInicial", campoInicio.value || "");
-          localStorage.setItem("painelFiltroDataFinal", campoFim.value || "");
-          localStorage.setItem("painelFiltroCelula", campoCelula.value || "");
-          window.dispatchEvent(new CustomEvent("painel:filtro-alterado", {
-            detail: { inicio: campoInicio.value, fim: campoFim.value, celula: campoCelula.value || "" }
-          }));
-        });
-      });
-
-      carregarCelulasFiltro().then(() => {
-        campoInicio.value = localStorage.getItem("painelFiltroDataInicial") || deslocarDias(hojeISO(), -29);
-        campoFim.value = localStorage.getItem("painelFiltroDataFinal") || hojeISO();
-        const celulaSalva = localStorage.getItem("painelFiltroCelula") || "";
-        if (celulaSalva) campoCelula.value = celulaSalva;
-      });
-    });
   </script>
 </body>
 </html>
