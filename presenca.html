@@ -183,7 +183,7 @@
 
     .filtro-periodo-presenca {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto auto auto;
+      grid-template-columns: 1fr 1fr 1fr auto auto auto auto;
       gap: 14px;
       align-items: end;
     }
@@ -704,6 +704,7 @@
             <button class="btn-primary" id="btnHoje" type="button">Hoje</button>
             <button class="btn-success" id="btn7dias" type="button">7 dias</button>
             <button class="btn-secondary" id="btn30dias" type="button" style="background:#f59e0b;">30 dias</button>
+            <button class="btn-primary" id="btnFiltrar" type="button">Filtrar</button>
           </div>
         </div>
       </div>
@@ -1243,7 +1244,7 @@
         try {
           const datas = [];
           let atual = inicio;
-          while (atual <= fim && datas.length <= 90) {
+          while (atual <= fim) {
             datas.push(atual);
             atual = deslocarDias(atual, 1);
           }
@@ -1396,10 +1397,13 @@
           presencas = {};
           campoData.value = hojeISO();
           if (!usuarioEhLider() && !campoCelula.value && campoFiltroCelula?.value) campoCelula.value = campoFiltroCelula.value;
+          visitantesAnterioresLiberados = false;
+          idsVisitantesAnterioresPermitidos = new Set();
+          filtrarMembrosPorCelula();
+          membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
           perguntarVisitantesAnteriores();
           filtrarMembrosPorCelula();
           renderizarControleVisitantesAnteriores();
-          membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
           mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
         } else {
           if (!reuniaoSelecionada) return mostrarMensagem("Selecione uma reunião registrada antes de editar.");
@@ -1554,6 +1558,15 @@
       document.getElementById("btnHoje").addEventListener("click", () => definirPeriodo(1));
       document.getElementById("btn7dias").addEventListener("click", () => definirPeriodo(7));
       document.getElementById("btn30dias").addEventListener("click", () => definirPeriodo(30));
+      document.getElementById("btnFiltrar").addEventListener("click", async () => {
+        if (!campoDataInicial.value || !campoDataFinal.value) return mostrarMensagem("Informe a data inicial e a data final para filtrar.");
+        if (campoDataInicial.value > campoDataFinal.value) return mostrarMensagem("A data inicial não pode ser maior que a data final.");
+        reuniaoSelecionada = null;
+        if (modo === "consulta") { campoData.value = campoDataFinal.value; campoCelula.value = celulaFiltroAtual() || ""; }
+        filtrarMembrosPorCelula();
+        await carregarReunioesRegistradas();
+        mostrarMensagem("Filtro aplicado com sucesso.", "#16a34a");
+      });
       document.getElementById("btnIncluir").addEventListener("click", () => prepararLancamento("inclusao"));
       document.getElementById("btnEditar").addEventListener("click", () => prepararLancamento("edicao"));
       document.getElementById("btnExcluirPresenca")?.addEventListener("click", excluirPresenca);
@@ -1598,19 +1611,9 @@
           renderizarControleVisitantesAnteriores();
         }
       });
-      campoDataInicial.addEventListener("change", carregarReunioesRegistradas);
-      campoDataFinal.addEventListener("change", async () => {
-        if (modo === "consulta") {
-          campoData.value = campoDataFinal.value;
-          await carregarReunioesRegistradas();
-        }
-      });
-      campoFiltroCelula?.addEventListener("change", async () => {
-        reuniaoSelecionada = null;
-        if (modo === "consulta") campoCelula.value = campoFiltroCelula.value || "";
-        filtrarMembrosPorCelula();
-        await carregarReunioesRegistradas();
-      });
+      campoDataInicial.addEventListener("change", () => { reuniaoSelecionada = null; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b"); });
+      campoDataFinal.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoData.value = campoDataFinal.value; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b"); });
+      campoFiltroCelula?.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoCelula.value = campoFiltroCelula.value || ""; filtrarMembrosPorCelula(); mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b"); });
       campoCelula.addEventListener("change", async () => {
         reuniaoSelecionada = null;
         filtrarMembrosPorCelula();
@@ -1635,6 +1638,14 @@
         presencas[Number(checkbox.dataset.id)] = checkbox.checked ? "presente" : "ausente";
         renderizarMembros();
         atualizarResumo();
+      });
+
+      listaVisitantesAnteriores?.addEventListener("click", async (evento) => {
+        const botaoArquivar = evento.target.closest(".btn-arquivar-visitante");
+        if (!botaoArquivar) return;
+        evento.preventDefault();
+        evento.stopPropagation();
+        await arquivarVisitante(botaoArquivar.dataset.id);
       });
 
       listaVisitantesAnteriores?.addEventListener("change", (evento) => {
