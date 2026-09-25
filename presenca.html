@@ -665,6 +665,45 @@
       }
     }
 
+
+    /* ===== POPUP PADRÃO +CÉLULAS ===== */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+
+    .popup-overlay.ativo { display: flex; }
+
+    .popup-card {
+      width: min(460px, 100%);
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+      padding: 24px;
+      border-top: 6px solid var(--blue);
+    }
+
+    .popup-card.erro { border-top-color: var(--red); }
+    .popup-card.sucesso { border-top-color: var(--green); }
+    .popup-card.info { border-top-color: var(--blue); }
+    .popup-card.atencao { border-top-color: var(--amber); }
+
+    .popup-card h3 { margin: 0 0 10px; font-size: 21px; }
+    .popup-card p { margin: 0; color: #475569; line-height: 1.5; white-space: pre-line; }
+
+    .popup-acoes {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
   </style>
 </head>
 <body>
@@ -685,7 +724,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.1
+        <strong>Sistema v1.0</strong> • Presença v1.2
       </div>
     </aside>
 
@@ -815,6 +854,18 @@
     </main>
   </div>
 
+
+  <div class="popup-overlay" id="popupSistema" role="dialog" aria-modal="true" aria-labelledby="popupTitulo">
+    <div class="popup-card info" id="popupCard">
+      <h3 id="popupTitulo">Informação</h3>
+      <p id="popupTexto"></p>
+      <div class="popup-acoes">
+        <button class="btn-secondary" id="popupCancelar" type="button" style="display:none;">Cancelar</button>
+        <button class="btn-primary" id="popupConfirmar" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const API_BASE = "https://celulas-backend.onrender.com";
@@ -858,6 +909,13 @@
       const listaReunioes = document.getElementById("listaReunioesRegistradas");
       const boxVisitantesAnteriores = document.getElementById("boxVisitantesAnteriores");
       const listaVisitantesAnteriores = document.getElementById("listaVisitantesAnteriores");
+      const popupSistema = document.getElementById("popupSistema");
+      const popupCard = document.getElementById("popupCard");
+      const popupTitulo = document.getElementById("popupTitulo");
+      const popupTexto = document.getElementById("popupTexto");
+      const popupConfirmar = document.getElementById("popupConfirmar");
+      const popupCancelar = document.getElementById("popupCancelar");
+
 
       function sair() {
         localStorage.clear();
@@ -905,14 +963,49 @@
         return "erro";
       }
 
-      function mostrarMensagem(texto, cor = "#dc2626") {
+      function abrirPopup(texto, tipo = "info", titulo = "", confirmar = false) {
+        return new Promise((resolve) => {
+          const titulos = {
+            erro: "Atenção",
+            sucesso: "Sucesso",
+            info: "Informação",
+            atencao: "Atenção"
+          };
+
+          popupCard.className = `popup-card ${tipo}`;
+          popupTitulo.textContent = titulo || titulos[tipo] || "Informação";
+          popupTexto.textContent = texto || "";
+          popupCancelar.style.display = confirmar ? "inline-block" : "none";
+          popupConfirmar.textContent = confirmar ? "Confirmar" : "OK";
+          popupSistema.classList.add("ativo");
+
+          const finalizar = (valor) => {
+            popupSistema.classList.remove("ativo");
+            popupConfirmar.onclick = null;
+            popupCancelar.onclick = null;
+            resolve(valor);
+          };
+
+          popupConfirmar.onclick = () => finalizar(true);
+          popupCancelar.onclick = () => finalizar(false);
+        });
+      }
+
+      function mostrarMensagem(texto, cor = "#dc2626", exibirPopup = true) {
         campoMensagem.textContent = texto;
         campoMensagem.style.color = cor;
+
         if (campoMsgTopo) {
-          campoMsgTopo.textContent = texto || "Use o filtro para consultar presenças ou clique em Incluir para lançar a reunião.";
+          campoMsgTopo.textContent = texto || "Escolha Hoje, 7 dias, 30 dias ou informe um período e clique em Filtrar.";
           campoMsgTopo.className = `msg-topo ${texto ? tipoMensagemPorCor(cor) : "neutro"}`;
         }
-        if (cor === "#dc2626" && texto) window.alert(texto);
+
+        if (texto && exibirPopup) {
+          const tipo = cor === "#16a34a" ? "sucesso" :
+                       cor === "#2563eb" ? "info" :
+                       cor === "#64748b" ? "info" : "erro";
+          abrirPopup(texto, tipo);
+        }
       }
 
       function hojeISO() {
@@ -932,7 +1025,8 @@
         campoDataInicial.value = inicio;
         campoDataFinal.value = fim;
         if (modo === "consulta") campoData.value = fim;
-        await carregarReunioesRegistradas();
+        const ok = await carregarReunioesRegistradas();
+        if (ok) mostrarMensagem("Filtro aplicado com sucesso.", "#16a34a", false);
       }
 
       function dataReuniaoAtual() {
@@ -1223,7 +1317,7 @@
           if (!usuarioEhLider() && !campoCelula.value && celulaFiltroAtual()) campoCelula.value = celulaFiltroAtual();
           await carregarPresencasData();
           filtrarMembrosPorCelula();
-          await carregarReunioesRegistradas();
+          // A consulta histórica só ocorre por ação explícita do usuário.
         } catch (erro) {
           campoLista.innerHTML = '<div class="vazio">Erro ao carregar membros.</div>';
           mostrarMensagem("Erro ao carregar membros.");
@@ -1431,21 +1525,30 @@
           return;
         }
 
-        visitantesAnterioresLiberados = window.confirm(
-          `Existem ${visitantes.length} visitante(s) anterior(es) nesta célula. Deseja carregar visitantes anteriores para escolher quais participaram desta reunião?`
-        );
+        // Visitantes anteriores são apresentados explicitamente na tela.
+        // O popup confirma se o usuário deseja carregá-los.
+        return abrirPopup(
+          `Existem ${visitantes.length} visitante(s) anterior(es) nesta célula. Deseja carregar visitantes anteriores para escolher quais participaram desta reunião?`,
+          "atencao",
+          "Visitantes anteriores",
+          true
+        ).then((confirmou) => {
+          visitantesAnterioresLiberados = confirmou;
 
-        if (visitantesAnterioresLiberados) {
-          idsVisitantesAnterioresPermitidos = new Set(visitantes.map((m) => String(m.id)));
-          visitantes.forEach((m) => {
-            presencas[Number(m.id)] = "presente";
-          });
-        }
+          if (visitantesAnterioresLiberados) {
+            idsVisitantesAnterioresPermitidos = new Set(visitantes.map((m) => String(m.id)));
+            visitantes.forEach((m) => {
+              presencas[Number(m.id)] = "presente";
+            });
+          }
 
-        renderizarControleVisitantesAnteriores();
+          renderizarControleVisitantesAnteriores();
+          filtrarMembrosPorCelula();
+        });
+
       }
 
-      function prepararLancamento(tipo) {
+      async function prepararLancamento(tipo) {
         if (!validarVisitanteAberto()) return;
         if (tipo === "inclusao") {
           modo = "inclusao";
@@ -1458,7 +1561,7 @@
           idsVisitantesAnterioresPermitidos = new Set();
           filtrarMembrosPorCelula();
           membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
-          perguntarVisitantesAnteriores();
+          await perguntarVisitantesAnteriores();
           filtrarMembrosPorCelula();
           renderizarControleVisitantesAnteriores();
           mostrarMensagem("Inclusão liberada. Marque os presentes e clique em Salvar.", "#2563eb");
@@ -1530,8 +1633,9 @@
         if (!usuarioEhAdmin()) return mostrarMensagem("Somente administrador pode excluir presença.");
         if (!reuniaoSelecionada || !reuniaoSelecionada.data) return mostrarMensagem("Selecione uma reunião registrada antes de excluir.");
 
-        const impacto = "Esta presença alimenta relatórios e painel. Ao excluir, esses indicadores deixarão de considerar esta reunião.";
-        if (!window.confirm(`${impacto}\n\nDeseja realmente excluir esta presença?`)) return;
+        const impacto = "Esta presença alimenta relatórios e painel. Ao excluir, esses indicadores deixarão de considerar esta reunião.\n\nDeseja realmente excluir esta presença?";
+        const confirmou = await abrirPopup(impacto, "atencao", "Confirmar exclusão", true);
+        if (!confirmou) return;
 
         try {
           const resposta = await fetch(`${apiPresencas}/${reuniaoSelecionada.data}`, { method: "DELETE" });
@@ -1552,7 +1656,12 @@
 
 
       async function arquivarVisitante(id) {
-        const confirmou = window.confirm("Arquivar este visitante? Ele deixará de aparecer como visitante ativo, mas o histórico de presenças será preservado.");
+        const confirmou = await abrirPopup(
+          "Arquivar este visitante? Ele deixará de aparecer como visitante ativo, mas o histórico de presenças será preservado.",
+          "atencao",
+          "Arquivar visitante",
+          true
+        );
         if (!confirmou) return;
 
         try {
@@ -1623,7 +1732,7 @@
         filtrarMembrosPorCelula();
         const filtroCarregado = await carregarReunioesRegistradas();
         if (filtroCarregado) {
-          mostrarMensagem("Filtro aplicado com sucesso.", "#16a34a");
+          mostrarMensagem("Filtro aplicado com sucesso.", "#16a34a", false);
         } else {
           mostrarMensagem("Não foi possível aplicar o filtro. Tente novamente.");
         }
@@ -1672,13 +1781,12 @@
           renderizarControleVisitantesAnteriores();
         }
       });
-      campoDataInicial.addEventListener("change", () => { reuniaoSelecionada = null; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b"); });
-      campoDataFinal.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoData.value = campoDataFinal.value; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b"); });
-      campoFiltroCelula?.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoCelula.value = campoFiltroCelula.value || ""; filtrarMembrosPorCelula(); mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b"); });
-      campoCelula.addEventListener("change", async () => {
+      campoDataInicial.addEventListener("change", () => { reuniaoSelecionada = null; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b", false); });
+      campoDataFinal.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoData.value = campoDataFinal.value; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b", false); });
+      campoFiltroCelula?.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoCelula.value = campoFiltroCelula.value || ""; filtrarMembrosPorCelula(); mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b", false); });
+      campoCelula.addEventListener("change", () => {
         reuniaoSelecionada = null;
         filtrarMembrosPorCelula();
-        await carregarReunioesRegistradas();
       });
       listaReunioes?.addEventListener("click", async (evento) => {
         const item = evento.target.closest(".reuniao-item");
@@ -1726,10 +1834,18 @@
       });
 
       async function iniciarTela() {
-        const fim = hojeISO();
-        campoDataInicial.value = deslocarDias(fim, -29);
-        campoDataFinal.value = fim;
-        campoData.value = fim;
+        campoDataInicial.value = "";
+        campoDataFinal.value = "";
+        campoData.value = "";
+
+        if (listaReunioes) {
+          listaReunioes.innerHTML = '<div class="vazio">Escolha Hoje, 7 dias, 30 dias ou informe um período e clique em Filtrar.</div>';
+        }
+
+        if (campoMsgTopo) {
+          campoMsgTopo.textContent = "Escolha Hoje, 7 dias, 30 dias ou informe um período e clique em Filtrar.";
+          campoMsgTopo.className = "msg-topo neutro";
+        }
 
         if (usuarioEhLider()) {
           await garantirCelulaDoUsuario();
