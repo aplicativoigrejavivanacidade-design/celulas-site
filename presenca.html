@@ -780,7 +780,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.9
+        <strong>Sistema v1.0</strong> • Presença v1.10
       </div>
     </aside>
 
@@ -1486,7 +1486,25 @@
           if (!resposta.ok) throw new Error("Erro ao carregar presença.");
           const dados = await resposta.json();
           (Array.isArray(dados) ? dados : []).forEach((item) => {
-            presencas[Number(item.membroId)] = item.status;
+            const id = Number(item.membroId);
+            presencas[id] = item.status;
+
+            // v1.10: a presença histórica é a fonte da verdade para a consulta.
+            // Se o visitante foi arquivado depois, ele continua sendo reconstruído
+            // com os dados gravados/retornados pela API para aparecer na reunião antiga.
+            if (!todosMembros.some((m) => Number(m.id) === id) && item.nome) {
+              todosMembros.push({
+                id,
+                nome: item.nome,
+                telefone: item.telefone || "",
+                celula: item.celula || campoCelula.value || "",
+                status: item.statusMembro || "VISITANTE ARQUIVADO",
+                origem_cadastro: item.origemCadastro || "PRESENCA_VISITANTE",
+                cadastro_completo: item.cadastroCompleto ?? false,
+                data_cadastro: item.dataCadastro || "",
+                data_arquivamento: item.dataArquivamento || ""
+              });
+            }
           });
           filtrarMembrosPorCelula();
         } catch (erro) {
@@ -2004,8 +2022,16 @@
 
           idsVisitantesAnterioresPermitidos.delete(String(id));
           delete presencas[Number(id)];
+          visitantesAnterioresLiberados = false;
 
+          // v1.10: refaz imediatamente o estado da tela para a data atual.
+          // Na data do arquivamento (ou posterior), o visitante some sem exigir
+          // Cancelar/Incluir novamente. Em consultas históricas, a presença gravada
+          // continua sendo carregada pela API e exibida normalmente.
           await carregarMembros();
+          renderizarControleVisitantesAnteriores();
+          filtrarMembrosPorCelula();
+          atualizarResumo();
           mostrarMensagem(dados.mensagem || "Visitante arquivado com sucesso.", "#16a34a");
         } catch (erro) {
           mostrarMensagem(erro.message || "Erro ao arquivar visitante.");
