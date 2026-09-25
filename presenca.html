@@ -197,13 +197,22 @@
 
     .filtro-periodo-presenca {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto auto auto auto;
-      gap: 14px;
+      grid-template-columns: 160px 160px minmax(180px, 1fr) auto;
+      gap: 12px;
       align-items: end;
     }
 
     .botoes-filtro-data {
-      display: contents;
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .botoes-filtro-data button {
+      white-space: nowrap;
+      padding-left: 12px;
+      padding-right: 12px;
     }
 
     .botao-bloqueado {
@@ -230,12 +239,24 @@
       box-shadow: var(--shadow);
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1180px) {
+      .filtro-periodo-presenca {
+        grid-template-columns: 150px 150px minmax(170px, 1fr);
+      }
+
+      .botoes-filtro-data {
+        grid-column: 1 / -1;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 700px) {
       .filtro-periodo-presenca {
         grid-template-columns: 1fr;
       }
 
       .botoes-filtro-data {
+        grid-column: auto;
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
@@ -757,7 +778,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.3
+        <strong>Sistema v1.0</strong> • Presença v1.4
       </div>
     </aside>
 
@@ -1814,6 +1835,9 @@
 
 
       function limparFiltroConsulta() {
+        // Volta a tela para o mesmo estado inicial, independentemente de ter vindo
+        // de uma consulta, inclusão ou edição de reunião.
+        modo = "consulta";
         campoDataInicial.value = "";
         campoDataFinal.value = "";
         if (campoFiltroCelula && !usuarioEhLider()) campoFiltroCelula.value = "";
@@ -1826,24 +1850,30 @@
         visitantesAnterioresLiberados = false;
         idsVisitantesAnterioresPermitidos = new Set();
 
-        if (modo === "consulta") {
-          campoData.value = "";
-          campoCelula.value = usuarioEhLider() ? celulaPermitidaParaUsuario() : "";
-        }
+        campoData.value = "";
+        campoCelula.value = usuarioEhLider() ? celulaPermitidaParaUsuario() : "";
 
+        // Limpa também qualquer conteúdo operacional que tenha ficado da reunião anterior.
+        boxVisitante.classList.remove("ativo");
+        campoVisitanteNome.value = "";
+        campoVisitanteTelefone.value = "";
         renderizarControleVisitantesAnteriores();
-        renderizarMembros();
-        atualizarResumo();
-        atualizarModo();
 
-        if (cardReunioes) cardReunioes.classList.add("oculto");
+        campoLista.innerHTML = '<div class="vazio">Clique em Incluir para lançar uma nova reunião ou use o filtro acima para consultar o histórico.</div>';
+        document.getElementById("totalMembros").textContent = "0 membro(s)";
+        document.getElementById("totalPresentes").textContent = "0 presente(s)";
+        document.getElementById("totalAusentes").textContent = "0 ausente(s)";
+        document.getElementById("totalPendentes").textContent = "0 pendente(s)";
+        const totalVisitantes = document.getElementById("totalVisitantes");
+        if (totalVisitantes) totalVisitantes.textContent = "0 visitante(s)";
 
         if (listaReunioes) {
           listaReunioes.innerHTML = '<div class="vazio">Escolha Hoje, 7 dias, 30 dias ou informe um período e clique em Filtrar.</div>';
         }
         if (cardReunioes) cardReunioes.classList.add("oculto");
 
-        mostrarMensagem("Filtro limpo. Defina uma nova consulta quando desejar.", "#64748b", false);
+        atualizarModo();
+        mostrarMensagem("Filtros e dados da reunião foram limpos.", "#64748b", false);
       }
 
       document.getElementById("btnSair").addEventListener("click", sair);
