@@ -780,7 +780,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.8
+        <strong>Sistema v1.0</strong> • Presença v1.9
       </div>
     </aside>
 
@@ -881,7 +881,7 @@
               </div>
               <div>
                 <label for="visitanteTelefone" class="campo-obrigatorio">Telefone</label>
-                <input id="visitanteTelefone" type="text" placeholder="Telefone do visitante" />
+                <input id="visitanteTelefone" type="text" placeholder="(DDD) 99999-9999" maxlength="15" inputmode="numeric" />
               </div>
             </div>
             <div id="filaVisitantes" class="vazio" style="display:none;margin-top:12px;"></div>
@@ -1139,6 +1139,47 @@
         return /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : "";
       }
 
+      function obterDataArquivamentoVisitante(membro) {
+        const valor = String(membro.data_arquivamento || membro.dataArquivamento || "").slice(0, 10);
+        return /^\d{4}-\d{2}-\d{2}$/.test(valor) ? valor : "";
+      }
+
+      function visitanteElegivelNaData(membro, dataReuniao) {
+        if (!membroEhVisitante(membro) || !dataReuniao) return false;
+        const inicio = obterDataCadastroMembro(membro);
+        const fim = obterDataArquivamentoVisitante(membro);
+        if (inicio && dataReuniao < inicio) return false;
+        if (fim && dataReuniao >= fim) return false;
+        return true;
+      }
+
+      function diasEntreHoje(dataIso) {
+        if (!dataIso) return 0;
+        const a = new Date(`${dataIso}T12:00:00`);
+        const b = new Date(`${hojeISO()}T12:00:00`);
+        return Math.floor((b - a) / 86400000);
+      }
+
+      async function validarPrazoOperacao(dataIso, operacao = "alterar") {
+        if (!dataIso) return false;
+        if (dataIso > hojeISO()) {
+          await abrirPopup("Não é permitido lançar, editar ou excluir reuniões em data futura.", "erro", "Data futura");
+          return false;
+        }
+        const dias = diasEntreHoje(dataIso);
+        if (dias <= 20) return true;
+        if (!usuarioEhAdmin()) {
+          await abrirPopup(`O prazo de 20 dias para ${operacao} esta reunião foi encerrado. Solicite a correção a um administrador.`, "atencao", "Período encerrado");
+          return false;
+        }
+        return abrirPopup(
+          `Esta reunião ocorreu há ${dias} dias e está fora do prazo normal de 20 dias. A alteração modificará dados históricos utilizados em relatórios e no painel. Deseja continuar?`,
+          "atencao",
+          "Alteração de período encerrado",
+          true
+        );
+      }
+
       function membroEhVisitante(membro) {
         const origem = normalizarTexto(membro.origem_cadastro || membro.origemCadastro || "");
         const status = normalizarTexto(membro.status || "");
@@ -1170,8 +1211,8 @@
         // Em inclusão/edição, visitante com registro histórico precisa reaparecer.
         if (Object.prototype.hasOwnProperty.call(presencas, Number(membro.id))) return true;
 
-        // Visitante arquivado não entra em novo lançamento, mas permanece no histórico.
-        if (normalizarTexto(membro.status) === "VISITANTE ARQUIVADO") return false;
+        // O arquivamento vale a partir da data registrada, sem apagar a elegibilidade histórica.
+        if (!visitanteElegivelNaData(membro, dataReuniao)) return false;
 
         if (!visitantesAnterioresLiberados) {
           return dataCadastro === dataReuniao;
@@ -1644,10 +1685,11 @@
 
         return todosMembros
           .filter((m) => {
-            if (!membroEhVisitantePendente(m)) return false;
+            if (!membroEhVisitante(m)) return false;
             const dataCadastro = obterDataCadastroMembro(m);
             return dataCadastro &&
               dataCadastro < dataReuniao &&
+              visitanteElegivelNaData(m, dataReuniao) &&
               normalizarNomeCelula(m.celula) === normalizarNomeCelula(celulaAtual);
           })
           .sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
@@ -1785,6 +1827,7 @@
         if (!campoData.value) return mostrarMensagem("Informe a data da reunião.");
         if (!celulaAlvoLancamento()) return mostrarMensagem("Selecione a célula.");
         if (!membrosFiltrados.length) return mostrarMensagem("Não há membros para salvar nesta célula/data.");
+        if (!(await validarPrazoOperacao(campoData.value, modo === "inclusao" ? "incluir" : "editar"))) return;
 
         const registros = membrosFiltrados.map((membro) => ({
           membroId: membro.id,
@@ -1838,6 +1881,7 @@
             body: JSON.stringify({
               data: campoData.value,
               dataOriginal: dataOriginalEdicao || campoData.value,
+              nivelUsuario,
               registros
             })
           });
@@ -1896,12 +1940,19 @@
         if (!usuarioEhAdmin()) return mostrarMensagem("Somente administrador pode excluir presença.");
         if (!reuniaoSelecionada || !reuniaoSelecionada.data) return mostrarMensagem("Selecione uma reunião registrada antes de excluir.");
 
+        if (!(await validarPrazoOperacao(reuniaoSelecionada.data, "excluir"))) return;
+
         const impacto = "Esta presença alimenta relatórios e painel. Ao excluir, esses indicadores deixarão de considerar esta reunião.\n\nDeseja realmente excluir esta presença?";
         const confirmou = await abrirPopup(impacto, "atencao", "Confirmar exclusão", true);
         if (!confirmou) return;
 
         try {
-          const resposta = await fetch(`${apiPresencas}/${reuniaoSelecionada.data}`, { method: "DELETE" });
+          const membroIds = membrosFiltrados.map((m) => Number(m.id)).filter(Boolean);
+          const resposta = await fetch(`${apiPresencas}/${reuniaoSelecionada.data}`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ nivelUsuario, membroIds })
+          });
           const dados = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(dados.erro || "Erro ao excluir presença.");
 
@@ -1938,9 +1989,11 @@
         if (!confirmou) return;
 
         try {
+          const dataArquivamento = campoData.value || hojeISO();
           const resposta = await fetch(`${apiMembros}/visitante/${id}/arquivar`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ dataArquivamento })
           });
 
           const dados = await resposta.json().catch(() => ({}));
@@ -1970,6 +2023,21 @@
         filaVisitantes.innerHTML = `<strong>Visitantes para cadastrar:</strong><br>${visitantesPendentesCadastro.map((v, i) => `${i + 1}. ${v.nome} — ${v.telefone}`).join("<br>")}`;
       }
 
+      function formatarTelefoneEntrada(valor) {
+        let d = String(valor || "").replace(/\D/g, "").slice(0, 11);
+        if (d.length <= 2) return d ? `(${d}` : "";
+        const ddd = d.slice(0, 2);
+        const n = d.slice(2);
+        if (n.length <= 4) return `(${ddd}) ${n}`;
+        if (n.length <= 8) return `(${ddd}) ${n.slice(0, 4)}-${n.slice(4)}`;
+        return `(${ddd}) ${n.slice(0, 5)}-${n.slice(5)}`;
+      }
+
+      function telefoneValido(valor) {
+        const d = String(valor || "").replace(/\D/g, "");
+        return d.length === 10 || d.length === 11;
+      }
+
       function adicionarVisitanteNaFila() {
         const nome = normalizarTexto(campoVisitanteNome.value);
         const telefone = String(campoVisitanteTelefone.value || "").trim();
@@ -1977,7 +2045,12 @@
         if (!celulaAlvoLancamento()) return mostrarMensagem("Selecione a célula antes de cadastrar visitante.");
         if (!nome) return mostrarMensagem("Informe o nome do visitante.");
         if (!telefone) return mostrarMensagem("Informe o telefone do visitante.");
-        visitantesPendentesCadastro.push({ nome, telefone });
+        if (!telefoneValido(telefone)) return mostrarMensagem("Informe um telefone válido com DDD, no padrão (DDD) 99999-9999.");
+        const digitos = telefone.replace(/\D/g, "");
+        const duplicadoFila = visitantesPendentesCadastro.some((v) => String(v.telefone || "").replace(/\D/g, "") === digitos);
+        const duplicadoBase = todosMembros.some((m) => String(m.telefone || "").replace(/\D/g, "") === digitos);
+        if (duplicadoFila || duplicadoBase) return mostrarMensagem("Este telefone já está cadastrado ou já foi adicionado à lista de visitantes.");
+        visitantesPendentesCadastro.push({ nome, telefone: formatarTelefoneEntrada(telefone) });
         campoVisitanteNome.value = "";
         campoVisitanteTelefone.value = "";
         renderizarFilaVisitantes();
@@ -2188,12 +2261,21 @@
         atualizarEstadoBotoes();
       });
       campoVisitanteNome?.addEventListener("input", atualizarEstadoBotoes);
-      campoVisitanteTelefone?.addEventListener("input", atualizarEstadoBotoes);
+      campoVisitanteTelefone?.addEventListener("input", () => {
+        campoVisitanteTelefone.value = formatarTelefoneEntrada(campoVisitanteTelefone.value);
+        atualizarEstadoBotoes();
+      });
       document.getElementById("btnMarcarTodos").addEventListener("click", () => marcarTodosComo(true));
       document.getElementById("btnDesmarcarTodos").addEventListener("click", () => marcarTodosComo(false));
       document.getElementById("btnLimpar").addEventListener("click", () => marcarTodosComo(false));
 
       campoData.addEventListener("change", async () => {
+        if (campoData.value && campoData.value > hojeISO()) {
+          await abrirPopup("Não é permitido selecionar uma data futura para a reunião.", "erro", "Data futura");
+          campoData.value = "";
+          filtrarMembrosPorCelula();
+          return;
+        }
         if (modo !== "consulta") {
           consultaVisitantesContexto = "";
           filtrarMembrosPorCelula();
