@@ -780,7 +780,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.11
+        <strong>Sistema v1.0</strong> • Presença v1.12
       </div>
     </aside>
 
@@ -1549,16 +1549,15 @@
       }
 
       function registrosPorCelula(data, registros, celulaNome) {
-        const ids = new Set(registros.map((r) => Number(r.membroId)));
-        const membrosDaData = todosMembros.filter((m) => ids.has(Number(m.id)));
-        const membrosDaCelula = celulaNome
-          ? membrosDaData.filter((m) => normalizarNomeCelula(m.celula) === normalizarNomeCelula(celulaNome))
-          : membrosDaData;
-        const presentes = registros.filter((r) => {
-          const membro = membrosDaCelula.find((m) => Number(m.id) === Number(r.membroId));
-          return membro && r.status === "presente";
-        }).length;
-        return { data, celula: celulaNome || "GERAL", total: membrosDaCelula.length, presentes };
+        const alvo = normalizarNomeCelula(celulaNome || "");
+        const registrosDaCelula = (Array.isArray(registros) ? registros : []).filter((r) => {
+          const celulaHistorica = r.celulaPresenca || r.celula || "";
+          if (celulaHistorica) return !alvo || normalizarNomeCelula(celulaHistorica) === alvo;
+          const membro = todosMembros.find((m) => Number(m.id) === Number(r.membroId));
+          return !alvo || normalizarNomeCelula(membro?.celula || "") === alvo;
+        });
+        const presentes = registrosDaCelula.filter((r) => r.status === "presente").length;
+        return { data, celula: celulaNome || "GERAL", total: registrosDaCelula.length, presentes };
       }
 
       async function carregarReunioesRegistradas(exibirPopupVazio = true) {
@@ -1638,7 +1637,8 @@
             const celulasComPresenca = new Set();
             item.registros.forEach((registro) => {
               const membro = todosMembros.find((m) => Number(m.id) === Number(registro.membroId));
-              const celulaMembro = nomeCelulaExibicao(membro?.celula || "");
+              const celulaRegistro = registro.celulaPresenca || registro.celula || membro?.celula || "";
+              const celulaMembro = nomeCelulaExibicao(celulaRegistro);
               if (celulaMembro) celulasComPresenca.add(celulaMembro);
             });
 
@@ -1852,6 +1852,8 @@
         const registros = await resposta.json();
         if (!Array.isArray(registros) || !registros.length) return false;
         return registros.some((registro) => {
+          const celulaHistorica = registro.celulaPresenca || registro.celula || "";
+          if (celulaHistorica) return normalizarNomeCelula(celulaHistorica) === normalizarNomeCelula(celula);
           const pessoa = todosMembros.find((m) => Number(m.id) === Number(registro.membroId));
           return pessoa && normalizarNomeCelula(pessoa.celula) === normalizarNomeCelula(celula);
         });
