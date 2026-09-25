@@ -1228,7 +1228,7 @@
       async function carregarReunioesRegistradas() {
         reuniaoSelecionada = null;
         reunioesRegistradas = [];
-        if (!listaReunioes) return;
+        if (!listaReunioes) return false;
         listaReunioes.innerHTML = '<div class="vazio">Carregando reuniões registradas...</div>';
 
         const inicio = campoDataInicial.value;
@@ -1238,7 +1238,13 @@
         if (!inicio || !fim) {
           listaReunioes.innerHTML = '<div class="vazio">Informe o período para consultar.</div>';
           atualizarEstadoBotoes();
-          return;
+          return false;
+        }
+
+        if (inicio > fim) {
+          listaReunioes.innerHTML = '<div class="vazio">A data inicial não pode ser maior que a data final.</div>';
+          atualizarEstadoBotoes();
+          return false;
         }
 
         try {
@@ -1249,15 +1255,43 @@
             atual = deslocarDias(atual, 1);
           }
 
-          const respostas = await Promise.all(datas.map(async (data) => {
-            const res = await fetch(`${apiPresencas}/${data}`, { cache: "no-store" });
-            if (!res.ok) return null;
-            const registros = await res.json();
-            return { data, registros: Array.isArray(registros) ? registros : [] };
-          }));
+          // Evita disparar centenas de requisições ao mesmo tempo em períodos longos.
+          // O limite de concorrência protege o navegador e o backend no Render.
+          const respostas = new Array(datas.length);
+          let proximoIndice = 0;
+          const limiteConcorrencia = Math.min(5, datas.length);
+
+          async function buscarData(data) {
+            for (let tentativa = 1; tentativa <= 2; tentativa++) {
+              try {
+                const res = await fetch(`${apiPresencas}/${data}`, { cache: "no-store" });
+                if (!res.ok) {
+                  if (res.status === 404) return { data, registros: [] };
+                  throw new Error(`HTTP ${res.status}`);
+                }
+                const registros = await res.json();
+                return { data, registros: Array.isArray(registros) ? registros : [] };
+              } catch (erro) {
+                if (tentativa === 2) throw erro;
+                await new Promise((resolve) => setTimeout(resolve, 250));
+              }
+            }
+          }
+
+          async function trabalhador() {
+            while (true) {
+              const indice = proximoIndice++;
+              if (indice >= datas.length) return;
+              respostas[indice] = await buscarData(datas[indice]);
+            }
+          }
+
+          await Promise.all(Array.from({ length: limiteConcorrencia }, () => trabalhador()));
 
           const lista = [];
-          (respostas || []).filter(Boolean).forEach((item) => {
+          respostas.forEach((item) => {
+            if (!item) return;
+
             if (filtroCelula) {
               const r = registrosPorCelula(item.data, item.registros, filtroCelula);
               if (r.total > 0) lista.push(r);
@@ -1279,11 +1313,16 @@
 
           reunioesRegistradas = lista;
           renderizarReunioesRegistradas();
+          return true;
         } catch (erro) {
+          console.error("Erro ao carregar reuniões registradas:", erro);
           listaReunioes.innerHTML = '<div class="vazio">Erro ao carregar reuniões registradas.</div>';
+          atualizarEstadoBotoes();
+          return false;
         }
       }
 
+      
       function renderizarReunioesRegistradas() {
         if (!listaReunioes) return;
         if (!reunioesRegistradas.length) {
@@ -1564,8 +1603,12 @@
         reuniaoSelecionada = null;
         if (modo === "consulta") { campoData.value = campoDataFinal.value; campoCelula.value = celulaFiltroAtual() || ""; }
         filtrarMembrosPorCelula();
-        await carregarReunioesRegistradas();
-        mostrarMensagem("Filtro aplicado com sucesso.", "#16a34a");
+        const filtroCarregado = await carregarReunioesRegistradas();
+        if (filtroCarregado) {
+          mostrarMensagem("Filtro aplicado com sucesso.", "#16a34a");
+        } else {
+          mostrarMensagem("Não foi possível aplicar o filtro. Tente novamente.");
+        }
       });
       document.getElementById("btnIncluir").addEventListener("click", () => prepararLancamento("inclusao"));
       document.getElementById("btnEditar").addEventListener("click", () => prepararLancamento("edicao"));
