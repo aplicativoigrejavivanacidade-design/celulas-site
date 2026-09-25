@@ -778,7 +778,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.4
+        <strong>Sistema v1.0</strong> • Presença v1.5
       </div>
     </aside>
 
@@ -882,9 +882,11 @@
                 <input id="visitanteTelefone" type="text" placeholder="Telefone do visitante" />
               </div>
             </div>
+            <div id="filaVisitantes" class="vazio" style="display:none;margin-top:12px;"></div>
             <div class="acoes-topo" style="margin-top:12px;">
-              <button class="btn-success" id="btnSalvarVisitante" type="button">Salvar visitante</button>
-              <button class="btn-secondary" id="btnCancelarVisitante" type="button">Cancelar visitante</button>
+              <button class="btn-primary" id="btnAdicionarVisitante" type="button">Adicionar visitante</button>
+              <button class="btn-success" id="btnSalvarVisitante" type="button">Salvar visitantes</button>
+              <button class="btn-secondary" id="btnCancelarVisitante" type="button">Cancelar visitantes</button>
             </div>
           </div>
 
@@ -898,7 +900,7 @@
             <span class="badge badge-presente" id="totalPresentes">0 presente(s)</span>
             <span class="badge badge-ausente" id="totalAusentes">0 ausente(s)</span>
             <span class="badge badge-pendente" id="totalPendentes">0 pendente(s)</span>
-            <span class="badge" id="totalVisitantes" style="background:#fff7ed;color:#9a3412;">0 visitante(s)</span>
+            <span class="badge" id="totalVisitantes" style="display:none;background:#fff7ed;color:#9a3412;">0 visitante(s)</span>
           </div>
         </div>
       </div>
@@ -906,6 +908,11 @@
       <div class="card" style="margin-bottom: 20px;">
         <h2>Membros da Célula</h2>
         <div class="lista-grid compacta" id="listaMembros"></div>
+      </div>
+
+      <div class="card oculto" id="cardVisitantesReuniao" style="margin-bottom: 20px;">
+        <h2>Visitantes da Reunião</h2>
+        <div class="lista-grid compacta" id="listaVisitantesReuniao"></div>
       </div>
     </main>
   </div>
@@ -952,6 +959,8 @@
       let visitantesAnterioresLiberados = false;
       let idsVisitantesAnterioresPermitidos = new Set();
       let dataOriginalEdicao = "";
+      let visitantesPendentesCadastro = [];
+      let consultaVisitantesContexto = "";
 
       const campoUsuario = document.getElementById("usuarioLogado");
       const campoLista = document.getElementById("listaMembros");
@@ -970,6 +979,9 @@
       const cardReunioes = document.getElementById("cardReunioesRegistradas");
       const boxVisitantesAnteriores = document.getElementById("boxVisitantesAnteriores");
       const listaVisitantesAnteriores = document.getElementById("listaVisitantesAnteriores");
+      const cardVisitantesReuniao = document.getElementById("cardVisitantesReuniao");
+      const listaVisitantesReuniao = document.getElementById("listaVisitantesReuniao");
+      const filaVisitantes = document.getElementById("filaVisitantes");
       const popupSistema = document.getElementById("popupSistema");
       const popupCard = document.getElementById("popupCard");
       const popupTitulo = document.getElementById("popupTitulo");
@@ -1091,7 +1103,7 @@
       }
 
       function dataReuniaoAtual() {
-        return campoData.value || campoDataFinal.value || hojeISO();
+        return campoData.value || "";
       }
 
       function obterDataCadastroMembro(membro) {
@@ -1262,7 +1274,7 @@
         configurarBotao("btnEditar", !!reuniaoSelecionada && temCelula && temMembros && modo === "consulta" && !visitanteTravando);
         configurarBotao("btnCancelar", modo !== "consulta");
         configurarBotao("btnSalvar", liberado && temCelula && temMembros && !visitanteTravando);
-        configurarBotao("btnVisitante", liberado && temCelula);
+        configurarBotao("btnVisitante", liberado && temCelula && !!campoData.value);
         configurarBotao("btnMarcarTodos", liberado && temCelula && temMembros && !visitanteTravando);
         configurarBotao("btnDesmarcarTodos", liberado && temCelula && temMembros && !visitanteTravando);
         configurarBotao("btnLimpar", liberado && temCelula && temMembros && !visitanteTravando);
@@ -1286,7 +1298,9 @@
         document.getElementById("totalPresentes").textContent = `${presentes} presente(s)`;
         document.getElementById("totalAusentes").textContent = `${ausentes} ausente(s)`;
         document.getElementById("totalPendentes").textContent = `${pendentes} pendente(s)`;
-        document.getElementById("totalVisitantes").textContent = `${visitantesPresentes} visitante(s)`;
+        const badgeVisitantes = document.getElementById("totalVisitantes");
+        badgeVisitantes.textContent = `${visitantesPresentes} visitante(s)`;
+        badgeVisitantes.style.display = visitantesPresentes > 0 ? "inline-flex" : "none";
         atualizarEstadoBotoes();
       }
 
@@ -1340,32 +1354,52 @@
         atualizarResumo();
       }
 
+      function cartaoPessoa(membro, bloqueado) {
+        const status = presencas[membro.id] || "";
+        const marcado = status === "presente" ? "checked" : "";
+        return `<div class="membro-check ${status === "presente" ? "marcado" : ""} ${modo === "consulta" ? "bloqueado" : ""}">
+          <label class="membro-check-topo">
+            <input type="checkbox" class="check-presenca" data-id="${membro.id}" ${marcado} ${bloqueado}>
+            <div class="membro-info">
+              <h3>${membro.nome || ""}</h3>
+              <p><strong>Telefone:</strong> ${membro.telefone || "-"} ${iconeWhatsapp(membro.telefone)}</p>
+              <span class="${classeStatus(status)}">${textoStatus(status)}</span>
+            </div>
+          </label>
+        </div>`;
+      }
+
       function renderizarMembros() {
-        if (!celulaAlvoLancamento()) {
+        const alvo = celulaAlvoLancamento();
+        if (!alvo) {
           campoLista.innerHTML = '<div class="vazio">Selecione uma célula para carregar os membros.</div>';
+          if (cardVisitantesReuniao) cardVisitantesReuniao.classList.add("oculto");
           return;
         }
-        if (!membrosFiltrados.length) {
-          campoLista.innerHTML = '<div class="vazio">Nenhum membro elegível para esta célula/data.</div>';
-          return;
-        }
-        const membrosOrdenados = [...membrosFiltrados].sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"));
+
+        const membros = membrosFiltrados.filter((m) => !membroEhVisitante(m));
+        const visitantes = membrosFiltrados.filter((m) => membroEhVisitante(m));
         const bloqueado = modo === "consulta" ? "disabled" : "";
-        campoLista.innerHTML = membrosOrdenados.map((membro) => {
-          const status = presencas[membro.id] || "";
-          const marcado = status === "presente" ? "checked" : "";
-          return `<div class="membro-check ${status === "presente" ? "marcado" : ""} ${modo === "consulta" ? "bloqueado" : ""}">
-            <label class="membro-check-topo">
-              <input type="checkbox" class="check-presenca" data-id="${membro.id}" ${marcado} ${bloqueado}>
-              <div class="membro-info">
-                <h3>${membro.nome || ""}</h3>
-                <p><strong>Telefone:</strong> ${membro.telefone || "-"} ${iconeWhatsapp(membro.telefone)}</p>
-                ${membroEhVisitante(membro) ? '<p><strong>Tipo:</strong> VISITANTE</p>' : ''}
-                <span class="${classeStatus(status)}">${textoStatus(status)}</span>
-              </div>
-            </label>
-          </div>`;
-        }).join("");
+
+        if (!membros.length) {
+          campoLista.innerHTML = '<div class="vazio">Nenhum membro elegível para esta célula/data.</div>';
+        } else {
+          campoLista.innerHTML = [...membros]
+            .sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+            .map((membro) => cartaoPessoa(membro, bloqueado)).join("");
+        }
+
+        if (cardVisitantesReuniao && listaVisitantesReuniao) {
+          if (!visitantes.length) {
+            cardVisitantesReuniao.classList.add("oculto");
+            listaVisitantesReuniao.innerHTML = "";
+          } else {
+            cardVisitantesReuniao.classList.remove("oculto");
+            listaVisitantesReuniao.innerHTML = [...visitantes]
+              .sort((a, b) => String(a.nome || "").localeCompare(String(b.nome || ""), "pt-BR"))
+              .map((membro) => cartaoPessoa(membro, bloqueado)).join("");
+          }
+        }
       }
 
       async function carregarPresencasData() {
@@ -1618,6 +1652,14 @@
         }).join("");
       }
 
+      async function verificarVisitantesAnterioresSePossivel() {
+        if (modo !== "inclusao" || !campoData.value || !celulaAlvoLancamento()) return;
+        const contexto = `${campoData.value}|${normalizarNomeCelula(celulaAlvoLancamento())}`;
+        if (consultaVisitantesContexto === contexto) return;
+        consultaVisitantesContexto = contexto;
+        await perguntarVisitantesAnteriores();
+      }
+
       function perguntarVisitantesAnteriores() {
         idsVisitantesAnterioresPermitidos = new Set();
 
@@ -1659,13 +1701,13 @@
           reuniaoSelecionada = null;
           dataOriginalEdicao = "";
           presencas = {};
-          campoData.value = hojeISO();
-          if (!usuarioEhLider() && !campoCelula.value && campoFiltroCelula?.value) campoCelula.value = campoFiltroCelula.value;
+          campoData.value = "";
+          if (!usuarioEhLider()) campoCelula.value = "";
           visitantesAnterioresLiberados = false;
           idsVisitantesAnterioresPermitidos = new Set();
-          filtrarMembrosPorCelula();
-          membrosFiltrados.forEach((m) => presencas[m.id] = "ausente");
-          await perguntarVisitantesAnteriores();
+          visitantesPendentesCadastro = [];
+          consultaVisitantesContexto = "";
+          renderizarFilaVisitantes();
           filtrarMembrosPorCelula();
           renderizarControleVisitantesAnteriores();
           mostrarMensagem("Inclusão liberada. Selecione a célula, marque os presentes e clique em Salvar.", "#2563eb", false);
@@ -1799,40 +1841,92 @@
         }
       }
 
-      async function cadastrarVisitante() {
+      function renderizarFilaVisitantes() {
+        if (!filaVisitantes) return;
+        if (!visitantesPendentesCadastro.length) {
+          filaVisitantes.style.display = "none";
+          filaVisitantes.innerHTML = "";
+          return;
+        }
+        filaVisitantes.style.display = "block";
+        filaVisitantes.innerHTML = `<strong>Visitantes para cadastrar:</strong><br>${visitantesPendentesCadastro.map((v, i) => `${i + 1}. ${v.nome} — ${v.telefone}`).join("<br>")}`;
+      }
+
+      function adicionarVisitanteNaFila() {
         const nome = normalizarTexto(campoVisitanteNome.value);
         const telefone = String(campoVisitanteTelefone.value || "").trim();
-        const celula = celulaAlvoLancamento();
+        if (!campoData.value) return mostrarMensagem("Informe a data da reunião antes de cadastrar visitantes.");
+        if (!celulaAlvoLancamento()) return mostrarMensagem("Selecione a célula antes de cadastrar visitante.");
         if (!nome) return mostrarMensagem("Informe o nome do visitante.");
         if (!telefone) return mostrarMensagem("Informe o telefone do visitante.");
+        visitantesPendentesCadastro.push({ nome, telefone });
+        campoVisitanteNome.value = "";
+        campoVisitanteTelefone.value = "";
+        renderizarFilaVisitantes();
+        atualizarEstadoBotoes();
+        campoVisitanteNome.focus();
+      }
+
+      async function cadastrarVisitante() {
+        // Se houver dados digitados, inclui o último visitante na fila antes de salvar todos.
+        if (String(campoVisitanteNome.value || "").trim() || String(campoVisitanteTelefone.value || "").trim()) {
+          const antes = visitantesPendentesCadastro.length;
+          adicionarVisitanteNaFila();
+          if (visitantesPendentesCadastro.length === antes) return;
+        }
+        if (!visitantesPendentesCadastro.length) return mostrarMensagem("Adicione pelo menos um visitante antes de salvar.");
+        if (!campoData.value) return mostrarMensagem("Informe a data da reunião antes de cadastrar visitantes.");
+        const celula = celulaAlvoLancamento();
         if (!celula) return mostrarMensagem("Selecione a célula antes de cadastrar visitante.");
 
+        // Preserva integralmente a marcação já feita nos membros enquanto a lista é recarregada.
+        const presencasAntes = { ...presencas };
+        const cadastrados = [];
         try {
-          mostrarMensagem("Salvando visitante...", "#2563eb", false);
-          const resposta = await fetch(`${apiMembros}/visitante`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              nome,
-              telefone,
-              celula,
-              dataCadastro: dataReuniaoAtual(),
-              observacoes: `VISITANTE CADASTRADO PELA PRESENÇA EM ${dataReuniaoAtual()}`
-            })
-          });
-          const dados = await resposta.json().catch(() => ({}));
-          if (!resposta.ok) throw new Error(dados.erro || "Erro ao cadastrar visitante.");
+          for (const visitante of visitantesPendentesCadastro) {
+            const resposta = await fetch(`${apiMembros}/visitante`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                nome: visitante.nome,
+                telefone: visitante.telefone,
+                celula,
+                dataCadastro: campoData.value,
+                observacoes: `VISITANTE CADASTRADO PELA PRESENÇA EM ${campoData.value}`
+              })
+            });
+            const dados = await resposta.json().catch(() => ({}));
+            if (!resposta.ok) throw new Error(dados.erro || `Erro ao cadastrar ${visitante.nome}.`);
+            cadastrados.push(visitante.nome);
+          }
 
+          const respostaMembros = await fetch(apiMembros, { cache: "no-store" });
+          if (!respostaMembros.ok) throw new Error("Visitantes cadastrados, mas houve erro ao atualizar a lista de membros.");
+          todosMembros = await respostaMembros.json();
+          preencherSelectCelulas();
+          presencas = { ...presencasAntes };
+
+          // Os visitantes recém-cadastrados entram como presentes na reunião atual.
+          const nomes = new Set(cadastrados.map(normalizarTexto));
+          todosMembros.forEach((m) => {
+            if (membroEhVisitante(m) && normalizarNomeCelula(m.celula) === normalizarNomeCelula(celula) &&
+                obterDataCadastroMembro(m) === campoData.value && nomes.has(normalizarTexto(m.nome))) {
+              presencas[Number(m.id)] = "presente";
+            }
+          });
+
+          visitantesPendentesCadastro = [];
           campoVisitanteNome.value = "";
           campoVisitanteTelefone.value = "";
           boxVisitante.classList.remove("ativo");
-          await carregarMembros();
-          mostrarMensagem("Visitante cadastrado como cadastro pendente. Complete os dados depois na tela Membros.", "#16a34a");
+          renderizarFilaVisitantes();
+          filtrarMembrosPorCelula();
+          mostrarMensagem(`${cadastrados.length} visitante(s) cadastrado(s) como cadastro pendente. Complete os dados depois na tela Membros.`, "#16a34a");
         } catch (erro) {
+          presencas = presencasAntes;
           mostrarMensagem(erro.message || "Erro ao cadastrar visitante.");
         }
       }
-
 
       function limparFiltroConsulta() {
         // Volta a tela para o mesmo estado inicial, independentemente de ter vindo
@@ -1849,6 +1943,8 @@
         membrosFiltrados = [];
         visitantesAnterioresLiberados = false;
         idsVisitantesAnterioresPermitidos = new Set();
+        visitantesPendentesCadastro = [];
+        consultaVisitantesContexto = "";
 
         campoData.value = "";
         campoCelula.value = usuarioEhLider() ? celulaPermitidaParaUsuario() : "";
@@ -1857,6 +1953,7 @@
         boxVisitante.classList.remove("ativo");
         campoVisitanteNome.value = "";
         campoVisitanteTelefone.value = "";
+        renderizarFilaVisitantes();
         renderizarControleVisitantesAnteriores();
 
         campoLista.innerHTML = '<div class="vazio">Clique em Incluir para lançar uma nova reunião ou use o filtro acima para consultar o histórico.</div>';
@@ -1865,7 +1962,9 @@
         document.getElementById("totalAusentes").textContent = "0 ausente(s)";
         document.getElementById("totalPendentes").textContent = "0 pendente(s)";
         const totalVisitantes = document.getElementById("totalVisitantes");
-        if (totalVisitantes) totalVisitantes.textContent = "0 visitante(s)";
+        if (totalVisitantes) { totalVisitantes.textContent = "0 visitante(s)"; totalVisitantes.style.display = "none"; }
+        if (cardVisitantesReuniao) cardVisitantesReuniao.classList.add("oculto");
+        if (listaVisitantesReuniao) listaVisitantesReuniao.innerHTML = "";
 
         if (listaReunioes) {
           listaReunioes.innerHTML = '<div class="vazio">Escolha Hoje, 7 dias, 30 dias ou informe um período e clique em Filtrar.</div>';
@@ -1896,31 +1995,47 @@
       document.getElementById("btnEditar").addEventListener("click", () => prepararLancamento("edicao"));
       document.getElementById("btnExcluirPresenca")?.addEventListener("click", excluirPresenca);
 
-      document.getElementById("btnCancelar").addEventListener("click", async () => {
+      document.getElementById("btnCancelar").addEventListener("click", () => {
         modo = "consulta";
+        reuniaoSelecionada = null;
         dataOriginalEdicao = "";
+        presencas = {};
+        membrosFiltrados = [];
         visitantesAnterioresLiberados = false;
         idsVisitantesAnterioresPermitidos = new Set();
-        renderizarControleVisitantesAnteriores();
+        visitantesPendentesCadastro = [];
+        consultaVisitantesContexto = "";
+        campoData.value = "";
+        campoCelula.value = usuarioEhLider() ? celulaPermitidaParaUsuario() : "";
         boxVisitante.classList.remove("ativo");
         campoVisitanteNome.value = "";
         campoVisitanteTelefone.value = "";
+        renderizarFilaVisitantes();
+        renderizarControleVisitantesAnteriores();
+        campoLista.innerHTML = '<div class="vazio">Clique em Incluir para lançar uma nova reunião ou use o filtro acima para consultar o histórico.</div>';
+        if (cardVisitantesReuniao) cardVisitantesReuniao.classList.add("oculto");
+        if (listaVisitantesReuniao) listaVisitantesReuniao.innerHTML = "";
+        atualizarResumo();
         atualizarModo();
-        await carregarPresencasData();
-        mostrarMensagem("Operação cancelada.", "#64748b", false);
+        mostrarMensagem("Operação cancelada. Os dados não foram gravados.", "#64748b", false);
       });
 
       document.getElementById("btnSalvar").addEventListener("click", salvarPresencas);
       document.getElementById("btnVisitante").addEventListener("click", () => {
         if (modo === "consulta") return mostrarMensagem("Clique em Incluir antes de cadastrar visitante.");
+        if (!campoData.value) return mostrarMensagem("Informe a data da reunião antes de cadastrar visitantes.");
+        if (!celulaAlvoLancamento()) return mostrarMensagem("Selecione a célula antes de cadastrar visitantes.");
         boxVisitante.classList.toggle("ativo");
         atualizarEstadoBotoes();
       });
+      document.getElementById("btnAdicionarVisitante").addEventListener("click", adicionarVisitanteNaFila);
       document.getElementById("btnSalvarVisitante").addEventListener("click", cadastrarVisitante);
       document.getElementById("btnCancelarVisitante").addEventListener("click", () => {
         boxVisitante.classList.remove("ativo");
         campoVisitanteNome.value = "";
         campoVisitanteTelefone.value = "";
+        visitantesPendentesCadastro = [];
+        renderizarFilaVisitantes();
         atualizarEstadoBotoes();
       });
       campoVisitanteNome?.addEventListener("input", atualizarEstadoBotoes);
@@ -1929,19 +2044,22 @@
       document.getElementById("btnDesmarcarTodos").addEventListener("click", () => marcarTodosComo(false));
       document.getElementById("btnLimpar").addEventListener("click", () => marcarTodosComo(false));
 
-      campoData.addEventListener("change", () => {
+      campoData.addEventListener("change", async () => {
         if (modo !== "consulta") {
-          perguntarVisitantesAnteriores();
+          consultaVisitantesContexto = "";
           filtrarMembrosPorCelula();
+          await verificarVisitantesAnterioresSePossivel();
           renderizarControleVisitantesAnteriores();
         }
       });
       campoDataInicial.addEventListener("change", () => { reuniaoSelecionada = null; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b", false); });
       campoDataFinal.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoData.value = campoDataFinal.value; mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b", false); });
       campoFiltroCelula?.addEventListener("change", () => { reuniaoSelecionada = null; if (modo === "consulta") campoCelula.value = campoFiltroCelula.value || ""; filtrarMembrosPorCelula(); mostrarMensagem("Filtro alterado. Clique em Filtrar para aplicar.", "#64748b", false); });
-      campoCelula.addEventListener("change", () => {
+      campoCelula.addEventListener("change", async () => {
         reuniaoSelecionada = null;
+        consultaVisitantesContexto = "";
         filtrarMembrosPorCelula();
+        await verificarVisitantesAnterioresSePossivel();
       });
       listaReunioes?.addEventListener("click", async (evento) => {
         const item = evento.target.closest(".reuniao-item");
@@ -1959,6 +2077,14 @@
           checkbox.checked = !checkbox.checked;
           return;
         }
+        presencas[Number(checkbox.dataset.id)] = checkbox.checked ? "presente" : "ausente";
+        renderizarMembros();
+        atualizarResumo();
+      });
+      listaVisitantesReuniao?.addEventListener("change", (evento) => {
+        const checkbox = evento.target.closest(".check-presenca");
+        if (!checkbox) return;
+        if (modo === "consulta") { checkbox.checked = !checkbox.checked; return; }
         presencas[Number(checkbox.dataset.id)] = checkbox.checked ? "presente" : "ausente";
         renderizarMembros();
         atualizarResumo();
