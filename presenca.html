@@ -780,7 +780,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.10
+        <strong>Sistema v1.0</strong> • Presença v1.11
       </div>
     </aside>
 
@@ -1421,7 +1421,7 @@
       function filtrarMembrosPorCelula() {
         const alvo = normalizarNomeCelula(celulaAlvoLancamento());
         membrosFiltrados = alvo
-          ? todosMembros.filter((membro) => normalizarNomeCelula(membro.celula) === alvo && membroPodeEntrarNaPresenca(membro))
+          ? todosMembros.filter((membro) => (modo === "consulta" ? normalizarNomeCelula(membro._celulaPresencaAtual || membro.celula) : normalizarNomeCelula(membro.celula)) === alvo && membroPodeEntrarNaPresenca(membro))
           : [];
         renderizarMembros();
         atualizarResumo();
@@ -1485,19 +1485,37 @@
           const resposta = await fetch(`${apiPresencas}/${campoData.value}`, { cache: "no-store" });
           if (!resposta.ok) throw new Error("Erro ao carregar presença.");
           const dados = await resposta.json();
+          // v1.11: limpa o vínculo temporário da consulta anterior.
+          todosMembros.forEach((m) => { delete m._celulaPresencaAtual; });
+
           (Array.isArray(dados) ? dados : []).forEach((item) => {
             const id = Number(item.membroId);
+            const celulaHistorica = item.celulaPresenca || item.celula || "";
+
+            // Se a API devolveu a célula gravada na presença, somente os registros
+            // daquela reunião entram na consulta atual. Isso evita misturar células
+            // que tiveram reunião na mesma data.
+            if (campoCelula.value && celulaHistorica &&
+                normalizarNomeCelula(celulaHistorica) !== normalizarNomeCelula(campoCelula.value)) return;
+
             presencas[id] = item.status;
 
-            // v1.10: a presença histórica é a fonte da verdade para a consulta.
+            // v1.11: a presença histórica é a fonte da verdade para a consulta.
             // Se o visitante foi arquivado depois, ele continua sendo reconstruído
             // com os dados gravados/retornados pela API para aparecer na reunião antiga.
-            if (!todosMembros.some((m) => Number(m.id) === id) && item.nome) {
+            const existente = todosMembros.find((m) => Number(m.id) === id);
+            if (existente) {
+              // O cadastro atual pode estar arquivado ou ter mudado depois da reunião.
+              // Guardamos a célula histórica separadamente para renderizar a consulta
+              // sem alterar permanentemente o cadastro atual da pessoa.
+              existente._celulaPresencaAtual = celulaHistorica || existente.celula || "";
+            } else if (item.nome) {
               todosMembros.push({
                 id,
                 nome: item.nome,
                 telefone: item.telefone || "",
-                celula: item.celula || campoCelula.value || "",
+                celula: celulaHistorica || campoCelula.value || "",
+                _celulaPresencaAtual: celulaHistorica || campoCelula.value || "",
                 status: item.statusMembro || "VISITANTE ARQUIVADO",
                 origem_cadastro: item.origemCadastro || "PRESENCA_VISITANTE",
                 cadastro_completo: item.cadastroCompleto ?? false,
@@ -1899,6 +1917,7 @@
             body: JSON.stringify({
               data: campoData.value,
               dataOriginal: dataOriginalEdicao || campoData.value,
+              celula: celulaAlvoLancamento(),
               nivelUsuario,
               registros
             })
