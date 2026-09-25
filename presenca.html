@@ -1452,7 +1452,7 @@
         return { data, celula: celulaNome || "GERAL", total: membrosDaCelula.length, presentes };
       }
 
-      async function carregarReunioesRegistradas() {
+      async function carregarReunioesRegistradas(exibirPopupVazio = true) {
         reuniaoSelecionada = null;
         reunioesRegistradas = [];
         if (!listaReunioes) return false;
@@ -1541,7 +1541,7 @@
 
           reunioesRegistradas = lista;
           renderizarReunioesRegistradas();
-          if (!lista.length) {
+          if (!lista.length && exibirPopupVazio) {
             await abrirPopup(
               "Não existem reuniões registradas para o período e célula selecionados.",
               "info",
@@ -1759,17 +1759,47 @@
           const dados = await resposta.json().catch(() => ({}));
           if (!resposta.ok) throw new Error(dados.erro || "Erro ao salvar presença.");
 
+          const dataSalva = campoData.value;
+          const celulaSalva = nomeCelulaExibicao(celulaAlvoLancamento());
+
           modo = "consulta";
-          dataOriginalEdicao = "";
+          dataOriginalEdicao = dataSalva;
           visitantesAnterioresLiberados = false;
           idsVisitantesAnterioresPermitidos = new Set();
           renderizarControleVisitantesAnteriores();
           boxVisitante.classList.remove("ativo");
-          campoDataFinal.value = campoData.value;
-          atualizarModo();
+          campoDataFinal.value = dataSalva;
+
+          // A reunião recém-salva continua selecionada. Assim o líder pode corrigir
+          // imediatamente um lançamento sem precisar fazer uma nova consulta.
+          reuniaoSelecionada = {
+            data: dataSalva,
+            celula: celulaSalva,
+            total: membrosFiltrados.length,
+            presentes: registros.filter((r) => r.status === "presente").length
+          };
+
           await carregarPresencasData();
+          filtrarMembrosPorCelula();
+
           if (campoDataInicial.value && campoDataFinal.value) {
-            await carregarReunioesRegistradas();
+            await carregarReunioesRegistradas(false);
+            const indiceSalvo = reunioesRegistradas.findIndex((r) =>
+              r.data === dataSalva &&
+              normalizarNomeCelula(r.celula) === normalizarNomeCelula(celulaSalva)
+            );
+            if (indiceSalvo >= 0) {
+              await selecionarReuniaoRegistrada(indiceSalvo);
+            } else {
+              reuniaoSelecionada = { data: dataSalva, celula: celulaSalva };
+              dataOriginalEdicao = dataSalva;
+              campoData.value = dataSalva;
+              campoCelula.value = celulaSalva;
+              filtrarMembrosPorCelula();
+              atualizarModo();
+            }
+          } else {
+            atualizarModo();
           }
           mostrarMensagem("Presença salva com sucesso.", "#16a34a");
         } catch (erro) {
@@ -1801,7 +1831,10 @@
           renderizarControleVisitantesAnteriores();
           renderizarMembros();
           atualizarResumo();
-          await carregarReunioesRegistradas();
+          // Após uma exclusão, atualizar silenciosamente o resultado do filtro.
+          // Se a reunião excluída era a única do período, não exibir popup de
+          // "nenhum registro", pois isso é uma consequência esperada da exclusão.
+          await carregarReunioesRegistradas(false);
           atualizarModo();
           mostrarMensagem(dados.mensagem || "Presença excluída com sucesso. Os dados excluídos deixarão de aparecer nos relatórios e no painel.", "#16a34a");
         } catch (erro) {
