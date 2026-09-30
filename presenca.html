@@ -780,7 +780,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.16
+        <strong>Sistema v1.0</strong> • Presença v1.17
       </div>
     </aside>
 
@@ -2025,14 +2025,14 @@
           idsVisitantesAnterioresPermitidos.delete(String(id));
           delete presencas[Number(id)];
 
-          // Mantém a lista de visitantes anteriores aberta e preserva as demais marcações.
-          const respostaMembros = await fetch(apiMembros, { cache: "no-store" });
-          if (!respostaMembros.ok) {
-            throw new Error(`${nomeVisitante} foi arquivado, mas houve erro ao atualizar a lista.`);
-          }
-
-          todosMembros = await respostaMembros.json();
-          preencherSelectCelulas();
+          // v1.17: remove somente o visitante arquivado da sessão atual.
+          // Não recarrega todosMembros aqui, pois em reunião histórica ele ainda é
+          // elegível pela regra temporal e voltaria a aparecer imediatamente.
+          todosMembros = todosMembros.filter((m) => String(m.id) !== String(id));
+          // Preserva os demais visitantes e suas marcações na sessão atual.
+          // Preserva os demais visitantes e suas marcações na sessão atual.
+          // Preserva os demais visitantes e suas marcações na sessão atual.
+          // Preserva os demais visitantes e suas marcações na sessão atual.
           visitantesAnterioresLiberados = true;
 
           renderizarControleVisitantesAnteriores();
