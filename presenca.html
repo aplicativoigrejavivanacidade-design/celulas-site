@@ -780,7 +780,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.15
+        <strong>Sistema v1.0</strong> • Presença v1.16
       </div>
     </aside>
 
@@ -863,7 +863,7 @@
           <div class="visitantes-anteriores-box" id="boxVisitantesAnteriores">
             <h3 style="margin:0;">Selecionar visitantes anteriores</h3>
             <p style="margin:6px 0 0;color:#92400e;font-size:13px;">
-              Marque apenas os visitantes que participaram desta reunião. Visitante desmarcado não será salvo como ausente.
+              Marque somente os visitantes que participaram desta reunião. Todos começam desmarcados e visitante não marcado não será salvo como ausente.
             </p>
             <div class="visitantes-anteriores-lista" id="listaVisitantesAnteriores"></div>
           </div>
@@ -1720,7 +1720,7 @@
               <div>
                 <h4>${membro.nome || ""}</h4>
                 <p>Cadastro: ${dataCadastro.split("-").reverse().join("/")}</p>
-                <p>Desmarque se não participou desta reunião.</p>
+                <p>Marque se participou desta reunião.</p>
                 <button class="btn-danger btn-arquivar-visitante" type="button" data-id="${id}" style="margin-top:8px;padding:6px 10px;font-size:12px;">Arquivar visitante</button>
               </div>
             </label>
@@ -1758,9 +1758,11 @@
           visitantesAnterioresLiberados = confirmou;
 
           if (visitantesAnterioresLiberados) {
-            idsVisitantesAnterioresPermitidos = new Set(visitantes.map((m) => String(m.id)));
+            // v1.16: carregar a lista NÃO significa marcar presença.
+            // Todos os visitantes anteriores começam desmarcados.
+            idsVisitantesAnterioresPermitidos = new Set();
             visitantes.forEach((m) => {
-              presencas[Number(m.id)] = "presente";
+              delete presencas[Number(m.id)];
             });
           }
 
@@ -1989,18 +1991,24 @@
 
 
       async function arquivarVisitante(id) {
+        const visitante = todosMembros.find((m) => String(m.id) === String(id));
+        const nomeVisitante = visitante?.nome || "este visitante";
+
         const confirmou = await abrirPopup(
-          "Arquivar este visitante? Ele deixará de aparecer como visitante ativo, mas o histórico de presenças será preservado.",
+          `Arquivar ${nomeVisitante}?\n\nSomente este visitante será arquivado. Ele deixará de aparecer como visitante ativo, mas todo o histórico de presenças será preservado.`,
           "atencao",
           "Arquivar visitante",
           true
         );
         if (!confirmou) return;
 
+        // v1.16: trava somente os controles desta lista enquanto a ação individual é processada.
+        const controles = listaVisitantesAnteriores
+          ? Array.from(listaVisitantesAnteriores.querySelectorAll("input, button"))
+          : [];
+        controles.forEach((controle) => { controle.disabled = true; });
+
         try {
-          // v1.15: arquivamento é uma ação cadastral realizada hoje.
-          // A data da reunião serve apenas para o histórico de presença e não
-          // pode retroagir o arquivamento do visitante.
           const dataArquivamento = hojeISO();
           const resposta = await fetch(`${apiMembros}/visitante/${id}/arquivar`, {
             method: "POST",
@@ -2009,26 +2017,31 @@
           });
 
           const dados = await resposta.json().catch(() => ({}));
-
           if (!resposta.ok) {
-            throw new Error(dados.erro || "Erro ao arquivar visitante.");
+            throw new Error(dados.erro || `Erro ao arquivar ${nomeVisitante}.`);
           }
 
+          // Remove somente o visitante arquivado da seleção da reunião atual.
           idsVisitantesAnterioresPermitidos.delete(String(id));
           delete presencas[Number(id)];
-          visitantesAnterioresLiberados = false;
 
-          // v1.15: refaz imediatamente o estado da tela após o arquivamento.
-          // O visitante deixa de aparecer como ativo a partir de hoje.
-          // Reuniões anteriores continuam preservadas no histórico e podem
-          // reconstruir o visitante pela presença gravada.
-          await carregarMembros();
+          // Mantém a lista de visitantes anteriores aberta e preserva as demais marcações.
+          const respostaMembros = await fetch(apiMembros, { cache: "no-store" });
+          if (!respostaMembros.ok) {
+            throw new Error(`${nomeVisitante} foi arquivado, mas houve erro ao atualizar a lista.`);
+          }
+
+          todosMembros = await respostaMembros.json();
+          preencherSelectCelulas();
+          visitantesAnterioresLiberados = true;
+
           renderizarControleVisitantesAnteriores();
           filtrarMembrosPorCelula();
           atualizarResumo();
-          mostrarMensagem(dados.mensagem || "Visitante arquivado com sucesso.", "#16a34a");
+          mostrarMensagem(dados.mensagem || `${nomeVisitante} foi arquivado com sucesso.`, "#16a34a");
         } catch (erro) {
-          mostrarMensagem(erro.message || "Erro ao arquivar visitante.");
+          renderizarControleVisitantesAnteriores();
+          mostrarMensagem(erro.message || `Erro ao arquivar ${nomeVisitante}.`);
         }
       }
 
