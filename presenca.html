@@ -780,7 +780,7 @@
       <button class="btn-sair" id="btnSair" type="button">Sair</button>
 
       <div class="versao-sistema" title="Identificação da versão publicada">
-        <strong>Sistema v1.0</strong> • Presença v1.14
+        <strong>Sistema v1.0</strong> • Presença v1.15
       </div>
     </aside>
 
@@ -1998,7 +1998,10 @@
         if (!confirmou) return;
 
         try {
-          const dataArquivamento = campoData.value || hojeISO();
+          // v1.15: arquivamento é uma ação cadastral realizada hoje.
+          // A data da reunião serve apenas para o histórico de presença e não
+          // pode retroagir o arquivamento do visitante.
+          const dataArquivamento = hojeISO();
           const resposta = await fetch(`${apiMembros}/visitante/${id}/arquivar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -2015,10 +2018,10 @@
           delete presencas[Number(id)];
           visitantesAnterioresLiberados = false;
 
-          // v1.10: refaz imediatamente o estado da tela para a data atual.
-          // Na data do arquivamento (ou posterior), o visitante some sem exigir
-          // Cancelar/Incluir novamente. Em consultas históricas, a presença gravada
-          // continua sendo carregada pela API e exibida normalmente.
+          // v1.15: refaz imediatamente o estado da tela após o arquivamento.
+          // O visitante deixa de aparecer como ativo a partir de hoje.
+          // Reuniões anteriores continuam preservadas no histórico e podem
+          // reconstruir o visitante pela presença gravada.
           await carregarMembros();
           renderizarControleVisitantesAnteriores();
           filtrarMembrosPorCelula();
