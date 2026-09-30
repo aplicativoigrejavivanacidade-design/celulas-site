@@ -2009,7 +2009,7 @@
         controles.forEach((controle) => { controle.disabled = true; });
 
         try {
-          const dataArquivamento = hojeISO();
+          const dataArquivamento = campoData.value || hojeISO();
           const resposta = await fetch(`${apiMembros}/visitante/${id}/arquivar`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
