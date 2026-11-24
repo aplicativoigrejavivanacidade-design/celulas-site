@@ -203,7 +203,7 @@
   </div>
 
   <script>
-    const API_BASE = "https://celulas-backend.onrender.com";
+    const API_BASE = "https://celulas-organizacoes-teste.onrender.com";
     const API_LOGIN = API_BASE + "/login";
 
     const formLogin = document.getElementById("formLogin");
@@ -224,9 +224,11 @@
       localStorage.removeItem("nivelUsuario");
       localStorage.removeItem("usuarioId");
       localStorage.removeItem("celulaUsuario");
+      localStorage.removeItem("sessaoToken");
     }
 
-    function salvarSessao(usuario) {
+    function salvarSessao(usuario, token) {
+      localStorage.setItem("sessaoToken", token); sessionStorage.setItem("celulasSessao", token);
       const celulaVinculada = (
         usuario.celula ||
         usuario.celula_usuario ||
@@ -275,10 +277,11 @@
         }
 
         const usuarioLogado = dados.usuario || dados;
-        salvarSessao(usuarioLogado);
+        if (!dados.token) throw new Error("O servidor não retornou uma sessão válida.");
+        salvarSessao(usuarioLogado, dados.token);
 
         mostrarMensagem("Acesso liberado. Redirecionando...", "#16a34a");
-        window.location.href = "painel.html";
+        window.location.replace("painel.html");
       } catch (erro) {
         mostrarMensagem(erro.message || "Erro ao entrar no sistema.");
       } finally {

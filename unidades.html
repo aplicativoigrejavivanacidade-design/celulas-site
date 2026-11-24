@@ -1,0 +1,51 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>+Células | Unidades v0.1</title><style>body{font:15px Arial;background:#f2f5f9;color:#203146;margin:0}header{background:#102c4a;color:white;padding:22px}main{max-width:960px;margin:24px auto;padding:0 15px}.box{background:white;padding:22px;border-radius:12px;margin-bottom:16px}label{display:block;margin:12px 0;font-weight:bold}input,select,textarea{display:block;width:100%;box-sizing:border-box;padding:10px;margin-top:6px;border:1px solid #bbc9d8;border-radius:6px}button{padding:11px 15px;background:#176caa;color:white;border:0;border-radius:7px;cursor:pointer;margin:5px 5px 5px 0}button:disabled{opacity:.6}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #ddd;padding:9px;text-align:left}tr[data-id]{cursor:pointer}#msg{white-space:pre-wrap;color:#a11}small{color:#64748b}dialog{border:0;border-radius:16px;max-width:440px;padding:25px;box-shadow:0 18px 50px #0004}dialog::backdrop{background:#0008}.tempo{font-weight:bold}#erroSessao{color:#b91c1c}</style></head><body><header><h2>+Células | Unidades</h2><small>v0.1 • Ambiente de testes</small></header><main><p><a href="organizacoes.html">Organizações</a> | <a href="login.html">Login</a></p><section class="box"><label>Organização<select id="org"><option value="">Selecione a organização</option></select></label><button id="consultar">Consultar unidades</button><button id="novo">Nova unidade</button><button id="limpar">Limpar</button><p id="status">Nenhuma consulta realizada.</p><table><thead><tr><th>ID</th><th>Unidade</th><th>Cidade</th><th>Estado</th></tr></thead><tbody id="linhas"></tbody></table></section><section class="box" id="editor" hidden><h3 id="titulo">Nova unidade</h3><form id="form"><div id="campos"></div><button type="submit" id="salvar">Salvar</button><button type="button" id="cancelar">Cancelar</button></form></section><p id="msg" role="status"></p></main><dialog id="avisoSessao" aria-labelledby="tituloAviso" aria-modal="true"><div class="conteudo"><h2 id="tituloAviso">Sua sessão está prestes a terminar</h2><p>Por segurança, o acesso será encerrado após 15 minutos sem atividade.</p><p>Tempo restante: <span class="tempo" id="tempoRestante">05:00</span></p><div class="actions"><button id="continuarTrabalhando" type="button">Continuar trabalhando</button><button id="encerrarAgora" type="button" class="secondary">Sair agora</button></div><p id="erroSessao" class="error" role="alert"></p></div></dialog><script>'use strict';const API='https://celulas-organizacoes-teste.onrender.com';const $=id=>document.getElementById(id);let token=localStorage.getItem('sessaoToken');const defs=[['nome','Nome da unidade *'],['cnpj','CNPJ'],['telefone','Telefone'],['whatsapp','WhatsApp'],['email','E-mail'],['cep','CEP'],['rua','Rua'],['numero','Número'],['complemento','Complemento'],['bairro','Bairro'],['cidade','Cidade'],['estado','Estado'],['geolocalizacao','Geolocalização'],['latitude','Latitude'],['longitude','Longitude'],['logotipo_url','URL do logotipo'],['site_url','Site'],['instagram_url','Instagram'],['facebook_url','Facebook'],['youtube_url','YouTube'],['tiktok_url','TikTok'],['whatsapp_link','Link WhatsApp'],['links_adicionais','Links adicionais (um por linha)']];let idEdit=null;for(const [id,label] of defs){const el=document.createElement('label');el.textContent=label;const inp=id==='links_adicionais'?document.createElement('textarea'):document.createElement('input');inp.id=id;inp.required=id==='nome';if(id==='email')inp.type='email';el.append(inp);$('campos').append(el)}// A sessão é validada pelo backend. A interface nunca concede acesso sozinha.
+const LIMITE_INATIVIDADE=15*60*1000,AVISO_APOS=10*60*1000;
+let ultimaAtividade=Date.now(),ultimoPing=Date.now(),pingPendente=false,sessaoEncerrada=false;
+function encerrarSessao(){
+ if(sessaoEncerrada)return;
+ sessaoEncerrada=true;token=null;for(const chave of ['sessaoToken','logado','usuario','nomeUsuario','nivelUsuario','usuarioId','celulaUsuario'])localStorage.removeItem(chave);
+ $('avisoSessao').close();window.location.replace('login.html');
+}
+async function continuarSessao(){
+ if(sessaoEncerrada||pingPendente||!token)return false;
+ if(Date.now()-ultimaAtividade>=LIMITE_INATIVIDADE){encerrarSessao();return false;}
+ pingPendente=true;
+ try{
+  const r=await fetch(API+'/sessao/continuar',{method:'POST',headers:{Authorization:'Bearer '+token},cache:'no-store'});
+  if(r.status===401){encerrarSessao();return false;}
+  if(!r.ok)throw Error('Não foi possível confirmar sua sessão.');
+  if(sessaoEncerrada)return false;
+  ultimoPing=Date.now();ultimaAtividade=Date.now();
+  $('erroSessao').textContent='';$('avisoSessao').close();return true;
+ }catch(e){$('erroSessao').textContent='Não foi possível renovar o acesso. Verifique a conexão e tente novamente.';return false;}
+ finally{pingPendente=false;$('continuarTrabalhando').disabled=false;}
+}
+function registrarAtividade(){
+ if(sessaoEncerrada||!token||document.hidden||$('avisoSessao').open)return;
+ const agora=Date.now();
+ // Após uma pausa longa, não se presume sessão válida: confirmar no servidor.
+ if(agora-ultimaAtividade>=LIMITE_INATIVIDADE){encerrarSessao();return;}
+ if(agora-ultimaAtividade>=AVISO_APOS){mostrarAviso();verificarInatividade();return;}
+ ultimaAtividade=agora;
+ // Apenas atividade humana recente provoca renovação, com limite de frequência.
+ if(agora-ultimoPing>=45000)continuarSessao();
+}
+function mostrarAviso(){if(!sessaoEncerrada&&!$('avisoSessao').open)$('avisoSessao').showModal();}
+function verificarInatividade(){
+ if(sessaoEncerrada||!token)return;
+ const restante=LIMITE_INATIVIDADE-(Date.now()-ultimaAtividade);
+ if(restante<=0){encerrarSessao();return;}
+ if(restante<=LIMITE_INATIVIDADE-AVISO_APOS){
+  mostrarAviso();const s=Math.ceil(restante/1000);
+  $('tempoRestante').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+ }
+}
+for(const evento of ['pointerdown','keydown','input','touchstart'])document.addEventListener(evento,registrarAtividade,{passive:true});
+$('avisoSessao').addEventListener('cancel',e=>e.preventDefault());
+$('continuarTrabalhando').onclick=async()=>{$('continuarTrabalhando').disabled=true;await continuarSessao();};
+$('encerrarAgora').onclick=encerrarSessao;
+setInterval(verificarInatividade,1000);
+window.addEventListener('focus',verificarInatividade);
+window.addEventListener('pageshow',verificarInatividade);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)verificarInatividade();});
+function entrar(){encerrarSessao()}async function api(rota,opt={}){if(!token){encerrarSessao();throw Error('Sessão encerrada')}const r=await fetch(API+rota,{...opt,headers:{Authorization:'Bearer '+token,...(opt.body?{'Content-Type':'application/json'}:{})}});if(r.status===401){entrar();throw Error('Sessão encerrada')}const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.erro||'Não foi possível concluir a operação');ultimoPing=Date.now();return d}function msg(t){$('msg').textContent=t}function abrir(o={}){idEdit=o.id||null;for(const [id] of defs)$(id).value=id==='links_adicionais'?(Array.isArray(o[id])?o[id].join('\n'):''):(o[id]??'');$('titulo').textContent=idEdit?'Editar unidade #'+idEdit:'Nova unidade';$('editor').hidden=false}async function orgs(){try{const d=await api('/admin/organizacoes');for(const o of d.registros||[]){const el=document.createElement('option');el.value=o.id;el.textContent=o.nome;$('org').append(el)}}catch(e){msg(e.message)}}$('consultar').onclick=async()=>{const org=$('org').value;if(!org)return msg('Selecione uma organização.');try{msg('');const d=await api('/admin/organizacoes/'+org+'/unidades');$('linhas').replaceChildren();for(const o of d.registros){const tr=document.createElement('tr');tr.dataset.id=o.id;for(const v of [o.id,o.nome,o.cidade,o.estado]){const td=document.createElement('td');td.textContent=v??'';tr.append(td)}tr.onclick=()=>abrir(o);$('linhas').append(tr)}$('status').textContent=d.total+' unidade(s) encontrada(s).'}catch(e){msg(e.message)}};$('novo').onclick=()=>{$('org').value?abrir():msg('Selecione uma organização.')};$('limpar').onclick=()=>{$('org').value='';$('linhas').replaceChildren();$('status').textContent='Nenhuma consulta realizada.';$('editor').hidden=true;msg('')};$('cancelar').onclick=()=>{$('editor').hidden=true;idEdit=null};$('form').onsubmit=async e=>{e.preventDefault();const org=$('org').value;if(!org)return msg('Selecione uma organização.');const obj={};for(const [id] of defs)obj[id]=id==='links_adicionais'?$(id).value.split('\n').map(x=>x.trim()).filter(Boolean):$(id).value.trim();try{$('salvar').disabled=true;await api('/admin/organizacoes/'+org+'/unidades'+(idEdit?'/'+idEdit:''),{method:idEdit?'PUT':'POST',body:JSON.stringify(obj)});$('editor').hidden=true;idEdit=null;msg('Cadastro salvo. Clique em Consultar unidades para atualizar.')}catch(e){msg(e.message)}finally{$('salvar').disabled=false}};orgs();</script></body></html>
