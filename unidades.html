@@ -1,4 +1,764 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>+Células | Unidades v0.1</title><style>body{font:15px Arial;background:#f2f5f9;color:#203146;margin:0}header{background:#102c4a;color:white;padding:22px}main{max-width:960px;margin:24px auto;padding:0 15px}.box{background:white;padding:22px;border-radius:12px;margin-bottom:16px}label{display:block;margin:12px 0;font-weight:bold}input,select,textarea{display:block;width:100%;box-sizing:border-box;padding:10px;margin-top:6px;border:1px solid #bbc9d8;border-radius:6px}button{padding:11px 15px;background:#176caa;color:white;border:0;border-radius:7px;cursor:pointer;margin:5px 5px 5px 0}button:disabled{opacity:.6}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid #ddd;padding:9px;text-align:left}tr[data-id]{cursor:pointer}#msg{white-space:pre-wrap;color:#a11}small{color:#64748b}dialog{border:0;border-radius:16px;max-width:440px;padding:25px;box-shadow:0 18px 50px #0004}dialog::backdrop{background:#0008}.tempo{font-weight:bold}#erroSessao{color:#b91c1c}</style></head><body><header><h2>+Células | Unidades</h2><small>v0.1 • Ambiente de testes</small></header><main><p><a href="organizacoes.html">Organizações</a> | <a href="login.html">Login</a></p><section class="box"><label>Organização<select id="org"><option value="">Selecione a organização</option></select></label><button id="consultar">Consultar unidades</button><button id="novo">Nova unidade</button><button id="limpar">Limpar</button><p id="status">Nenhuma consulta realizada.</p><table><thead><tr><th>ID</th><th>Unidade</th><th>Cidade</th><th>Estado</th></tr></thead><tbody id="linhas"></tbody></table></section><section class="box" id="editor" hidden><h3 id="titulo">Nova unidade</h3><form id="form"><div id="campos"></div><button type="submit" id="salvar">Salvar</button><button type="button" id="cancelar">Cancelar</button></form></section><p id="msg" role="status"></p></main><dialog id="avisoSessao" aria-labelledby="tituloAviso" aria-modal="true"><div class="conteudo"><h2 id="tituloAviso">Sua sessão está prestes a terminar</h2><p>Por segurança, o acesso será encerrado após 15 minutos sem atividade.</p><p>Tempo restante: <span class="tempo" id="tempoRestante">05:00</span></p><div class="actions"><button id="continuarTrabalhando" type="button">Continuar trabalhando</button><button id="encerrarAgora" type="button" class="secondary">Sair agora</button></div><p id="erroSessao" class="error" role="alert"></p></div></dialog><script>'use strict';const API='https://celulas-organizacoes-teste.onrender.com';const $=id=>document.getElementById(id);let token=localStorage.getItem('sessaoToken');const defs=[['nome','Nome da unidade *'],['cnpj','CNPJ'],['telefone','Telefone'],['whatsapp','WhatsApp'],['email','E-mail'],['cep','CEP'],['rua','Rua'],['numero','Número'],['complemento','Complemento'],['bairro','Bairro'],['cidade','Cidade'],['estado','Estado'],['geolocalizacao','Geolocalização'],['latitude','Latitude'],['longitude','Longitude'],['logotipo_url','URL do logotipo'],['site_url','Site'],['instagram_url','Instagram'],['facebook_url','Facebook'],['youtube_url','YouTube'],['tiktok_url','TikTok'],['whatsapp_link','Link WhatsApp'],['links_adicionais','Links adicionais (um por linha)']];let idEdit=null;for(const [id,label] of defs){const el=document.createElement('label');el.textContent=label;const inp=id==='links_adicionais'?document.createElement('textarea'):document.createElement('input');inp.id=id;inp.required=id==='nome';if(id==='email')inp.type='email';el.append(inp);$('campos').append(el)}// A sessão é validada pelo backend. A interface nunca concede acesso sozinha.
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>+Células | Unidades v0.2</title><style>
+    * { box-sizing: border-box; }
+
+    :root {
+      --bg: #eef2f7;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --line: #dbe3ee;
+      --blue: #2563eb;
+      --blue-dark: #1d4ed8;
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --amber: #f59e0b;
+      --red: #dc2626;
+      --red-dark: #b91c1c;
+      --gray: #64748b;
+      --gray-dark: #475569;
+      --shadow: 0 10px 25px rgba(0,0,0,0.05);
+      --radius: 16px;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(180deg, var(--blue-dark), var(--green));
+      color: white;
+      padding: 24px 18px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100%;
+    }
+
+    .logo {
+      font-size: 30px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .logo-sub {
+      margin: 6px 0 28px;
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .menu a {
+      display: block;
+      color: white;
+      padding: 12px;
+      text-decoration: none;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    .menu a:hover,
+    .menu a.ativo {
+      background: rgba(255,255,255,0.16);
+    }
+
+    .btn-sair {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      background: var(--red);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .versao-sistema {
+      margin-top: 14px;
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.45;
+      color: rgba(255,255,255,0.72);
+      user-select: none;
+    }
+
+    .versao-sistema strong {
+      color: rgba(255,255,255,0.92);
+      font-weight: 700;
+    }
+
+    .content {
+      margin-left: 250px;
+      padding: 30px;
+      width: calc(100% - 250px);
+    }
+
+    .header {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+    }
+
+    .header p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    .usuario-logado {
+      margin-top: 10px !important;
+      font-size: 14px;
+    }
+
+    .grid-topo {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 20px;
+      margin-bottom: 20px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 22px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 22px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      margin-bottom: 6px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      font-size: 15px;
+      font-family: inherit;
+      background: #fff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+    }
+
+    .acoes-topo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+
+    .filtro-periodo-presenca {
+      display: grid;
+      grid-template-columns: 160px 160px minmax(180px, 1fr) auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .botoes-filtro-data {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      align-items: end;
+    }
+
+    .botoes-filtro-data button {
+      white-space: nowrap;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    .botao-bloqueado {
+      cursor: not-allowed !important;
+      opacity: 0.58;
+      position: relative;
+    }
+
+    .botao-bloqueado:hover::after {
+      content: "🚫";
+      position: absolute;
+      top: -12px;
+      right: -8px;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      border-radius: 999px;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 1180px) {
+      .filtro-periodo-presenca {
+        grid-template-columns: 150px 150px minmax(170px, 1fr);
+      }
+
+      .botoes-filtro-data {
+        grid-column: 1 / -1;
+        flex-wrap: wrap;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .filtro-periodo-presenca {
+        grid-template-columns: 1fr;
+      }
+
+      .botoes-filtro-data {
+        grid-column: auto;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+    }
+
+    button {
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: none;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-success {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .btn-success:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn-danger {
+      background: var(--red);
+      color: #fff;
+    }
+
+    .btn-danger:hover {
+      background: var(--red-dark);
+    }
+
+    .btn-secondary {
+      background: var(--gray);
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: var(--gray-dark);
+    }
+
+    .mensagem {
+      margin-top: 14px;
+      font-weight: bold;
+      min-height: 20px;
+      font-size: 14px;
+    }
+
+    .msg-topo {
+      display: block;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: bold;
+      border: 1px solid var(--line);
+      background: #f8fafc;
+      color: #475569;
+    }
+
+    .msg-topo.erro { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+    .msg-topo.sucesso { background: #dcfce7; color: #166534; border-color: #bbf7d0; }
+    .msg-topo.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .msg-topo.neutro { background: #f8fafc; color: #475569; border-color: var(--line); }
+
+    .campo-obrigatorio::after {
+      content: " *";
+      color: var(--red);
+      font-weight: bold;
+    }
+
+    .acoes-topo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+      margin-bottom: 18px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+
+    .visitante-box {
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fcfdff;
+      display: none;
+    }
+
+    .visitante-box.ativo {
+      display: block;
+    }
+
+    .lista-grid.compacta {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .lista-grid.compacta .membro-check {
+      padding: 12px;
+    }
+
+    .lista-grid.compacta .membro-info h3 {
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .lista-grid.compacta .membro-info p {
+      font-size: 12px;
+    }
+
+    .resumo {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .badge-total {
+      background: #e0ecff;
+      color: var(--blue-dark);
+    }
+
+    .badge-presente {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .badge-ausente {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .badge-pendente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .lista-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .membro-check {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafbfd;
+      padding: 16px;
+      transition: 0.2s;
+    }
+
+    .membro-check.marcado {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.10);
+      background: #f3fff7;
+    }
+
+    .membro-check.bloqueado {
+      opacity: 0.75;
+    }
+
+    .membro-check-topo {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .membro-check input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      margin-top: 2px;
+      accent-color: var(--green);
+      flex: 0 0 auto;
+      cursor: pointer;
+    }
+
+    .membro-check input[type="checkbox"]:disabled {
+      cursor: not-allowed;
+    }
+
+    .membro-info h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .membro-info p {
+      margin: 0 0 4px;
+      color: #4b5563;
+      font-size: 13px;
+    }
+
+    .btn-whatsapp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      margin-left: 6px;
+      border-radius: 50%;
+      background: #25D366;
+      color: #ffffff;
+      text-decoration: none;
+      vertical-align: middle;
+      box-shadow: 0 2px 6px rgba(37, 211, 102, 0.28);
+    }
+
+    .btn-whatsapp svg {
+      width: 18px;
+      height: 18px;
+      fill: #ffffff;
+      display: block;
+    }
+
+    .tag-status {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-weight: bold;
+      font-size: 12px;
+    }
+
+    .tag-presente {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .tag-ausente {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .tag-pendente {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .historico-lista {
+      display: grid;
+      gap: 10px;
+    }
+
+    .historico-item {
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 12px;
+      background: #fafbfd;
+    }
+
+    .historico-item h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    .historico-item p {
+      margin: 0;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .info-edicao {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: bold;
+      background: #eff6ff;
+      color: #1d4ed8;
+    }
+
+    .vazio {
+      color: var(--muted);
+      font-style: italic;
+      text-align: center;
+      padding: 20px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      background: #fcfdff;
+    }
+
+    @media (max-width: 1200px) {
+      .grid-topo {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1000px) {
+      .lista-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        position: relative;
+        width: 100%;
+        height: auto;
+      }
+
+      .content {
+        margin-left: 0;
+        width: 100%;
+        padding: 20px;
+      }
+
+      .grid-2,
+      .resumo {
+        grid-template-columns: 1fr;
+      }
+    }
+  
+    .reunioes-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .reuniao-item {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafbfd;
+      padding: 14px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .reuniao-item:hover {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.10);
+    }
+
+    .reuniao-item.ativa {
+      border-color: var(--green);
+      background: #f3fff7;
+      box-shadow: 0 0 0 3px rgba(22,163,74,0.10);
+    }
+
+    .reuniao-item h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .reuniao-item p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 12px;
+    }
+
+    @media (max-width: 1100px) {
+      .reunioes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+  
+    .visitantes-anteriores-box {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid #fed7aa;
+      border-radius: 14px;
+      background: #fff7ed;
+    }
+
+    .visitantes-anteriores-box.ativo {
+      display: block;
+    }
+
+    .visitantes-anteriores-lista {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .visitante-anterior-item {
+      border: 1px solid #fed7aa;
+      background: #fffbeb;
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .visitante-anterior-item h4 {
+      margin: 0 0 4px;
+      font-size: 14px;
+    }
+
+    .visitante-anterior-item p {
+      margin: 0;
+      font-size: 12px;
+      color: #78350f;
+    }
+
+    @media (max-width: 900px) {
+      .visitantes-anteriores-lista {
+        grid-template-columns: 1fr;
+      }
+    }
+
+
+    /* ===== POPUP PADRÃO +CÉLULAS ===== */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.46);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+      backdrop-filter: blur(2px);
+    }
+
+    .popup-overlay.ativo { display: flex; }
+
+    .popup-card {
+      width: min(470px, 100%);
+      overflow: hidden;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 20px 55px rgba(15, 23, 42, 0.22);
+    }
+
+    .popup-cabecalho {
+      padding: 18px 22px;
+      color: #fff;
+      background: linear-gradient(90deg, var(--blue-dark), var(--green));
+    }
+
+    .popup-card.erro .popup-cabecalho {
+      background: linear-gradient(90deg, var(--red-dark), var(--red));
+    }
+
+    .popup-card.atencao .popup-cabecalho {
+      background: linear-gradient(90deg, #d97706, var(--amber));
+    }
+
+    .popup-card.sucesso .popup-cabecalho {
+      background: linear-gradient(90deg, var(--green-dark), var(--green));
+    }
+
+    .popup-card h3 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .popup-corpo { padding: 22px; }
+
+    .popup-card p {
+      margin: 0;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+
+    .popup-acoes {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 22px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+    }
+
+    .popup-acoes button { min-width: 100px; }
+
+    .oculto { display: none !important; }
+
+  
+/* Adaptações exclusivas dos cadastros institucionais */
+.content .panel,.content .box{background:var(--card);padding:22px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px}.content h2{font-size:22px;margin:0 0 16px}.content h3{font-size:16px;border-bottom:1px solid var(--line);padding-bottom:8px;margin:24px 0 14px}.content .grid,#campos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.content input,.content select,.content textarea{display:block;width:100%;min-width:0;margin-top:6px;font-weight:normal}.content textarea{padding:12px;border:1px solid var(--line);border-radius:10px;font:15px Arial}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.muted,.content small{color:var(--muted);font-size:13px}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line)}tr[data-id]{cursor:pointer}tr[data-id]:hover{background:#eff6ff}dialog{border:0;border-radius:16px;padding:24px;max-width:470px;width:calc(100% - 32px);box-shadow:var(--shadow);color:var(--text)}dialog::backdrop{background:#0008}button:disabled{opacity:.58;cursor:not-allowed}.error{color:var(--red)}.ok{color:var(--green)}@media(max-width:900px){.layout{flex-direction:column}.sidebar{position:relative;width:100%;height:auto}.content{margin-left:0;width:100%;padding:20px}}@media(max-width:700px){.content .grid,#campos{grid-template-columns:1fr}}
+</style><link href="/menu-modulos.css?v=0.4" rel="stylesheet"/></head><body><div class="layout"><aside class="sidebar"><h2 class="logo">+Células</h2><div class="logo-sub">Gestão de células</div><div class="menu"></div><button class="btn-sair" id="btnSair" type="button">Sair</button><div class="versao-sistema"><strong>Sistema v1.0</strong> • Unidades v0.2</div></aside><main class="content"><div class="header"><h1>Unidades</h1><p>Cadastro administrativo v0.2 • Ambiente de testes</p><p class="usuario-logado" id="usuarioLogado"></p></div><section class="box"><label>Organização<select id="org"><option value="">Selecione a organização</option></select></label><div class="actions"><button class="btn-secondary" id="carregar">Buscar organizações</button><button class="btn-primary" id="consultar">Filtrar</button><button class="btn-secondary" id="limpar">Limpar</button><button class="btn-primary" id="novo">Incluir</button></div><p id="status">Nenhuma consulta realizada.</p><table><thead><tr><th>ID</th><th>Unidade</th><th>Cidade</th><th>Estado</th></tr></thead><tbody id="linhas"></tbody></table></section><section class="box" hidden="" id="editor"><h3 id="titulo">Nova unidade</h3><form id="form"><div id="campos"></div><div class="actions"><button class="btn-success" id="salvar" type="submit">Salvar</button><button class="btn-secondary" id="cancelar" type="button">Cancelar</button></div></form></section><p id="msg" role="status"></p></main></div><div aria-labelledby="retornoTitulo" aria-modal="true" class="popup-overlay" id="retorno" role="dialog"><div class="popup-card info" id="retornoCard"><div class="popup-cabecalho"><h3 id="retornoTitulo">Informação</h3></div><div class="popup-corpo"><p id="retornoTexto"></p><div class="popup-acoes"><button class="btn-primary" id="retornoOk" type="button">OK</button></div></div></div></div><dialog aria-labelledby="tituloAviso" aria-modal="true" id="avisoSessao"><div class="conteudo"><h2 id="tituloAviso">Sua sessão está prestes a terminar</h2><p>Por segurança, o acesso será encerrado após 15 minutos sem atividade.</p><p>Tempo restante: <span class="tempo" id="tempoRestante">05:00</span></p><div class="actions"><button class="btn-primary" id="continuarTrabalhando" type="button">Continuar trabalhando</button><button class="btn-secondary" id="encerrarAgora" type="button">Sair agora</button></div><p class="error" id="erroSessao" role="alert"></p></div></dialog><script>'use strict';const API='https://celulas-organizacoes-teste.onrender.com';const $=id=>document.getElementById(id);let token=localStorage.getItem('sessaoToken');const defs=[['nome','Nome da unidade *'],['cnpj','CNPJ'],['telefone','Telefone'],['whatsapp','WhatsApp'],['email','E-mail'],['cep','CEP'],['rua','Rua'],['numero','Número'],['complemento','Complemento'],['bairro','Bairro'],['cidade','Cidade'],['estado','Estado'],['geolocalizacao','Geolocalização'],['latitude','Latitude'],['longitude','Longitude'],['logotipo_url','URL do logotipo'],['site_url','Site'],['instagram_url','Instagram'],['facebook_url','Facebook'],['youtube_url','YouTube'],['tiktok_url','TikTok'],['whatsapp_link','Link WhatsApp'],['links_adicionais','Links adicionais (um por linha)']];let idEdit=null;for(const [id,label] of defs){const el=document.createElement('label');el.textContent=label;const inp=id==='links_adicionais'?document.createElement('textarea'):document.createElement('input');inp.id=id;inp.required=id==='nome';if(id==='email')inp.type='email';el.append(inp);$('campos').append(el)}// A sessão é validada pelo backend. A interface nunca concede acesso sozinha.
 const LIMITE_INATIVIDADE=15*60*1000,AVISO_APOS=10*60*1000;
 let ultimaAtividade=Date.now(),ultimoPing=Date.now(),pingPendente=false,sessaoEncerrada=false;
 function encerrarSessao(){
@@ -48,4 +808,4 @@ setInterval(verificarInatividade,1000);
 window.addEventListener('focus',verificarInatividade);
 window.addEventListener('pageshow',verificarInatividade);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)verificarInatividade();});
-function entrar(){encerrarSessao()}async function api(rota,opt={}){if(!token){encerrarSessao();throw Error('Sessão encerrada')}const r=await fetch(API+rota,{...opt,headers:{Authorization:'Bearer '+token,...(opt.body?{'Content-Type':'application/json'}:{})}});if(r.status===401){entrar();throw Error('Sessão encerrada')}const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.erro||'Não foi possível concluir a operação');ultimoPing=Date.now();return d}function msg(t){$('msg').textContent=t}function abrir(o={}){idEdit=o.id||null;for(const [id] of defs)$(id).value=id==='links_adicionais'?(Array.isArray(o[id])?o[id].join('\n'):''):(o[id]??'');$('titulo').textContent=idEdit?'Editar unidade #'+idEdit:'Nova unidade';$('editor').hidden=false}async function orgs(){try{const d=await api('/admin/organizacoes');for(const o of d.registros||[]){const el=document.createElement('option');el.value=o.id;el.textContent=o.nome;$('org').append(el)}}catch(e){msg(e.message)}}$('consultar').onclick=async()=>{const org=$('org').value;if(!org)return msg('Selecione uma organização.');try{msg('');const d=await api('/admin/organizacoes/'+org+'/unidades');$('linhas').replaceChildren();for(const o of d.registros){const tr=document.createElement('tr');tr.dataset.id=o.id;for(const v of [o.id,o.nome,o.cidade,o.estado]){const td=document.createElement('td');td.textContent=v??'';tr.append(td)}tr.onclick=()=>abrir(o);$('linhas').append(tr)}$('status').textContent=d.total+' unidade(s) encontrada(s).'}catch(e){msg(e.message)}};$('novo').onclick=()=>{$('org').value?abrir():msg('Selecione uma organização.')};$('limpar').onclick=()=>{$('org').value='';$('linhas').replaceChildren();$('status').textContent='Nenhuma consulta realizada.';$('editor').hidden=true;msg('')};$('cancelar').onclick=()=>{$('editor').hidden=true;idEdit=null};$('form').onsubmit=async e=>{e.preventDefault();const org=$('org').value;if(!org)return msg('Selecione uma organização.');const obj={};for(const [id] of defs)obj[id]=id==='links_adicionais'?$(id).value.split('\n').map(x=>x.trim()).filter(Boolean):$(id).value.trim();try{$('salvar').disabled=true;await api('/admin/organizacoes/'+org+'/unidades'+(idEdit?'/'+idEdit:''),{method:idEdit?'PUT':'POST',body:JSON.stringify(obj)});$('editor').hidden=true;idEdit=null;msg('Cadastro salvo. Clique em Consultar unidades para atualizar.')}catch(e){msg(e.message)}finally{$('salvar').disabled=false}};orgs();</script></body></html>
+function entrar(){encerrarSessao()}async function api(rota,opt={}){if(!token){encerrarSessao();throw Error('Sessão encerrada')}const r=await fetch(API+rota,{...opt,headers:{Authorization:'Bearer '+token,...(opt.body?{'Content-Type':'application/json'}:{})}});if(r.status===401){entrar();throw Error('Sessão encerrada')}const d=await r.json().catch(()=>({}));if(!r.ok)throw Error(d.erro||'Não foi possível concluir a operação');ultimoPing=Date.now();return d}function msg(t){$('msg').textContent=t;if(t){$('retornoTexto').textContent=t;$('retornoCard').className='popup-card '+(t.startsWith('Cadastro salvo')?'sucesso':(typeof erro!=='undefined'&&erro?'erro':'info'));$('retorno').classList.add('ativo');}}function abrir(o={}){idEdit=o.id||null;for(const [id] of defs)$(id).value=id==='links_adicionais'?(Array.isArray(o[id])?o[id].join('\n'):''):(o[id]??'');$('titulo').textContent=idEdit?'Editar unidade #'+idEdit:'Nova unidade';$('editor').hidden=false}async function orgs(){try{$('org').replaceChildren(new Option('Selecione a organização',''));const d=await api('/admin/organizacoes');for(const o of d.registros||[]){const el=document.createElement('option');el.value=o.id;el.textContent=o.nome;$('org').append(el)}}catch(e){msg(e.message)}}$('consultar').onclick=async()=>{const org=$('org').value;if(!org)return msg('Selecione uma organização.');try{msg('');const d=await api('/admin/organizacoes/'+org+'/unidades');$('linhas').replaceChildren();for(const o of d.registros){const tr=document.createElement('tr');tr.dataset.id=o.id;for(const v of [o.id,o.nome,o.cidade,o.estado]){const td=document.createElement('td');td.textContent=v??'';tr.append(td)}tr.onclick=()=>abrir(o);$('linhas').append(tr)}$('status').textContent=d.total+' unidade(s) encontrada(s).';if(!d.total)msg('Nenhum registro encontrado.')}catch(e){msg(e.message)}};$('novo').onclick=()=>{$('org').value?abrir():msg('Selecione uma organização.')};$('limpar').onclick=()=>{$('org').replaceChildren(new Option('Selecione a organização',''));$('linhas').replaceChildren();$('status').textContent='Nenhuma consulta realizada.';$('editor').hidden=true;msg('')};$('cancelar').onclick=()=>{$('editor').hidden=true;idEdit=null};$('form').onsubmit=async e=>{e.preventDefault();const org=$('org').value;if(!org)return msg('Selecione uma organização.');const obj={};for(const [id] of defs)obj[id]=id==='links_adicionais'?$(id).value.split('\n').map(x=>x.trim()).filter(Boolean):$(id).value.trim();try{$('salvar').disabled=true;await api('/admin/organizacoes/'+org+'/unidades'+(idEdit?'/'+idEdit:''),{method:idEdit?'PUT':'POST',body:JSON.stringify(obj)});$('editor').hidden=true;idEdit=null;msg('Cadastro salvo. Clique em Consultar unidades para atualizar.')}catch(e){msg(e.message)}finally{$('salvar').disabled=false}};$('carregar').onclick=orgs;if(!token)encerrarSessao();</script><script src="/menu-modulos.js?v=0.4"></script><script>document.getElementById("usuarioLogado").textContent="Usuário: "+(localStorage.getItem("nomeUsuario")||localStorage.getItem("usuario")||"");document.getElementById("btnSair").addEventListener("click",async()=>{try{await fetch(API+"/logout",{method:"POST",headers:{Authorization:"Bearer "+token}})}finally{encerrarSessao()}});</script><script>for(const id of ['nome','denominacao_unidade','razao_social','nome_fantasia','rua','bairro','cidade','estado','complemento','filtro']){const el=document.getElementById(id);if(el)el.addEventListener('input',()=>{const a=el.selectionStart,b=el.selectionEnd;el.value=el.value.toUpperCase();el.setSelectionRange(a,b);});}</script><script>document.getElementById('retornoOk').onclick=()=>document.getElementById('retorno').classList.remove('ativo');</script></body></html>
