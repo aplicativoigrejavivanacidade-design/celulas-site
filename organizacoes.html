@@ -758,13 +758,12 @@
 .content .panel,.content .box{background:var(--card);padding:22px;border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:20px}.content h2{font-size:22px;margin:0 0 16px}.content h3{font-size:16px;border-bottom:1px solid var(--line);padding-bottom:8px;margin:24px 0 14px}.content .grid,#campos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.content input,.content select,.content textarea{display:block;width:100%;min-width:0;margin-top:6px;font-weight:normal}.content textarea{padding:12px;border:1px solid var(--line);border-radius:10px;font:15px Arial}.actions{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}.muted,.content small{color:var(--muted);font-size:13px}table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;padding:12px;border-bottom:1px solid var(--line)}tr[data-id]{cursor:pointer}tr[data-id]:hover{background:#eff6ff}dialog{border:0;border-radius:16px;padding:24px;max-width:470px;width:calc(100% - 32px);box-shadow:var(--shadow);color:var(--text)}dialog::backdrop{background:#0008}button:disabled{opacity:.58;cursor:not-allowed}.error{color:var(--red)}.ok{color:var(--green)}@media(max-width:900px){.layout{flex-direction:column}.sidebar{position:relative;width:100%;height:auto}.content{margin-left:0;width:100%;padding:20px}}@media(max-width:700px){.content .grid,#campos{grid-template-columns:1fr}}
 [hidden]{display:none!important} .content tr.selecionado td{background:#dbeafe} .content button:disabled{opacity:.5;cursor:not-allowed} .content .actions{align-items:center} .content .grid,#campos{gap:12px} .content .field{min-width:0} </style><link href="/menu-modulos.css?v=0.4" rel="stylesheet"/></head><body><div class="layout"><aside class="sidebar"><h2 class="logo">+Células</h2><div class="logo-sub">Gestão de células</div><div class="menu"></div><button class="btn-sair" id="btnSair" type="button">Sair</button><div class="versao-sistema"><strong>Sistema v1.0</strong> • Organizações v0.4</div></aside><main class="content"><div class="header"><h1>Organizações</h1><p>Cadastro administrativo v0.4 • Ambiente de testes</p><p class="usuario-logado" id="usuarioLogado"></p></div>
 <section class="panel"><h2>Consultar organizações</h2><div class="grid"><label class="field">Nome para pesquisa<input id="filtro" placeholder="NOME DA ORGANIZAÇÃO"/></label></div><div class="actions"><button class="btn-primary" id="filtrar">Filtrar</button><button class="btn-secondary" id="limpar">Limpar</button></div><p class="muted" id="resultado">Nenhuma consulta realizada.</p><div style="overflow-x:auto"><table><thead><tr><th>ID</th><th>Organização</th><th>Denominação</th><th>Cidade</th><th>Estado</th></tr></thead><tbody id="linhas"></tbody></table></div></section>
-<section class="card"><h2>Cadastro</h2><div class="acoes-topo"><button class="btn-primary" id="novo" type="button">Incluir</button><button class="btn-primary" id="editar" type="button" disabled>Editar</button><button class="btn-secondary" id="cancelar" type="button" disabled>Cancelar</button><button class="btn-success" id="salvar" type="submit" form="form" disabled>Salvar</button><button class="btn-secondary" id="limparSelecao" type="button" disabled>Limpar seleção</button></div></section><section class="panel" hidden="" id="editor"><h2 id="titulo">Nova organização</h2><form id="form" novalidate><h3>Identificação institucional</h3><div class="grid" id="institucional"></div><h3>Contato</h3><div class="grid" id="contato"></div><h3>Endereço e localização</h3><div class="grid" id="endereco"></div><div class="actions"><button class="btn-secondary" id="geocodificar" type="button">Obter geolocalização</button></div><p class="muted">Confira o endereço e as coordenadas antes de salvar. A geolocalização depende de serviço externo.</p><h3>Identidade e redes sociais</h3><div class="grid" id="redes"></div><h3>Situação e responsáveis institucionais</h3><div class="grid"><label>Situação<select id="ativo"><option value="true">ATIVO</option><option value="false">INATIVO</option></select></label><label>Pastor Presidente<select id="responsavel_id"><option value="">Sem vínculo</option></select></label></div><p id="historico" class="muted"></p><h3>Logotipo</h3><input id="logoArquivo" type="file" accept="image/png,image/jpeg,image/webp"><img id="logoPreview" alt="Prévia do logotipo" style="max-width:160px;max-height:100px" hidden></form></section><p id="message" role="status"></p></main></div><div aria-labelledby="retornoTitulo" aria-modal="true" class="popup-overlay" id="retorno" role="dialog"><div class="popup-card info" id="retornoCard"><div class="popup-cabecalho"><h3 id="retornoTitulo">Informação</h3></div><div class="popup-corpo"><p id="retornoTexto"></p><div class="popup-acoes"><button class="btn-primary" id="retornoOk" type="button">OK</button></div></div></div></div><dialog aria-labelledby="tituloAviso" aria-modal="true" id="avisoSessao"><div class="conteudo"><h2 id="tituloAviso">Sua sessão está prestes a terminar</h2><p>Por segurança, o acesso será encerrado após 15 minutos sem atividade.</p><p>Tempo restante: <span class="tempo" id="tempoRestante">05:00</span></p><div class="actions"><button class="btn-primary" id="continuarTrabalhando" type="button">Continuar trabalhando</button><button class="btn-secondary" id="encerrarAgora" type="button">Sair agora</button></div><p class="error" id="erroSessao" role="alert"></p></div></dialog>
+<section class="card"><h2>Cadastro</h2><div class="acoes-topo"><button class="btn-primary" id="novo" type="button">Incluir</button><button class="btn-primary" id="editar" type="button" disabled>Editar</button><button class="btn-secondary" id="cancelar" type="button" disabled>Cancelar</button><button class="btn-success" id="salvar" type="button" disabled>Salvar</button><button class="btn-secondary" id="limparSelecao" type="button" disabled>Limpar seleção</button></div></section><section class="panel" hidden="" id="editor"><h2 id="titulo">Nova organização</h2><form id="form" novalidate><h3>Identificação institucional</h3><div class="grid" id="institucional"></div><h3>Contato</h3><div class="grid" id="contato"></div><h3>Endereço e localização</h3><div class="grid" id="endereco"></div><div class="actions"><button class="btn-secondary" id="geocodificar" type="button">Obter geolocalização</button></div><p class="muted">Confira o endereço e as coordenadas antes de salvar. A geolocalização depende de serviço externo.</p><h3>Identidade e redes sociais</h3><div class="grid" id="redes"></div><h3>Situação e responsáveis institucionais</h3><div class="grid"><label>Situação<select id="ativo"><option value="true">ATIVO</option><option value="false">INATIVO</option></select></label><label>Pastor Presidente<select id="responsavel_id"><option value="">Sem vínculo</option></select></label></div><p id="historico" class="muted"></p><h3>Logotipo</h3><input id="logoArquivo" type="file" accept="image/png,image/jpeg,image/webp"><img id="logoPreview" alt="Prévia do logotipo" style="max-width:160px;max-height:100px" hidden></form></section><p id="message" role="status"></p></main></div><div aria-labelledby="retornoTitulo" aria-modal="true" class="popup-overlay" id="retorno" role="dialog"><div class="popup-card info" id="retornoCard"><div class="popup-cabecalho"><h3 id="retornoTitulo">Informação</h3></div><div class="popup-corpo"><p id="retornoTexto"></p><div class="popup-acoes"><button class="btn-primary" id="retornoOk" type="button">OK</button></div></div></div></div><dialog aria-labelledby="tituloAviso" aria-modal="true" id="avisoSessao"><div class="conteudo"><h2 id="tituloAviso">Sua sessão está prestes a terminar</h2><p>Por segurança, o acesso será encerrado após 15 minutos sem atividade.</p><p>Tempo restante: <span class="tempo" id="tempoRestante">05:00</span></p><div class="actions"><button class="btn-primary" id="continuarTrabalhando" type="button">Continuar trabalhando</button><button class="btn-secondary" id="encerrarAgora" type="button">Sair agora</button></div><p class="error" id="erroSessao" role="alert"></p></div></dialog>
 <script>
 'use strict';
 const API='https://celulas-organizacoes-teste.onrender.com';
 let token=localStorage.getItem('sessaoToken');
 
-/* Grupos ajustados: Nome da organização (Fantasia), CNPJ reposicionado e Nome Fantasia removido */
 const grupos={
   institucional:[['nome','Nome da organização (Fantasia) *'],['denominacao_unidade','Denominação das unidades *'],['razao_social','Razão social *'],['cnpj','CNPJ']],
   contato:[['telefone','Telefone *'],['whatsapp','WhatsApp'],['email','E-mail *']],
@@ -886,8 +885,6 @@ $('filtrar').onclick=async()=>{
 };
 
 $('limpar').onclick=limpar;
-$('novo').onclick=()=>abrir();
-$('cancelar').onclick=()=>{$('editor').hidden=true;editando=null;mensagem('')};
 
 $('geocodificar').onclick=async()=>{
   try{
@@ -899,7 +896,6 @@ $('geocodificar').onclick=async()=>{
   }catch(e){mensagem(e.message,true)}
 };
 
-/* Validação dos campos obrigatórios via Pop-up +Células */
 function validarFormulario(){
   const obrigatorios = [
     ['nome', 'Nome da organização (Fantasia)'],
@@ -934,33 +930,6 @@ function validarFormulario(){
 
   return true;
 }
-
-$('form').onsubmit=async e=>{
-  e.preventDefault();
-  if(modoCadastro==='consulta'||cepPendente)return;
-  maiusculas();
-  if(!validarFormulario()) return;
-
-  const obj={};
-  for(const campos of Object.values(grupos))
-    for(const [id] of campos)
-      obj[id]=id==='links_adicionais'?$(id).value.split('\n').map(x=>x.trim()).filter(Boolean):$(id).value.trim();
-  
-  obj.ativo=$('ativo').value==='true';
-  if(!$('responsavel_id').disabled)obj.responsavel_id=$('responsavel_id').value;
-  
-  try{
-    $('salvar').disabled=true;
-    await requisicao('/admin/organizacoes'+(editando?'/'+editando:''),{method:editando?'PUT':'POST',body:JSON.stringify(obj)});
-    $('editor').hidden=true;
-    editando=null;
-    mensagem('Cadastro salvo. Clique em Filtrar para atualizar a lista.');
-  }catch(err){
-    mensagem(err.message,true);
-  }finally{
-    $('salvar').disabled=false;
-  }
-};
 
 if(!token)encerrarSessao();
 </script>
@@ -1061,8 +1030,6 @@ function limparSelecao(){
   atualizarCadastro();
 }
 
-const incluirOriginal=$('novo').onclick, cancelarOriginal=$('cancelar').onclick, salvarOriginal=$('form').onsubmit;
-
 $('novo').onclick=()=>{
   if($('org')&&!$('org').value)return mensagem('Selecione uma organização.',true);
   modoCadastro='inclusao';
@@ -1073,9 +1040,9 @@ $('novo').onclick=()=>{
 $('editar').onclick=()=>{if(!selecionado)return;modoCadastro='edicao';abrir(selecionado);maiusculas();atualizarCadastro();};
 $('cancelar').onclick=()=>{
   geracaoCep++;cepPendente=false;
-  if(cancelarOriginal) cancelarOriginal();
   modoCadastro='consulta';
   if(selecionado){abrir(selecionado);maiusculas();$('titulo').textContent='Consultar cadastro #'+selecionado.id;}
+  else $('editor').hidden=true;
   atualizarCadastro();
 };
 
@@ -1088,9 +1055,48 @@ for(const id of ['filtrar','limpar','carregar'])if($(id)){
 
 if($('org'))$('org').addEventListener('change',()=>{limparSelecao();$('linhas').replaceChildren();$('status').textContent='Nenhuma consulta realizada.';});
 
-$('salvar').onclick=e=>{
-  if(modoCadastro==='consulta'||cepPendente)return;
-  $('form').requestSubmit();
+$('salvar').onclick = async () => {
+  if (modoCadastro === 'consulta' || cepPendente) return;
+  maiusculas();
+  if (!validarFormulario()) return;
+
+  const obj = {};
+  for (const campos of Object.values(grupos))
+    for (const [id] of campos)
+      obj[id] = id === 'links_adicionais' ? $(id).value.split('\n').map(x => x.trim()).filter(Boolean) : $(id).value.trim();
+  
+  obj.ativo = $('ativo').value === 'true';
+  if (!$('responsavel_id').disabled) obj.responsavel_id = $('responsavel_id').value;
+  
+  try {
+    $('salvar').disabled = true;
+    const res = await requisicao('/admin/organizacoes' + (editando ? '/' + editando : ''), {
+      method: editando ? 'PUT' : 'POST',
+      body: JSON.stringify(obj)
+    });
+    
+    const idSalvo = editando || res.id;
+    modoCadastro = 'consulta';
+    editando = null;
+
+    // Atualiza a tabela no topo
+    await $('filtrar').onclick();
+
+    // Localiza e seleciona a linha salva para manter aberta em modo de leitura
+    const regSalvo = Array.from($('linhas').rows).find(r => r.dataset.id == idSalvo);
+    if (regSalvo) {
+      regSalvo.click();
+    } else {
+      $('editor').hidden = true;
+      limparSelecao();
+    }
+
+    mensagem('Cadastro salvo. Clique em Filtrar para atualizar a lista.');
+  } catch (err) {
+    mensagem(err.message, true);
+  } finally {
+    $('salvar').disabled = false;
+  }
 };
 
 $('cep').addEventListener('input',async()=>{
